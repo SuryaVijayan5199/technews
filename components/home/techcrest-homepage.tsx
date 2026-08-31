@@ -50,6 +50,30 @@ const GLOBAL_FALLBACK = [
   { label: "03 / FUTURE", title: "Compute is becoming a strategic resource", desc: "Hardware, energy and efficiency are central to the next technology cycle." },
 ];
 
+const FALLBACK_IMAGES: Record<string, string> = {
+  ai: "https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=1200&auto=format&fit=crop",
+  robotic: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200&auto=format&fit=crop",
+  robotics: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200&auto=format&fit=crop",
+  phone: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1200&auto=format&fit=crop",
+  audio: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1200&auto=format&fit=crop",
+  security: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop",
+  fitness: "https://images.unsplash.com/photo-1510519138161-5844623284ce?q=80&w=1200&auto=format&fit=crop",
+  home: "https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=1200&auto=format&fit=crop",
+  evs: "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=1200&auto=format&fit=crop",
+  crypto: "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=1200&auto=format&fit=crop",
+  reviews: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1200&auto=format&fit=crop",
+  deals: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=1200&auto=format&fit=crop",
+  default: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
+};
+
+function getHeroImage(heroImage: string | null | undefined, categorySlug?: string): string {
+  if (heroImage && heroImage.trim().length > 0) return heroImage;
+  if (categorySlug && FALLBACK_IMAGES[categorySlug.toLowerCase()]) {
+    return FALLBACK_IMAGES[categorySlug.toLowerCase()];
+  }
+  return FALLBACK_IMAGES.default;
+}
+
 const BRIEF_LABELS = ["01 / SIGNAL", "02 / SECURITY", "03 / FUTURE"];
 
 export async function TechCrestHomePage() {
@@ -74,7 +98,7 @@ export async function TechCrestHomePage() {
   );
 
   return (
-    <div className="tc-page">
+    <div className="techcrest-home">
       {/* HERO SECTION CAROUSEL */}
       <HeroSectionCarousel articles={featured} />
 
@@ -89,7 +113,13 @@ export async function TechCrestHomePage() {
             {topStories[0] ? (
               <article className="tc-story tc-story--lead">
                 <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-story__art tc-story__art--dark block">
-                  {topStories[0].heroImage && <Image src={topStories[0].heroImage} alt={topStories[0].title} fill className="tc-story__art-img" priority />}
+                  <Image
+                    src={getHeroImage(topStories[0].heroImage, topStories[0].category?.slug)}
+                    alt={topStories[0].title}
+                    fill
+                    className="tc-story__art-img"
+                    priority
+                  />
                 </Link>
                 <div className="tc-story__body tc-story__body--lead">
                   <div>
@@ -120,7 +150,15 @@ export async function TechCrestHomePage() {
               </article>
             ) : (
               <article className="tc-story tc-story--lead">
-                <div className="tc-story__art tc-story__art--dark" />
+                <div className="tc-story__art tc-story__art--dark">
+                  <Image
+                    src={getHeroImage(null, "ai")}
+                    alt="Cover Story"
+                    fill
+                    className="tc-story__art-img"
+                    priority
+                  />
+                </div>
                 <div className="tc-story__body tc-story__body--lead">
                   <div>
                     <span className="tc-tag tc-tag--fire">🔥 TOP COVER STORY</span>
@@ -138,7 +176,12 @@ export async function TechCrestHomePage() {
               story ? (
                 <article key={story.id} className="tc-story">
                   <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-story__art tc-story__art--small block">
-                    {story.heroImage && <Image src={story.heroImage} alt={story.title} fill className="tc-story__art-img" />}
+                    <Image
+                      src={getHeroImage(story.heroImage, story.category?.slug)}
+                      alt={story.title}
+                      fill
+                      className="tc-story__art-img"
+                    />
                   </Link>
                   <div className="tc-story__body">
                     <span className="tc-tag">{story.category?.name ?? "Technology"}</span>
@@ -149,7 +192,14 @@ export async function TechCrestHomePage() {
                 </article>
               ) : (
                 <article key={`fb-${i}`} className="tc-story">
-                  <div className="tc-story__art tc-story__art--small" />
+                  <div className="tc-story__art tc-story__art--small">
+                    <Image
+                      src={getHeroImage(null, ["security", "ai", "phone", "evs"][i])}
+                      alt="Tech Story"
+                      fill
+                      className="tc-story__art-img"
+                    />
+                  </div>
                   <div className="tc-story__body">
                     <span className="tc-tag">{["Cybersecurity", "Startups", "Hardware", "Mobility"][i] ?? "Tech"}</span>
                     <h3>{["Security teams are redesigning around identity", "Inside the infrastructure startups scaling globally", "Next-gen processors push power efficiency boundaries", "EV infrastructure transitions to unified standards"][i]}</h3>
@@ -159,6 +209,65 @@ export async function TechCrestHomePage() {
                 </article>
               )
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* TECHCREST EDITORIAL BRIEFING */}
+      <section className="tc-section">
+        <div className="tc-wrap">
+          <div className="tc-brief-grid">
+            <div className="tc-brief-panel">
+              <div className="tc-brief-items">
+                {(briefItems.length > 0 ? briefItems : []).map((item) => (
+                  <div key={item.id} className="tc-brief-item">
+                    <Link href={`/${item.category?.slug ?? "news"}/${item.slug}`}><b>{item.title}</b></Link>
+                    <span>{item.category?.name ?? "Technology"}</span>
+                  </div>
+                ))}
+                {briefItems.length === 0 && [
+                  { b: "AI agents are becoming product infrastructure", s: "What to watch today" },
+                  { b: "Security leaders are prioritizing identity-first controls", s: "Enterprise security" },
+                  { b: "Investors are looking beyond headline AI valuations", s: "Markets & startups" },
+                ].map((item, i) => (
+                  <div key={i} className="tc-brief-item"><b>{item.b}</b><span>{item.s}</span></div>
+                ))}
+                <div className="tc-quote">
+                  &ldquo;The strongest technology stories connect the launch, the business model and the real-world impact.&rdquo;
+                  <small>&mdash; TechCrest Editorial Principle</small>
+                </div>
+                {/* Audio Digest & Daily Brief Widget to fill height naturally */}
+                <div className="tc-brief-audio-widget">
+                  <div className="tc-brief-audio-info">
+                    <span className="tc-audio-badge">🎧 TECHCREST AUDIO DIGEST</span>
+                    <h4>Listen to Today's 5-Minute Executive Summary</h4>
+                  </div>
+                  <Link href="/podcasts" className="tc-audio-play-btn">
+                    Play Audio Brief →
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="tc-dark-brief">
+              <div className="tc-dark-brief__head">
+                <h2>Global Briefing</h2>
+                <span>SIGNAL &bull; SECURITY &bull; FUTURE</span>
+              </div>
+              <div className="tc-dark-brief__grid">
+                {(globalBriefing.length > 0 ? globalBriefing : []).map((item, idx) => (
+                  <article key={item.id} className="tc-dark-card">
+                    <i>{BRIEF_LABELS[idx] ?? `0${idx + 1} / INSIGHT`}</i>
+                    <h3><Link href={`/${item.category?.slug ?? "news"}/${item.slug}`}>{item.title}</Link></h3>
+                    <p>{item.excerpt ?? ""}</p>
+                  </article>
+                ))}
+                {globalBriefing.length === 0 && GLOBAL_FALLBACK.map((item) => (
+                  <article key={item.label} className="tc-dark-card">
+                    <i>{item.label}</i><h3>{item.title}</h3><p>{item.desc}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
