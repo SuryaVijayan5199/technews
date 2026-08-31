@@ -4705,17 +4705,17 @@ html:not(.dark) .tc-site-header,
 .tc-site-header__top-row {
   max-width: var(--content-max-width, 1440px);
   margin: 0 auto;
-  padding: 0.2rem 0.75rem;
+  padding: 0.2rem 0.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.15rem;
 }
 @media (min-width: 640px) {
-  .tc-site-header__top-row { padding: 0.5rem 1.25rem; }
+  .tc-site-header__top-row { padding: 0.15rem 0.25rem; }
 }
 @media (min-width: 1280px) {
-  .tc-site-header__top-row { padding: 0.65rem 1.75rem; }
+  .tc-site-header__top-row { padding: 0.15rem .25rem; }
 }
 
 /* Ensure logo is strictly left-aligned */
@@ -4729,35 +4729,20 @@ html:not(.dark) .tc-site-header,
   text-align: left;
 }
 
-/* Prominent Brand Logo inside Header */
+/* Header Brand Logo matching Footer dimensions */
 .tc-site-header .tc-brand__wordmark {
-  font-size: 28px !important;
+  font-size: 26px !important;
   line-height: 1 !important;
-  font-weight: 800 !important;
 }
 .tc-site-header .tc-brand__tagline {
-  font-size: 8px !important;
-  letter-spacing: 0.16em !important;
+  font-size: 7px !important;
+  letter-spacing: 0.2em !important;
   margin-top: 2px !important;
-  font-weight: 700 !important;
 }
 .tc-site-header .tc-brand__icon {
-  width: 72px !important;
-  height: 72px !important;
-  margin-right: -10px !important;
-}
-@media (min-width: 1024px) {
-  .tc-site-header .tc-brand__wordmark {
-    font-size: 32px !important;
-  }
-  .tc-site-header .tc-brand__tagline {
-    font-size: 9px !important;
-    letter-spacing: 0.18em !important;
-  }
-  .tc-site-header .tc-brand__icon {
-    width: 78px !important;
-    height: 78px !important;
-  }
+  width: 78px !important;
+  height: 78px !important;
+  margin-right: -12px !important;
 }
 
 /* ── Row 2: TechRadar Style Topics Sub-Navbar ── */
@@ -4778,7 +4763,7 @@ html:not(.dark) .tc-site-header__topics-row,
   padding: 0 0.75rem;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.25rem;
   overflow-x: auto;
   white-space: nowrap;
   scrollbar-width: none;
@@ -4789,16 +4774,20 @@ html:not(.dark) .tc-site-header__topics-row,
 }
 
 @media (min-width: 640px) {
-  .tc-site-header__topics-inner { padding: 0 1.25rem; gap: 0.5rem; }
+  .tc-site-header__topics-inner { padding: 0 1.25rem; gap: 0.35rem; }
 }
 @media (min-width: 1024px) {
-  .tc-site-header__topics-inner { padding: 0 1.5rem; justify-content: space-between; gap: 0; }
+  .tc-site-header__topics-inner {
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    gap: 0;
+  }
 }
 
 .tc-site-header__topic-link {
   display: inline-block;
-  padding: 0.45rem 0.85rem;
-  font-size: 0.95rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: hsl(var(--color-text-primary));
@@ -4900,18 +4889,12 @@ html:not(.dark) .tc-site-header__topic-link--active {
 }
 
 .tc-footer .tc-brand__wordmark {
-  font-size: 32px;
-  font-weight: 800;
+  font-size: 26px;
 }
 .tc-footer .tc-brand__tagline {
-  font-size: 9px;
-  letter-spacing: 0.22em;
+  font-size: 7px;
+  letter-spacing: 0.2em;
   margin-top: 2px;
-  font-weight: 700;
-}
-.tc-footer .tc-brand__icon {
-  width: 78px !important;
-  height: 78px !important;
 }
 
 /* ==========================================================================
@@ -7060,8 +7043,8 @@ html.dark .tc-brand__tagline,
     gap: 0px;
   }
   .tc-brand__icon {
-    width: 72px !important;
-    height: 72px !important;
+    width: 100px !important;
+    height: 100px !important;
     margin-right: -10px !important;
   }
   .tc-brand__wordmark,
