@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Clock, Eye, MessageCircle, ChevronRight } from "lucide-react";
 import { formatDate, cleanAuthorName, getAuthorInitials } from "@/lib/utils";
@@ -38,11 +39,8 @@ export async function generateMetadata({
   const dbArticle = await getArticleBySlug(slug);
   if (!dbArticle) return {};
 
-  // 9. SEO Title & 10. Meta Description
   const seoTitle = dbArticle.seoTitle || dbArticle.title;
   const metaDescription = dbArticle.seoDescription || dbArticle.excerpt || "";
-  
-  // 11. Slug & 12. Canonical URL
   const canonicalUrl = dbArticle.canonicalUrl || `https://technews-lyart.vercel.app/${category}/${dbArticle.slug}`;
 
   return {
@@ -71,37 +69,15 @@ export async function generateMetadata({
   };
 }
 
-export default async function ArticlePage({ params }: ArticlePageProps) {
-  const { category, slug } = await params;
-  const dbArticle = await getArticleBySlug(slug);
-
-  if (!dbArticle || dbArticle.status !== "published") {
-    notFound();
-  }
-
-  const authorUser = dbArticle.author?.user;
-  const authorAvatar =
-    dbArticle.author?.avatar ||
-    authorUser?.image ||
-    `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(
-      authorUser?.email || dbArticle.author?.displayName || "editor"
-    )}`;
-
-  const authorBio =
-    dbArticle.author?.bio ||
-    authorUser?.bio ||
-    `Editor & Staff Writer at TechCrest covering ${dbArticle.category?.name || "technology"}.`;
-
-  const categoryName = dbArticle.category?.name || category.toUpperCase();
-  const categorySlug = dbArticle.category?.slug || category;
-  const canonicalUrl = dbArticle.canonicalUrl || `https://technews-lyart.vercel.app/${categorySlug}/${dbArticle.slug}`;
-
-  // Dynamically fetch real related articles from DB
-  const relatedDbArticles = await getRelatedArticles(
-    dbArticle.id,
-    categorySlug,
-    3
-  );
+async function RelatedArticlesSection({
+  articleId,
+  categorySlug,
+}: {
+  articleId: number;
+  categorySlug: string;
+}) {
+  const relatedDbArticles = await getRelatedArticles(articleId, categorySlug, 3);
+  if (relatedDbArticles.length === 0) return null;
 
   const relatedArticles = relatedDbArticles.map((a) => ({
     id: a.id,
@@ -118,6 +94,51 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     categoryName: a.category?.name || "NEWS",
     authorName: a.author?.displayName || "Editor",
   }));
+
+  return (
+    <section className="article-related mt-12 pt-8 border-t border-[var(--color-surface-border)]" aria-label="Related articles">
+      <h2 className="article-related__title text-lg sm:text-xl font-bold mb-6">
+        Related Articles
+      </h2>
+      <div className="article-related__grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {relatedArticles.map((a) => (
+          <ArticleCard key={a.id} article={a} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function RelatedArticlesSkeleton() {
+  return (
+    <div className="mt-12 pt-8 border-t border-[var(--color-surface-border)] animate-pulse">
+      <div className="h-6 w-40 bg-[var(--color-surface-2)] rounded mb-6" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-44 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-surface-border)]" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default async function ArticlePage({ params }: ArticlePageProps) {
+  const { category, slug } = await params;
+  const dbArticle = await getArticleBySlug(slug);
+
+  if (!dbArticle || dbArticle.status !== "published") {
+    notFound();
+  }
+
+  const authorUser = dbArticle.author?.user;
+  const authorBio =
+    dbArticle.author?.bio ||
+    authorUser?.bio ||
+    `Editor & Staff Writer at TechCrest covering ${dbArticle.category?.name || "technology"}.`;
+
+  const categoryName = dbArticle.category?.name || category.toUpperCase();
+  const categorySlug = dbArticle.category?.slug || category;
+  const canonicalUrl = dbArticle.canonicalUrl || `https://technews-lyart.vercel.app/${categorySlug}/${dbArticle.slug}`;
 
   const headings = extractHeadings(dbArticle.contentHtml || "");
 
@@ -185,7 +206,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                     </span>
                   </Link>
 
-                  {/* 14. Editorial Status */}
+                  {/* Editorial Status */}
                   <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                     STATUS: {dbArticle.status.toUpperCase()}
                   </span>
@@ -263,7 +284,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 dangerouslySetInnerHTML={{ __html: dbArticle.contentHtml || "" }}
               />
 
-              {/* 13. Sources & Citations */}
+              {/* Sources & Citations */}
               <div className="article-sources p-4 rounded-xl bg-[var(--color-surface-1)] border border-[var(--color-surface-border)] my-6">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
                   Sources &amp; References
@@ -293,19 +314,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 </div>
               </div>
 
-              {/* Related Articles */}
-              {relatedArticles.length > 0 && (
-                <section className="article-related mt-12 pt-8 border-t border-[var(--color-surface-border)]" aria-label="Related articles">
-                  <h2 className="article-related__title text-lg sm:text-xl font-bold mb-6">
-                    Related Articles
-                  </h2>
-                  <div className="article-related__grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {relatedArticles.map((a) => (
-                      <ArticleCard key={a.id} article={a} />
-                    ))}
-                  </div>
-                </section>
-              )}
+              {/* Related Articles — Streamed asynchronously with React Suspense */}
+              <Suspense fallback={<RelatedArticlesSkeleton />}>
+                <RelatedArticlesSection
+                  articleId={dbArticle.id}
+                  categorySlug={categorySlug}
+                />
+              </Suspense>
             </div>
 
             {/* Sidebar Table of Contents */}
