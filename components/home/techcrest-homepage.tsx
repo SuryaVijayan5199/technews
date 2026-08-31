@@ -88,12 +88,16 @@ export async function TechCrestHomePage() {
           <div className="tc-top-grid">
             {topStories[0] ? (
               <article className="tc-story tc-story--lead">
-                <div className="tc-story__art tc-story__art--dark">
+                <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-story__art tc-story__art--dark block">
                   {topStories[0].heroImage && <Image src={topStories[0].heroImage} alt={topStories[0].title} fill className="tc-story__art-img" />}
-                </div>
+                </Link>
                 <div className="tc-story__body">
                   <span className="tc-tag">{topStories[0].category?.name ?? "Technology"} &bull; COVER STORY</span>
-                  <h3>{topStories[0].title}</h3>
+                  <h3>
+                    <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`}>
+                      {topStories[0].title}
+                    </Link>
+                  </h3>
                   <p>{topStories[0].excerpt ?? ""}</p>
                   <div className="tc-meta">
                     TechCrest Editorial &bull; {topStories[0].readingTimeMinutes ?? 5} min read &bull; {kViews(topStories[0].viewCount ?? 0)}
@@ -115,9 +119,9 @@ export async function TechCrestHomePage() {
             {[topStories[1], topStories[2], topStories[3], topStories[4]].map((story, i) =>
               story ? (
                 <article key={story.id} className="tc-story">
-                  <div className="tc-story__art tc-story__art--small">
+                  <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-story__art tc-story__art--small block">
                     {story.heroImage && <Image src={story.heroImage} alt={story.title} fill className="tc-story__art-img" />}
-                  </div>
+                  </Link>
                   <div className="tc-story__body">
                     <span className="tc-tag">{story.category?.name ?? "Technology"}</span>
                     <h3><Link href={`/${story.category?.slug ?? "news"}/${story.slug}`}>{story.title}</Link></h3>

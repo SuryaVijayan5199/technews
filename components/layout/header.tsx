@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Menu, X, User } from "lucide-react";
 import { mainNav } from "@/config/nav";
@@ -10,6 +11,7 @@ import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { TechCrestBrand } from "@/components/shared/techcrest-brand";
 
 export function Header() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -90,15 +92,18 @@ export function Header() {
         {/* ROW 2: Topics Sub-Navbar (TechRadar Style — Below Logo) */}
         <nav className="tc-site-header__topics-row" aria-label="Topics navigation">
           <div className="tc-site-header__topics-inner">
-            {mainNav.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="tc-site-header__topic-link"
-              >
-                {item.label}
-              </Link>
-            ))}
+            {mainNav.map((item) => {
+              const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`tc-site-header__topic-link${isActive ? " tc-site-header__topic-link--active" : ""}`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
         </nav>
       </header>
