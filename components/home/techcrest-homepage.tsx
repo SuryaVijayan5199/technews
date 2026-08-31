@@ -69,6 +69,10 @@ export async function TechCrestHomePage() {
   const briefItems = editorsPicks.slice(0, 3);
   const globalBriefing = trending.slice(0, 3);
 
+  const filteredTopicShowcase = topicShowcase.filter(
+    ({ category }) => category.slug !== "news" && category.name.toLowerCase() !== "news"
+  );
+
   return (
     <div className="tc-page">
       {/* HERO SECTION CAROUSEL */}
@@ -257,33 +261,19 @@ export async function TechCrestHomePage() {
         </div>
       </section>
 
-      {/* EXPLORE TOPICS */}
-      <section className="tc-section">
-        <div className="tc-wrap">
-          <div className="tc-section-head">
-            <h2>Explore Topics</h2>
-            <Link href="/news">DISCOVER &rarr;</Link>
-          </div>
-          <div className="tc-topics-grid">
-            {TOPICS.map((topic) => (
-              <Link key={topic.label} href={topic.href} className="tc-topic">
-                {topic.label}<span>{topic.sub}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* TECHCREST DAILY NEWSLETTER (Above Topic Coverage) */}
+      <NewsletterCta />
 
-      {/* 11 TOPICS SHOWCASE (3 Articles Per Topic) */}
-      {topicShowcase.length > 0 && (
+      {/* TOPIC COVERAGE (3 Articles Per Topic - Excluding News) */}
+      {filteredTopicShowcase.length > 0 && (
         <section className="tc-section tc-topic-showcase-section">
           <div className="tc-wrap">
             <div className="tc-section-head">
               <h2>Topic Coverage</h2>
-              <span className="tc-section-head__label">ALL 11 TOPICS</span>
+              <span className="tc-section-head__label">ALL TOPICS</span>
             </div>
             <div className="tc-topic-showcase-grid">
-              {topicShowcase.map(({ category, articles }) => (
+              {filteredTopicShowcase.map(({ category, articles }) => (
                 <div key={category.id} className="tc-topic-block">
                   <div className="tc-topic-block__header">
                     <div className="tc-topic-block__title-group">
@@ -330,6 +320,22 @@ export async function TechCrestHomePage() {
         </section>
       )}
 
+      {/* EXPLORE TOPICS (Positioned Below Topic Coverage) */}
+      <section className="tc-section">
+        <div className="tc-wrap">
+          <div className="tc-section-head">
+            <h2>Explore Topics</h2>
+            <Link href="/news">DISCOVER &rarr;</Link>
+          </div>
+          <div className="tc-topics-grid">
+            {TOPICS.map((topic) => (
+              <Link key={topic.label} href={topic.href} className="tc-topic">
+                {topic.label}<span>{topic.sub}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* MANIFESTO */}
       <section className="tc-manifesto">
@@ -353,9 +359,6 @@ export async function TechCrestHomePage() {
           </div>
         </div>
       </section>
-
-      {/* NEWSLETTER */}
-      <NewsletterCta />
     </div>
   );
 }
