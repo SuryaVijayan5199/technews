@@ -57,7 +57,7 @@ export async function getArticlesByCategory(categorySlug: string, limit = 30) {
 }
 
 // ─────────────────────────────────────────────
-// GET 3 ARTICLES FOR EACH OF THE 10 TOPICS
+// GET LATEST 3 ARTICLES FOR ALL ACTIVE TOPICS (DYNAMIC)
 // ─────────────────────────────────────────────
 export async function getArticlesGroupedByTopics() {
   try {
@@ -66,17 +66,9 @@ export async function getArticlesGroupedByTopics() {
       orderBy: [categories.sortOrder],
     });
 
-    const topicSlugs = [
-      "news", "phone", "audio", "robotics", "fitness",
-      "security", "ai", "smart-home", "evs", "crypto"
-    ];
-
     const result = await Promise.all(
-      topicSlugs.map(async (slug) => {
-        const catObj = allCategories.find((c) => c.slug === slug);
-        if (!catObj) return null;
-
-        const catArticles = await db.query.articles.findMany({
+      allCategories.map(async (catObj) => {
+        let catArticles = await db.query.articles.findMany({
           where: and(
             eq(articles.status, "published"),
             isNotNull(articles.publishedAt),
@@ -87,6 +79,23 @@ export async function getArticlesGroupedByTopics() {
           limit: 3,
         });
 
+        // If category has fewer than 3 articles, fallback to latest published articles
+        if (catArticles.length < 3) {
+          const fallback = await db.query.articles.findMany({
+            where: and(
+              eq(articles.status, "published"),
+              isNotNull(articles.publishedAt)
+            ),
+            with: { author: true, category: true },
+            orderBy: [desc(articles.publishedAt)],
+            limit: 6,
+          });
+
+          const existingIds = new Set(catArticles.map((a) => a.id));
+          const extra = fallback.filter((a) => !existingIds.has(a.id));
+          catArticles = [...catArticles, ...extra].slice(0, 3);
+        }
+
         return {
           category: catObj,
           articles: catArticles,
@@ -94,7 +103,7 @@ export async function getArticlesGroupedByTopics() {
       })
     );
 
-    return result.filter((item): item is NonNullable<typeof item> => item !== null);
+    return result.filter((item): item is NonNullable<typeof item> => item !== null && item.articles.length > 0);
   } catch (error) {
     console.error("Error fetching articles grouped by topics:", error);
     return [];

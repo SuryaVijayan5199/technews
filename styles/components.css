@@ -6089,6 +6089,11 @@ html:not(.dark) .logo-light-theme,
   grid-template-columns: 1.55fr .78fr .78fr;
   gap: 14px;
 }
+@media (min-width: 1101px) {
+  .tc-story--lead {
+    grid-row: span 2;
+  }
+}
 .tc-story {
   background: hsl(var(--color-surface-1));
   border: 1px solid hsl(var(--color-surface-border));

@@ -63,7 +63,7 @@ export async function TechCrestHomePage() {
   ]);
 
   const heroArticle = featured[0] ?? null;
-  const topStories = featured.slice(0, 3);
+  const topStories = featured.slice(0, 5);
   const latestStories = latest.slice(0, 4);
   const mostRead = [...latest].sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0)).slice(0, 5);
   const briefItems = editorsPicks.slice(0, 3);
@@ -74,7 +74,7 @@ export async function TechCrestHomePage() {
       {/* HERO SECTION CAROUSEL */}
       <HeroSectionCarousel articles={featured} />
 
-      {/* TOP STORIES */}
+      {/* TOP STORIES (5 Articles) */}
       <section className="tc-section">
         <div className="tc-wrap">
           <div className="tc-section-head">
@@ -108,7 +108,7 @@ export async function TechCrestHomePage() {
                 </div>
               </article>
             )}
-            {[topStories[1], topStories[2]].map((story, i) =>
+            {[topStories[1], topStories[2], topStories[3], topStories[4]].map((story, i) =>
               story ? (
                 <article key={story.id} className="tc-story">
                   <div className="tc-story__art tc-story__art--small">
@@ -125,10 +125,10 @@ export async function TechCrestHomePage() {
                 <article key={`fb-${i}`} className="tc-story">
                   <div className="tc-story__art tc-story__art--small" />
                   <div className="tc-story__body">
-                    <span className="tc-tag">{i === 0 ? "Cybersecurity" : "Startups"}</span>
-                    <h3>{i === 0 ? "Security teams are redesigning around identity" : "Inside the infrastructure startups scaling globally"}</h3>
-                    <p>{i === 0 ? "Access, context and continuous verification are becoming central to enterprise security." : "New platforms are reducing complexity for engineering and product teams."}</p>
-                    <div className="tc-meta">{i === 0 ? 6 : 5} min read</div>
+                    <span className="tc-tag">{["Cybersecurity", "Startups", "Hardware", "Mobility"][i] ?? "Tech"}</span>
+                    <h3>{["Security teams are redesigning around identity", "Inside the infrastructure startups scaling globally", "Next-gen processors push power efficiency boundaries", "EV infrastructure transitions to unified standards"][i]}</h3>
+                    <p>{["Access, context and continuous verification are becoming central.", "New platforms are reducing complexity for engineering teams.", "Silicon innovation is driving higher performance per watt.", "Charging networks are aligning on interoperable protocols."][i]}</p>
+                    <div className="tc-meta">{5 + i} min read</div>
                   </div>
                 </article>
               )
