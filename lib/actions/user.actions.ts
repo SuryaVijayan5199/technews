@@ -5,6 +5,17 @@ import { users, bookmarks, readingHistory, articles, authors } from "@/lib/db/sc
 import { eq, desc, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cleanAuthorName } from "@/lib/utils";
+import { auth } from "@/lib/auth";
+
+// Helper to enforce super_admin authorization
+async function checkSuperAdmin() {
+  const session = await auth();
+  const role = (session?.user as any)?.role;
+  if (!session?.user || role !== "super_admin") {
+    return { isAuthorized: false, error: "Unauthorized: Only Super Admin can manage team members and allocate roles." };
+  }
+  return { isAuthorized: true };
+}
 
 // ─────────────────────────────────────────────
 // GET USER PROFILE FROM DB
@@ -136,6 +147,10 @@ type StaffRole = typeof STAFF_ROLES[number];
 
 /** Fetch all non-subscriber users (staff) */
 export async function getStaffMembers() {
+  const check = await checkSuperAdmin();
+  if (!check.isAuthorized) {
+    return [];
+  }
   try {
     return await db.query.users.findMany({
       where: inArray(users.role, [...STAFF_ROLES]),
@@ -150,10 +165,13 @@ export async function getStaffMembers() {
 
 /**
  * Add a staff member by email + role.
- * If the user already exists in DB, updates their role.
- * If not, creates a placeholder record — role activates when they sign in with Google.
+ * Super Admin only.
  */
 export async function assignStaffRole(email: string, role: StaffRole, displayName?: string) {
+  const check = await checkSuperAdmin();
+  if (!check.isAuthorized) {
+    return { success: false, error: check.error };
+  }
   if (!email) return { success: false, error: "Email is required." };
   const normalizedEmail = email.toLowerCase().trim();
   try {
@@ -178,8 +196,12 @@ export async function assignStaffRole(email: string, role: StaffRole, displayNam
   }
 }
 
-/** Change role of an existing staff member */
+/** Change role of an existing staff member (Super Admin only) */
 export async function updateStaffRole(userId: string, role: StaffRole) {
+  const check = await checkSuperAdmin();
+  if (!check.isAuthorized) {
+    return { success: false, error: check.error };
+  }
   if (!userId) return { success: false, error: "User ID required." };
   try {
     await db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, userId));
@@ -191,8 +213,12 @@ export async function updateStaffRole(userId: string, role: StaffRole) {
   }
 }
 
-/** Revoke staff access — resets role back to subscriber */
+/** Revoke staff access — resets role back to subscriber (Super Admin only) */
 export async function revokeStaffAccess(userId: string) {
+  const check = await checkSuperAdmin();
+  if (!check.isAuthorized) {
+    return { success: false, error: check.error };
+  }
   if (!userId) return { success: false, error: "User ID required." };
   try {
     await db.update(users).set({ role: "subscriber", updatedAt: new Date() }).where(eq(users.id, userId));

@@ -25,15 +25,18 @@ type StaffMember = {
 };
 
 const ROLE_OPTIONS = [
-  { value: "editor", label: "Editor", desc: "Write & submit articles for approval" },
-  { value: "author", label: "Staff Writer", desc: "Write drafts only" },
-  { value: "managing_editor", label: "Managing Editor", desc: "Edit & manage categories" },
-  { value: "reviewer", label: "Sub-Editor / Reviewer", desc: "Review & fact-check drafts" },
-  { value: "contributor", label: "Contributor", desc: "External contributor (limited)" },
+  { value: "super_admin", label: "Super Admin", desc: "Full platform authority & team role allocation" },
+  { value: "publisher", label: "Publisher", desc: "Final approval, publishing & story placement" },
+  { value: "managing_editor", label: "Managing Editor", desc: "Editorial operations, categories & assignments" },
+  { value: "editor", label: "Editor", desc: "Write, edit & submit articles for publication" },
+  { value: "reviewer", label: "Sub-Editor / Reviewer", desc: "Fact-checking, review drafts & comment moderation" },
+  { value: "author", label: "Staff Writer", desc: "Original tech reporting & draft creation" },
+  { value: "contributor", label: "Contributor", desc: "External guest columnist (drafts only)" },
 ];
 
 const ROLE_BADGE: Record<string, { label: string; color: string; bg: string; border: string }> = {
   super_admin: { label: "Super Admin", color: "#f59e0b", bg: "rgba(245,158,11,0.12)", border: "rgba(245,158,11,0.3)" },
+  publisher: { label: "Publisher", color: "#ec4899", bg: "rgba(236,72,153,0.12)", border: "rgba(236,72,153,0.3)" },
   managing_editor: { label: "Managing Editor", color: "#8b5cf6", bg: "rgba(139,92,246,0.12)", border: "rgba(139,92,246,0.3)" },
   editor: { label: "Editor", color: "#10b981", bg: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.3)" },
   author: { label: "Staff Writer", color: "#3b82f6", bg: "rgba(59,130,246,0.12)", border: "rgba(59,130,246,0.3)" },

@@ -28,7 +28,7 @@ export function isStaff(role?: string | null): boolean {
 // Define what each role can access on the Dashboard
 const RoutePermissions: Record<string, Role[]> = {
   "/dashboard/settings": RoleTiers.ADMIN,
-  "/dashboard/team": RoleTiers.ADMIN,
+  "/dashboard/team": ["super_admin"],
   "/dashboard/categories": [...RoleTiers.ADMIN, "editor"],
   "/dashboard/analytics": [...RoleTiers.ADMIN, "editor"],
   "/dashboard/comments": [...RoleTiers.ADMIN, "editor", "reviewer"],
