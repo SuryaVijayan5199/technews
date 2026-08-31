@@ -4,6 +4,7 @@ import "./globals.css";
 import { siteConfig } from "@/config/site";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AuthProvider } from "@/components/providers/session-provider";
+import { MobileAppProvider } from "@/components/shared/mobile-app-provider";
 import { Toaster } from "sonner";
 
 const inter = Inter({
@@ -85,7 +86,9 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-            {children}
+            <MobileAppProvider>
+              {children}
+            </MobileAppProvider>
             <Toaster
               position="bottom-right"
               toastOptions={{

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Rss } from "lucide-react";
 import { mainNav, footerNav } from "@/config/nav";
 import { TechCrestBrand } from "@/components/shared/techcrest-brand";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 
 const SocialIcon = ({ label }: { label: string }) => {
   if (label.includes("Twitter"))
@@ -96,7 +97,7 @@ export function Footer() {
       </div>
 
       {/* ── Bottom Bar ── */}
-      <div className="tc-footer__bottom">
+      <div className="tc-footer__bottom mb-14 md:mb-0">
         <div className="container tc-footer__bottom-inner">
           <p className="tc-footer__copy">
             © {new Date().getFullYear()} TechCrest. All rights reserved.
@@ -108,6 +109,9 @@ export function Footer() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Bottom Navigation Bar (Fixed 5-item Nav) */}
+      <MobileBottomNav />
     </footer>
   );
 }

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TechCrest</string>
+    <string name="title_activity_main">TechCrest</string>
+    <string name="package_name">com.techcrest.news</string>
+    <string name="custom_url_scheme">com.techcrest.news</string>
+</resources>

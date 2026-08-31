@@ -24,9 +24,9 @@ export function LoginForm() {
 
   const [error, setError] = useState<string | null>(() => {
     if (!urlError) return null;
-    if (urlError === "OAuthSignin") return "Could not initiate Google Sign-In. Please try again.";
-    if (urlError === "OAuthCallbackError") return "Google Sign-In failed. Please try again.";
-    if (urlError === "OAuthAccountNotLinked") return "This email is linked to a different sign-in method.";
+    if (urlError === "OAuthSignin") return "Mobile browser redirect interrupted. You can retry Google Sign-In or continue below.";
+    if (urlError === "OAuthCallbackError") return "Google Sign-In was interrupted. Please retry or continue as Reader.";
+    if (urlError === "OAuthAccountNotLinked") return "This email is linked to another sign-in provider.";
     return "Authentication failed. Please try again.";
   });
   const [success, setSuccess] = useState<string | null>(null);
@@ -42,6 +42,15 @@ export function LoginForm() {
       setError("Failed to connect to Google. Please try again.");
       setLoadingProvider(null);
     }
+  };
+
+  // ── Quick Reader Guest Access (for mobile app fallback) ──────
+  const handleGuestReaderAccess = () => {
+    setSuccess("Access Granted! Welcome to TechCrest.");
+    setTimeout(() => {
+      router.push("/");
+      router.refresh();
+    }, 400);
   };
 
   // ── Staff Email/Password Login (secondary) ───────────────────

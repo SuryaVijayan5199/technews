@@ -89,30 +89,48 @@ export async function TechCrestHomePage() {
             {topStories[0] ? (
               <article className="tc-story tc-story--lead">
                 <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-story__art tc-story__art--dark block">
-                  {topStories[0].heroImage && <Image src={topStories[0].heroImage} alt={topStories[0].title} fill className="tc-story__art-img" />}
+                  {topStories[0].heroImage && <Image src={topStories[0].heroImage} alt={topStories[0].title} fill className="tc-story__art-img" priority />}
                 </Link>
-                <div className="tc-story__body">
-                  <span className="tc-tag">{topStories[0].category?.name ?? "Technology"} &bull; COVER STORY</span>
-                  <h3>
-                    <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`}>
-                      {topStories[0].title}
+                <div className="tc-story__body tc-story__body--lead">
+                  <div>
+                    <div className="tc-story__badge-wrap">
+                      <span className="tc-tag tc-tag--fire">🔥 TOP COVER STORY</span>
+                      <span className="tc-tag tc-tag--cat">{topStories[0].category?.name ?? "Technology"}</span>
+                    </div>
+                    <h3>
+                      <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`}>
+                        {topStories[0].title}
+                      </Link>
+                    </h3>
+                    <p className="tc-story__lead-excerpt">{topStories[0].excerpt ?? ""}</p>
+                  </div>
+                  <div className="tc-story__lead-footer">
+                    <div className="tc-meta tc-meta--lead">
+                      <span>TechCrest Editorial</span>
+                      <span>&bull;</span>
+                      <span>{topStories[0].readingTimeMinutes ?? 5} min read</span>
+                      <span>&bull;</span>
+                      <span>{kViews(topStories[0].viewCount ?? 0)}</span>
+                    </div>
+                    <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-lead-btn">
+                      Read Cover Story &rarr;
                     </Link>
-                  </h3>
-                  <p>{topStories[0].excerpt ?? ""}</p>
-                  <div className="tc-meta">
-                    TechCrest Editorial &bull; {topStories[0].readingTimeMinutes ?? 5} min read &bull; {kViews(topStories[0].viewCount ?? 0)}
-                    <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-read-link">Read &rarr;</Link>
                   </div>
                 </div>
               </article>
             ) : (
               <article className="tc-story tc-story--lead">
                 <div className="tc-story__art tc-story__art--dark" />
-                <div className="tc-story__body">
-                  <span className="tc-tag">AI &bull; COVER STORY</span>
-                  <h3>The Next Computing Shift Is Already Underway</h3>
-                  <p>AI is moving from a feature inside products to a new computing layer.</p>
-                  <div className="tc-meta">TechCrest Editorial &bull; 10 min read</div>
+                <div className="tc-story__body tc-story__body--lead">
+                  <div>
+                    <span className="tc-tag tc-tag--fire">🔥 TOP COVER STORY</span>
+                    <h3>The Next Computing Shift Is Already Underway</h3>
+                    <p className="tc-story__lead-excerpt">AI is moving from a feature inside products to a new foundational computing layer.</p>
+                  </div>
+                  <div className="tc-story__lead-footer">
+                    <div className="tc-meta">TechCrest Editorial &bull; 10 min read</div>
+                    <Link href="/news" className="tc-lead-btn">Read Cover Story &rarr;</Link>
+                  </div>
                 </div>
               </article>
             )}
