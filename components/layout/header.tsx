@@ -56,30 +56,17 @@ export function Header() {
     <>
       {/* ── Main Header ── */}
       <header className={`tc-site-header${isScrolled ? " tc-site-header--scrolled" : ""}`}>
-        <div className="tc-site-header__inner">
-
-          {/* LEFT: Logo */}
+        {/* ROW 1: Logo (Left) + Actions (Right) */}
+        <div className="tc-site-header__top-row">
+          {/* LEFT: Logo — strictly left aligned */}
           <TechCrestBrand variant="full" href="/" showTagline={true} className="tc-site-header__logo" />
-
-          {/* CENTER: Desktop nav links — only visible lg+ */}
-          <nav className="tc-site-header__nav" aria-label="Main navigation">
-            {mainNav.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="tc-site-header__nav-link"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
 
           {/* RIGHT: Actions */}
           <div className="tc-site-header__actions">
-            {/* Theme toggle — always visible */}
+            {/* Theme toggle */}
             <ThemeToggle />
 
-            {/* Sign In / Dashboard — hidden on very small screens, shown sm+ */}
+            {/* Sign In / Dashboard */}
             <Button asChild id="header-user-btn" className="tc-site-header__user-btn">
               <Link href={userDestination}>
                 <User className="tc-site-header__user-icon" />
@@ -87,7 +74,7 @@ export function Header() {
               </Link>
             </Button>
 
-            {/* Mobile hamburger — only visible below lg */}
+            {/* Mobile hamburger */}
             <button
               id="mobile-menu-toggle"
               className="tc-site-header__hamburger"
@@ -99,6 +86,21 @@ export function Header() {
             </button>
           </div>
         </div>
+
+        {/* ROW 2: Topics Sub-Navbar (TechRadar Style — Below Logo) */}
+        <nav className="tc-site-header__topics-row" aria-label="Topics navigation">
+          <div className="tc-site-header__topics-inner">
+            {mainNav.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="tc-site-header__topic-link"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </nav>
       </header>
 
       {/* ── Mobile Drawer Overlay ── */}

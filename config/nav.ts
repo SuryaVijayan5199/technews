@@ -9,7 +9,6 @@ export type NavItem = {
 };
 
 export const mainNav: NavItem[] = [
-  { label: "News", href: "/news", description: "Latest technology news from around the world" },
   { label: "Phone", href: "/phone", description: "Smartphones, reviews, and mobile news" },
   { label: "Audio", href: "/audio", description: "Headphones, speakers, and audio gear" },
   { label: "Robotic", href: "/robotics", description: "Robotics, automation, and AI hardware" },
@@ -19,11 +18,12 @@ export const mainNav: NavItem[] = [
   { label: "Home", href: "/smart-home", description: "Smart home devices, hubs, and automation" },
   { label: "EVs", href: "/evs", description: "Electric vehicles, charging, and future mobility" },
   { label: "Crypto", href: "/crypto", description: "Cryptocurrency, blockchain, and Web3" },
+  { label: "Reviews", href: "/reviews", description: "In-depth reviews and buyer advice" },
+  { label: "Deals", href: "/deals", description: "Latest tech deals and buying guides" },
 ];
 
 
 export const categoryNav = [
-  { label: "News",        href: "/news",        icon: "Newspaper",   color: "#2D7FF9" },
   { label: "Phone",       href: "/phone",       icon: "Smartphone",  color: "#0ea5e9" },
   { label: "Audio",       href: "/audio",       icon: "Headphones",  color: "#8b5cf6" },
   { label: "Robotic",     href: "/robotics",    icon: "Bot",         color: "#6366f1" },
@@ -33,6 +33,8 @@ export const categoryNav = [
   { label: "Home",        href: "/smart-home",  icon: "Home",        color: "#14b8a6" },
   { label: "EVs",         href: "/evs",         icon: "Zap",         color: "#22c55e" },
   { label: "Crypto",      href: "/crypto",      icon: "Bitcoin",     color: "#f97316" },
+  { label: "Reviews",     href: "/reviews",     icon: "Star",        color: "#eab308" },
+  { label: "Deals",       href: "/deals",       icon: "Tag",         color: "#ec4899" },
 ];
 
 export const footerNav = {

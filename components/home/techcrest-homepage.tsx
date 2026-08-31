@@ -27,7 +27,6 @@ function kViews(n: number): string {
 }
 
 const TOPICS = [
-  { label: "News", sub: "Global Tech • Analysis • Breaking", href: "/news" },
   { label: "Phone", sub: "Smartphones • iOS • Android", href: "/phone" },
   { label: "Audio", sub: "Headphones • Speakers • Hi-Fi", href: "/audio" },
   { label: "Robotic", sub: "Humanoids • Drones • Automation", href: "/robotics" },
@@ -37,12 +36,6 @@ const TOPICS = [
   { label: "Home", sub: "Matter • Hubs • Energy Automation", href: "/smart-home" },
   { label: "EVs", sub: "Electric Vehicles • Charging • Battery", href: "/evs" },
   { label: "Crypto", sub: "Tokenization • Zero-Knowledge • DePIN", href: "/crypto" },
-];
-
-const TILES = [
-  { num: "01 / ANALYSIS", title: "Deep Dive", desc: "Long-form reporting, explainers and context behind the biggest technology stories.", href: "/news" },
-  { num: "02 / REVIEW", title: "Tested & Reviewed", desc: "Independent product coverage designed to help readers understand what is worth their attention.", href: "/phone" },
-  { num: "03 / FUTURE", title: "What’s Next", desc: "Emerging technologies, research and ideas that could shape the next decade.", href: "/ai" },
 ];
 
 const PRINCIPLES = [
@@ -148,7 +141,7 @@ export async function TechCrestHomePage() {
       <section className="tc-section">
         <div className="tc-wrap">
           <div className="tc-section-head">
-            <h2>Latest Stories</h2>
+            <h2>Latest News</h2>
             <Link href="/news">VIEW ALL &rarr;</Link>
           </div>
           <div className="tc-latest-grid">
@@ -337,25 +330,6 @@ export async function TechCrestHomePage() {
         </section>
       )}
 
-      {/* ANALYSIS, REVIEWS & FUTURE */}
-      <section className="tc-section">
-        <div className="tc-wrap">
-          <div className="tc-section-head">
-            <h2>Analysis, Reviews &amp; Future</h2>
-            <Link href="/reviews">EXPLORE &rarr;</Link>
-          </div>
-          <div className="tc-lower-grid">
-            {TILES.map((tile) => (
-              <article key={tile.num} className="tc-tile">
-                <span className="tc-tile__number">{tile.num}</span>
-                <h3>{tile.title}</h3>
-                <p>{tile.desc}</p>
-                <Link href={tile.href} className="tc-tile__link">Explore &rarr;</Link>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* MANIFESTO */}
       <section className="tc-manifesto">
