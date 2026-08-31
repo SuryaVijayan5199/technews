@@ -1,0 +1,106 @@
+/* styles/variables.css */
+:root {
+  /* TechCrest Homepage Design Tokens */
+  --tc-dark: #050d19;
+  --tc-blue: #2D7FF9;
+  --tc-surface-dark: #081321;
+
+  /* Typography */
+  --font-sans: "Inter", "system-ui", sans-serif;
+  --font-display: "Outfit", "Inter", sans-serif;
+  --font-mono: "Fira Code", "JetBrains Mono", monospace;
+
+  /* Brand Colors — HSL */
+  --color-brand-50: 230 100% 97%;
+  --color-brand-100: 228 96% 93%;
+  --color-brand-200: 227 95% 85%;
+  --color-brand-300: 227 91% 74%;
+  --color-brand-400: 228 90% 63%;
+  --color-brand-500: 230 82% 56%;
+  --color-brand-600: 232 74% 47%;
+  --color-brand-700: 233 68% 40%;
+  --color-brand-800: 233 58% 32%;
+  --color-brand-900: 233 50% 27%;
+  --color-brand-950: 233 60% 16%;
+
+  /* Accent colors */
+  --color-accent-red: 0 82% 58%;
+  --color-accent-orange: 25 90% 55%;
+  --color-accent-yellow: 45 96% 58%;
+  --color-accent-green: 158 75% 42%;
+  --color-accent-teal: 172 82% 40%;
+  --color-accent-cyan: 194 86% 48%;
+  --color-accent-purple: 262 80% 62%;
+  --color-accent-pink: 330 82% 60%;
+
+  /* Border radius (Modern Premium standard) */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
+  --radius-full: 9999px;
+
+  /* Shadows (Soft, layered) */
+  --shadow-glow-brand: 0 0 40px -10px hsl(var(--color-brand-500) / 0.4);
+  --shadow-glow-red: 0 0 40px -10px hsl(var(--color-accent-red) / 0.4);
+  --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.2), 0 8px 24px -4px hsl(0 0% 0% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.05);
+  --shadow-modal: 0 12px 48px -12px hsl(0 0% 0% / 0.8), inset 0 1px 0 hsl(0 0% 100% / 0.05);
+
+  /* Animation timing */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout */
+  --header-height: 52px;
+  --topbar-height: 30px;
+  --breaking-bar-height: 32px;
+  --total-top-height: calc(var(--topbar-height) + var(--breaking-bar-height) + var(--header-height));
+  --sidebar-width: 280px;
+  --content-max-width: 1440px;
+  --article-max-width: 760px;
+  
+  /* Z-Index Architecture */
+  --z-footer: 1;
+  --z-content: 100;
+  --z-header: 7000;
+  --z-mega-menu: 8000;
+  --z-search: 9000;
+  --z-modal: 9999;
+}
+
+/* Dark Mode (Default for this tech site) */
+:root, .dark {
+  --color-surface-0: 224 21% 5%;
+  --color-surface-1: 224 19% 8%;
+  --color-surface-2: 224 17% 11%;
+  --color-surface-3: 224 15% 15%;
+  --color-surface-4: 224 13% 20%;
+  --color-surface-border: 224 13% 22%;
+
+  --color-text-primary: 210 20% 98%;
+  --color-text-secondary: 210 14% 75%;
+  --color-text-muted: 210 10% 60%;
+  --color-text-inverse: 224 21% 5%;
+  
+  color-scheme: dark;
+}
+
+/* Light Mode */
+html:not(.dark), .light {
+  --color-surface-0: 0 0% 98%;
+  --color-surface-1: 0 0% 100%;
+  --color-surface-2: 220 14% 96%;
+  --color-surface-3: 220 14% 92%;
+  --color-surface-4: 220 14% 86%;
+  --color-surface-border: 220 13% 82%;
+
+  --color-text-primary: 224 25% 10%;
+  --color-text-secondary: 224 14% 30%;
+  --color-text-muted: 224 12% 44%;
+  --color-text-inverse: 0 0% 100%;
+
+  color-scheme: light;
+}
