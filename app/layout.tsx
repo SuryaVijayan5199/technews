@@ -60,13 +60,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/logos/icons/techcrest-app-icon-gradient-512.png", sizes: "512x512", type: "image/png" },
-      { url: "/logos/icons/techcrest-app-icon-dark-512.png", sizes: "512x512", type: "image/png", media: "(prefers-color-scheme: dark)" },
-      { url: "/logos/icons/techcrest-app-icon-light-512.png", sizes: "512x512", type: "image/png", media: "(prefers-color-scheme: light)" },
-      { url: "/favicon.png", type: "image/png" },
+      { url: "/logos/icons/favicon-dark-512.png?v=2", sizes: "512x512", type: "image/png", media: "(prefers-color-scheme: dark)" },
+      { url: "/logos/icons/favicon-light-512.png?v=2", sizes: "512x512", type: "image/png", media: "(prefers-color-scheme: light)" },
+      { url: "/logos/icons/favicon-dark-32.png?v=2", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.png?v=2", type: "image/png" },
     ],
-    shortcut: "/favicon.png",
-    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.png?v=2",
+    apple: "/apple-touch-icon.png?v=2",
   },
 };
 
