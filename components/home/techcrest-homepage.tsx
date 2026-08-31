@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Volume2, Play, Headphones, Sparkles, TrendingUp, Shield, Zap, ArrowRight } from "lucide-react";
 import {
   getFeaturedArticles,
   getLatestArticles,
@@ -45,36 +46,20 @@ const PRINCIPLES = [
 ];
 
 const GLOBAL_FALLBACK = [
-  { label: "01 / SIGNAL", title: "AI adoption is moving toward measurable outcomes", desc: "The next phase is about useful systems integrated into real workflows." },
-  { label: "02 / SECURITY", title: "Identity is becoming an operating layer", desc: "Security architecture is increasingly built around context and verification." },
-  { label: "03 / FUTURE", title: "Compute is becoming a strategic resource", desc: "Hardware, energy and efficiency are central to the next technology cycle." },
+  { label: "01 / SIGNAL", title: "AI adoption is moving toward measurable outcomes", desc: "The next phase is about useful systems integrated directly into real enterprise workflows, moving beyond trial chatbots." },
+  { label: "02 / SECURITY", title: "Identity is becoming an operating security layer", desc: "Security architecture is increasingly built around context, continuous verification, and zero-trust credentials." },
+  { label: "03 / FUTURE", title: "Compute & energy are strategic growth resources", desc: "Hardware efficiency, next-gen silicon, and localized clean power are central to the next technology infrastructure cycle." },
 ];
 
-const FALLBACK_IMAGES: Record<string, string> = {
-  ai: "https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=1200&auto=format&fit=crop",
-  robotic: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200&auto=format&fit=crop",
-  robotics: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200&auto=format&fit=crop",
-  phone: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1200&auto=format&fit=crop",
-  audio: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1200&auto=format&fit=crop",
-  security: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop",
-  fitness: "https://images.unsplash.com/photo-1510519138161-5844623284ce?q=80&w=1200&auto=format&fit=crop",
-  home: "https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=1200&auto=format&fit=crop",
-  evs: "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=1200&auto=format&fit=crop",
-  crypto: "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=1200&auto=format&fit=crop",
-  reviews: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1200&auto=format&fit=crop",
-  deals: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=1200&auto=format&fit=crop",
-  default: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
-};
-
-function getHeroImage(heroImage: string | null | undefined, categorySlug?: string): string {
-  if (heroImage && heroImage.trim().length > 0) return heroImage;
-  if (categorySlug && FALLBACK_IMAGES[categorySlug.toLowerCase()]) {
-    return FALLBACK_IMAGES[categorySlug.toLowerCase()];
-  }
-  return FALLBACK_IMAGES.default;
-}
-
 const BRIEF_LABELS = ["01 / SIGNAL", "02 / SECURITY", "03 / FUTURE"];
+
+const DEFAULT_BRIEF_ITEMS = [
+  { title: "Autonomous AI agents transition to core product infrastructure", category: "Artificial Intelligence", meta: "Updated 10m ago • 4 min read" },
+  { title: "Enterprise security leaders prioritize zero-trust identity controls", category: "Cybersecurity", meta: "Updated 35m ago • 5 min read" },
+  { title: "Venture capital shifts focus toward compute efficiency & silicon innovation", category: "Startups & VC", meta: "Updated 1h ago • 6 min read" },
+  { title: "Next-gen battery chemistry accelerates commercial EV adoption", category: "Mobility & EVs", meta: "Updated 2h ago • 5 min read" },
+  { title: "Consumer hardware makers double down on local neural processing units", category: "Hardware & Devices", meta: "Updated 3h ago • 4 min read" },
+];
 
 export async function TechCrestHomePage() {
   const [featured, latest, trending, editorsPicks, breakingArticle, topicShowcase] = await Promise.all([
@@ -86,11 +71,10 @@ export async function TechCrestHomePage() {
     getArticlesGroupedByTopics(),
   ]);
 
-  const heroArticle = featured[0] ?? null;
-  const topStories = featured.slice(0, 5);
-  const latestStories = latest.slice(0, 4);
-  const mostRead = [...latest].sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0)).slice(0, 5);
-  const briefItems = editorsPicks.slice(0, 3);
+  const topStories = featured.length >= 5 ? featured : [...featured, ...latest].slice(0, 5);
+  const latestStories = latest.slice(0, 5);
+  const mostRead = trending.slice(0, 5);
+  const briefItems = editorsPicks.slice(0, 5);
   const globalBriefing = trending.slice(0, 3);
 
   const filteredTopicShowcase = topicShowcase.filter(
@@ -98,7 +82,7 @@ export async function TechCrestHomePage() {
   );
 
   return (
-    <div className="techcrest-home">
+    <div className="tc-page">
       {/* HERO SECTION CAROUSEL */}
       <HeroSectionCarousel articles={featured} />
 
@@ -113,61 +97,40 @@ export async function TechCrestHomePage() {
             {topStories[0] ? (
               <article className="tc-story tc-story--lead">
                 <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-story__art tc-story__art--dark block">
-                  <Image
-                    src={getHeroImage(topStories[0].heroImage, topStories[0].category?.slug)}
-                    alt={topStories[0].title}
-                    fill
-                    className="tc-story__art-img"
-                    priority
-                  />
+                  {topStories[0].heroImage && <Image src={topStories[0].heroImage} alt={topStories[0].title} fill className="tc-story__art-img" priority />}
                 </Link>
-                <div className="tc-story__body tc-story__body--lead">
+                <div className="tc-story__body">
                   <div>
-                    <div className="tc-story__badge-wrap">
-                      <span className="tc-tag tc-tag--fire">🔥 TOP COVER STORY</span>
-                      <span className="tc-tag tc-tag--cat">{topStories[0].category?.name ?? "Technology"}</span>
-                    </div>
+                    <span className="tc-tag">{topStories[0].category?.name ?? "Technology"} &bull; COVER STORY</span>
                     <h3>
                       <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`}>
                         {topStories[0].title}
                       </Link>
                     </h3>
-                    <p className="tc-story__lead-excerpt">{topStories[0].excerpt ?? ""}</p>
+                    <p>{topStories[0].excerpt ?? "Deep-dive investigation on technology breakthroughs, market shifts, and real-world consequences."}</p>
                   </div>
-                  <div className="tc-story__lead-footer">
-                    <div className="tc-meta tc-meta--lead">
-                      <span>TechCrest Editorial</span>
-                      <span>&bull;</span>
-                      <span>{topStories[0].readingTimeMinutes ?? 5} min read</span>
-                      <span>&bull;</span>
-                      <span>{kViews(topStories[0].viewCount ?? 0)}</span>
+                  <div className="tc-meta-row">
+                    <div className="tc-meta">
+                      TechCrest Editorial &bull; {topStories[0].readingTimeMinutes ?? 5} min read &bull; {kViews(topStories[0].viewCount ?? 0)}
                     </div>
-                    <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-lead-btn">
-                      Read Cover Story &rarr;
+                    <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-read-btn">
+                      Read Story <ArrowRight className="w-3.5 h-3.5 inline ml-1" />
                     </Link>
                   </div>
                 </div>
               </article>
             ) : (
               <article className="tc-story tc-story--lead">
-                <div className="tc-story__art tc-story__art--dark">
-                  <Image
-                    src={getHeroImage(null, "ai")}
-                    alt="Cover Story"
-                    fill
-                    className="tc-story__art-img"
-                    priority
-                  />
-                </div>
-                <div className="tc-story__body tc-story__body--lead">
+                <div className="tc-story__art tc-story__art--dark" />
+                <div className="tc-story__body">
                   <div>
-                    <span className="tc-tag tc-tag--fire">🔥 TOP COVER STORY</span>
+                    <span className="tc-tag">AI &bull; COVER STORY</span>
                     <h3>The Next Computing Shift Is Already Underway</h3>
-                    <p className="tc-story__lead-excerpt">AI is moving from a feature inside products to a new foundational computing layer.</p>
+                    <p>AI is moving from a feature inside products to a new foundational computing layer redefining software architecture globally.</p>
                   </div>
-                  <div className="tc-story__lead-footer">
+                  <div className="tc-meta-row">
                     <div className="tc-meta">TechCrest Editorial &bull; 10 min read</div>
-                    <Link href="/news" className="tc-lead-btn">Read Cover Story &rarr;</Link>
+                    <Link href="/news" className="tc-read-btn">Read Story &rarr;</Link>
                   </div>
                 </div>
               </article>
@@ -176,98 +139,31 @@ export async function TechCrestHomePage() {
               story ? (
                 <article key={story.id} className="tc-story">
                   <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-story__art tc-story__art--small block">
-                    <Image
-                      src={getHeroImage(story.heroImage, story.category?.slug)}
-                      alt={story.title}
-                      fill
-                      className="tc-story__art-img"
-                    />
+                    {story.heroImage && <Image src={story.heroImage} alt={story.title} fill className="tc-story__art-img" />}
                   </Link>
                   <div className="tc-story__body">
-                    <span className="tc-tag">{story.category?.name ?? "Technology"}</span>
-                    <h3><Link href={`/${story.category?.slug ?? "news"}/${story.slug}`}>{story.title}</Link></h3>
-                    <p>{story.excerpt ?? ""}</p>
+                    <div>
+                      <span className="tc-tag">{story.category?.name ?? "Technology"}</span>
+                      <h3><Link href={`/${story.category?.slug ?? "news"}/${story.slug}`}>{story.title}</Link></h3>
+                      <p>{story.excerpt ?? "Key developments, industry context, and strategic analysis."}</p>
+                    </div>
                     <div className="tc-meta">{story.readingTimeMinutes ?? 5} min read &bull; {timeAgo(story.publishedAt)}</div>
                   </div>
                 </article>
               ) : (
                 <article key={`fb-${i}`} className="tc-story">
-                  <div className="tc-story__art tc-story__art--small">
-                    <Image
-                      src={getHeroImage(null, ["security", "ai", "phone", "evs"][i])}
-                      alt="Tech Story"
-                      fill
-                      className="tc-story__art-img"
-                    />
-                  </div>
+                  <div className="tc-story__art tc-story__art--small" />
                   <div className="tc-story__body">
-                    <span className="tc-tag">{["Cybersecurity", "Startups", "Hardware", "Mobility"][i] ?? "Tech"}</span>
-                    <h3>{["Security teams are redesigning around identity", "Inside the infrastructure startups scaling globally", "Next-gen processors push power efficiency boundaries", "EV infrastructure transitions to unified standards"][i]}</h3>
-                    <p>{["Access, context and continuous verification are becoming central.", "New platforms are reducing complexity for engineering teams.", "Silicon innovation is driving higher performance per watt.", "Charging networks are aligning on interoperable protocols."][i]}</p>
+                    <div>
+                      <span className="tc-tag">{["Cybersecurity", "Startups", "Hardware", "Mobility"][i] ?? "Tech"}</span>
+                      <h3>{["Security teams are redesigning around identity controls", "Inside the infrastructure startups scaling globally", "Next-gen processors push power efficiency boundaries", "EV infrastructure transitions to unified standards"][i]}</h3>
+                      <p>{["Access, context and continuous verification are becoming central.", "New platforms are reducing complexity for engineering teams.", "Silicon innovation is driving higher performance per watt.", "Charging networks are aligning on interoperable protocols."][i]}</p>
+                    </div>
                     <div className="tc-meta">{5 + i} min read</div>
                   </div>
                 </article>
               )
             )}
-          </div>
-        </div>
-      </section>
-
-      {/* TECHCREST EDITORIAL BRIEFING */}
-      <section className="tc-section">
-        <div className="tc-wrap">
-          <div className="tc-brief-grid">
-            <div className="tc-brief-panel">
-              <div className="tc-brief-items">
-                {(briefItems.length > 0 ? briefItems : []).map((item) => (
-                  <div key={item.id} className="tc-brief-item">
-                    <Link href={`/${item.category?.slug ?? "news"}/${item.slug}`}><b>{item.title}</b></Link>
-                    <span>{item.category?.name ?? "Technology"}</span>
-                  </div>
-                ))}
-                {briefItems.length === 0 && [
-                  { b: "AI agents are becoming product infrastructure", s: "What to watch today" },
-                  { b: "Security leaders are prioritizing identity-first controls", s: "Enterprise security" },
-                  { b: "Investors are looking beyond headline AI valuations", s: "Markets & startups" },
-                ].map((item, i) => (
-                  <div key={i} className="tc-brief-item"><b>{item.b}</b><span>{item.s}</span></div>
-                ))}
-                <div className="tc-quote">
-                  &ldquo;The strongest technology stories connect the launch, the business model and the real-world impact.&rdquo;
-                  <small>&mdash; TechCrest Editorial Principle</small>
-                </div>
-                {/* Audio Digest & Daily Brief Widget to fill height naturally */}
-                <div className="tc-brief-audio-widget">
-                  <div className="tc-brief-audio-info">
-                    <span className="tc-audio-badge">🎧 TECHCREST AUDIO DIGEST</span>
-                    <h4>Listen to Today's 5-Minute Executive Summary</h4>
-                  </div>
-                  <Link href="/podcasts" className="tc-audio-play-btn">
-                    Play Audio Brief →
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="tc-dark-brief">
-              <div className="tc-dark-brief__head">
-                <h2>Global Briefing</h2>
-                <span>SIGNAL &bull; SECURITY &bull; FUTURE</span>
-              </div>
-              <div className="tc-dark-brief__grid">
-                {(globalBriefing.length > 0 ? globalBriefing : []).map((item, idx) => (
-                  <article key={item.id} className="tc-dark-card">
-                    <i>{BRIEF_LABELS[idx] ?? `0${idx + 1} / INSIGHT`}</i>
-                    <h3><Link href={`/${item.category?.slug ?? "news"}/${item.slug}`}>{item.title}</Link></h3>
-                    <p>{item.excerpt ?? ""}</p>
-                  </article>
-                ))}
-                {globalBriefing.length === 0 && GLOBAL_FALLBACK.map((item) => (
-                  <article key={item.label} className="tc-dark-card">
-                    <i>{item.label}</i><h3>{item.title}</h3><p>{item.desc}</p>
-                  </article>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -294,22 +190,6 @@ export async function TechCrestHomePage() {
                   </div>
                 </article>
               ))}
-              {latestStories.length === 0 && [
-                { tag: "Artificial Intelligence", title: "Enterprise AI is shifting from pilots to production workflows", desc: "What changes when organizations begin measuring AI by business outcomes.", meta: "3 hours ago \u2022 7 min" },
-                { tag: "Gadgets", title: "The hardware trends likely to define the next device cycle", desc: "On-device intelligence, efficient processors and new interfaces are converging.", meta: "4 hours ago \u2022 5 min" },
-                { tag: "Business", title: "Why technology resilience is becoming a board-level priority", desc: "Cloud, data and security are now increasingly planned as one connected strategy.", meta: "6 hours ago \u2022 6 min" },
-                { tag: "Science", title: "Researchers explore new paths toward efficient computing", desc: "New approaches could change the economics of compute-intensive workloads.", meta: "8 hours ago \u2022 4 min" },
-              ].map((item, i) => (
-                <article key={i} className="tc-latest-row">
-                  <div className="tc-thumb" />
-                  <div>
-                    <span className="tc-tag">{item.tag}</span>
-                    <h3>{item.title}</h3>
-                    <p>{item.desc}</p>
-                    <div className="tc-meta">{item.meta}</div>
-                  </div>
-                </article>
-              ))}
             </div>
             <aside className="tc-most-read">
               <h3>Trending Stories</h3>
@@ -322,52 +202,68 @@ export async function TechCrestHomePage() {
                   </div>
                 </div>
               ))}
-              {mostRead.length === 0 && [
-                { title: "What the AI model race means for developers", tag: "AI" },
-                { title: "The cybersecurity mistakes growing companies repeat", tag: "Security" },
-                { title: "Inside the next generation of AI-first startups", tag: "News" },
-                { title: "Cloud computing is entering another transition", tag: "Tech" },
-                { title: "How new devices are changing everyday computing", tag: "Phone" },
-              ].map((item, i) => (
-                <div key={i} className="tc-rank">
-                  <span className="tc-rank__num">{String(i + 1).padStart(2, "0")}</span>
-                  <div><b>{item.title}</b><small>{item.tag}</small></div>
-                </div>
-              ))}
             </aside>
           </div>
         </div>
       </section>
 
-      {/* TECHCREST BRIEFING */}
+      {/* TECHCREST BRIEFING (100% Height Equalized Desktop Grid) */}
       <section className="tc-section">
         <div className="tc-wrap">
           <div className="tc-section-head">
             <h2>TechCrest Briefing</h2>
-            <span className="tc-section-head__label">DAILY</span>
+            <span className="tc-section-head__label">DAILY EXECUTIVE BRIEF</span>
           </div>
           <div className="tc-brief-grid">
+
+            {/* Left Panel: Executive Audio & 5 Daily Briefing Signals */}
             <div className="tc-brief-panel">
-              <div className="tc-brief-items">
-                {(briefItems.length > 0 ? briefItems : []).map((item) => (
-                  <div key={item.id} className="tc-brief-item">
-                    <Link href={`/${item.category?.slug ?? "news"}/${item.slug}`}><b>{item.title}</b></Link>
-                    <span>{item.category?.name ?? "Technology"}</span>
-                  </div>
-                ))}
-                {briefItems.length === 0 && [
-                  { b: "AI agents are becoming product infrastructure", s: "What to watch today" },
-                  { b: "Security leaders are prioritizing identity-first controls", s: "Enterprise security" },
-                  { b: "Investors are looking beyond headline AI valuations", s: "Markets & startups" },
-                ].map((item, i) => (
-                  <div key={i} className="tc-brief-item"><b>{item.b}</b><span>{item.s}</span></div>
-                ))}
-                <div className="tc-quote">
-                  &ldquo;The strongest technology stories connect the launch, the business model and the real-world impact.&rdquo;
-                  <small>&mdash; TechCrest Editorial Principle</small>
+              {/* Audio Briefing Bar */}
+              <div className="tc-brief-audio-bar">
+                <div className="tc-brief-audio-left">
+                  <span className="tc-brief-live-dot" />
+                  <Volume2 className="w-4 h-4 text-[#2D7FF9]" />
+                  <span className="tc-brief-audio-title">TODAY&apos;S 2-MIN EXECUTIVE AUDIO BRIEFING</span>
                 </div>
+                <button className="tc-brief-play-btn" aria-label="Listen to Audio Briefing">
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>Listen</span>
+                </button>
+              </div>
+
+              {/* Briefing Items (5 Items) */}
+              <div className="tc-brief-items">
+                {briefItems.length > 0
+                  ? briefItems.map((item) => (
+                      <div key={item.id} className="tc-brief-item">
+                        <Link href={`/${item.category?.slug ?? "news"}/${item.slug}`}>
+                          <b>{item.title}</b>
+                        </Link>
+                        <div className="tc-brief-item-meta">
+                          <span className="tc-brief-tag">{item.category?.name ?? "Technology"}</span>
+                          <span className="tc-brief-time">{item.readingTimeMinutes ?? 4} min read</span>
+                        </div>
+                      </div>
+                    ))
+                  : DEFAULT_BRIEF_ITEMS.map((item, i) => (
+                      <div key={i} className="tc-brief-item">
+                        <b>{item.title}</b>
+                        <div className="tc-brief-item-meta">
+                          <span className="tc-brief-tag">{item.category}</span>
+                          <span className="tc-brief-time">{item.meta}</span>
+                        </div>
+                      </div>
+                    ))}
+              </div>
+
+              {/* Editorial Quote Footer */}
+              <div className="tc-quote">
+                &ldquo;The strongest technology stories connect the product launch, the business model and the real-world human impact.&rdquo;
+                <small>&mdash; TechCrest Editorial Principle</small>
               </div>
             </div>
+
+            {/* Right Panel: Global Strategic Signals (Dark Executive Card Grid) */}
             <div className="tc-dark-brief">
               <div className="tc-dark-brief__head">
                 <h2>Global Briefing</h2>
@@ -378,16 +274,19 @@ export async function TechCrestHomePage() {
                   <article key={item.id} className="tc-dark-card">
                     <i>{BRIEF_LABELS[idx] ?? `0${idx + 1} / INSIGHT`}</i>
                     <h3><Link href={`/${item.category?.slug ?? "news"}/${item.slug}`}>{item.title}</Link></h3>
-                    <p>{item.excerpt ?? ""}</p>
+                    <p>{item.excerpt ?? "Strategic evaluation of technological capability, enterprise readiness, and systemic market shifts."}</p>
                   </article>
                 ))}
                 {globalBriefing.length === 0 && GLOBAL_FALLBACK.map((item) => (
                   <article key={item.label} className="tc-dark-card">
-                    <i>{item.label}</i><h3>{item.title}</h3><p>{item.desc}</p>
+                    <i>{item.label}</i>
+                    <h3>{item.title}</h3>
+                    <p>{item.desc}</p>
                   </article>
                 ))}
               </div>
             </div>
+
           </div>
         </div>
       </section>
