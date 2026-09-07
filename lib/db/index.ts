@@ -4,20 +4,11 @@ import { neon } from "@neondatabase/serverless";
 import { Pool } from "pg";
 import * as schema from "./schema";
 
-export function getConnectionString(): string {
-  try {
-    const { getCloudflareContext } = require("@opennextjs/cloudflare");
-    const cf = getCloudflareContext();
-    if (cf?.env?.HYPERDRIVE?.connectionString) {
-      return cf.env.HYPERDRIVE.connectionString;
-    }
-  } catch {
-    // Fallback if invoked outside request scope
-  }
-  return process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder";
-}
+const connectionString =
+  process.env.HYPERDRIVE_URL ||
+  process.env.DATABASE_URL ||
+  "postgresql://placeholder:placeholder@localhost:5432/placeholder";
 
-const connectionString = getConnectionString();
 const isNeon = connectionString.includes("neon.tech");
 
 export const db: any = isNeon
@@ -25,7 +16,7 @@ export const db: any = isNeon
   : drizzlePg(
       new Pool({
         connectionString,
-        ssl: { rejectUnauthorized: false },
+        ssl: connectionString.includes("localhost") || connectionString.includes("127.0.0.1") ? false : { rejectUnauthorized: false },
         max: 5,
         connectionTimeoutMillis: 10000,
         idleTimeoutMillis: 30000,
