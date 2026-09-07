@@ -46,6 +46,8 @@ function kViews(n: number): string {
   return `${n} views`;
 }
 
+const DEFAULT_HERO_IMAGE = "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80";
+
 const TOPICS = [
   { label: "Phone", sub: "Smartphones • iOS • Android", href: "/phone", icon: Smartphone, color: "#0ea5e9" },
   { label: "Audio", sub: "Headphones • Speakers • Hi-Fi", href: "/audio", icon: Headphones, color: "#8b5cf6" },
@@ -165,7 +167,7 @@ export async function TechCrestHomepage() {
             {topStories[0] ? (
               <article className="tc-story tc-story--lead">
                 <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-story__art tc-story__art--dark block">
-                  {topStories[0].heroImage && <Image src={topStories[0].heroImage} alt={topStories[0].title} fill className="tc-story__art-img" priority />}
+                  <Image src={topStories[0].heroImage || DEFAULT_HERO_IMAGE} alt={topStories[0].title} fill unoptimized className="tc-story__art-img" priority />
                 </Link>
                 <div className="tc-story__body">
                   <div>
@@ -207,7 +209,7 @@ export async function TechCrestHomepage() {
               story ? (
                 <article key={story.id} className="tc-story">
                   <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-story__art tc-story__art--small block">
-                    {story.heroImage && <Image src={story.heroImage} alt={story.title} fill className="tc-story__art-img" />}
+                    <Image src={story.heroImage || DEFAULT_HERO_IMAGE} alt={story.title} fill unoptimized className="tc-story__art-img" />
                   </Link>
                   <div className="tc-story__body">
                     <div>
@@ -248,7 +250,7 @@ export async function TechCrestHomepage() {
               {(latestStories.length > 0 ? latestStories : []).map((article: any, i: number) => (
                 <article key={article.id ?? i} className="tc-latest-row">
                   <div className="tc-thumb">
-                    {article.heroImage ? <Image src={article.heroImage} alt={article.title} fill className="object-cover" style={{ borderRadius: "8px" }} /> : null}
+                    <Image src={article.heroImage || DEFAULT_HERO_IMAGE} alt={article.title} fill unoptimized className="object-cover" style={{ borderRadius: "8px" }} />
                   </div>
                   <div>
                     <span className="tc-tag">{article.category?.name ?? "Technology"}</span>
@@ -379,15 +381,14 @@ export async function TechCrestHomepage() {
                     {articles.map((art: any) => (
                       <article key={art.id} className="tc-topic-art-card">
                         <Link href={`/${category.slug}/${art.slug}`} className="tc-topic-art-card__thumb">
-                          {art.heroImage && (
-                            <Image
-                              src={art.heroImage}
-                              alt={art.title}
-                              fill
-                              className="object-cover"
-                              style={{ borderRadius: "6px" }}
-                            />
-                          )}
+                          <Image
+                            src={art.heroImage || DEFAULT_HERO_IMAGE}
+                            alt={art.title}
+                            fill
+                            unoptimized
+                            className="object-cover"
+                            style={{ borderRadius: "6px" }}
+                          />
                         </Link>
                         <div className="tc-topic-art-card__body">
                           <h4 className="tc-topic-art-card__title">

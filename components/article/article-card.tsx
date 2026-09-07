@@ -48,6 +48,7 @@ export function ArticleCard({
               alt={article.heroImageAlt ?? article.title}
               width={80}
               height={64}
+              unoptimized
               className="article-card__image"
             />
           </div>
@@ -83,6 +84,7 @@ export function ArticleCard({
               alt={article.heroImageAlt ?? article.title}
               width={192}
               height={128}
+              unoptimized
               className="article-card__image"
             />
           </div>
@@ -129,6 +131,7 @@ export function ArticleCard({
               alt={article.heroImageAlt ?? article.title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              unoptimized
               className="article-card__image"
               priority
             />
@@ -185,6 +188,7 @@ export function ArticleCard({
             alt={article.heroImageAlt ?? article.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            unoptimized
             className="article-card__image"
           />
           {article.isBreaking && (

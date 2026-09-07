@@ -102,6 +102,7 @@ export function HeroSectionCarousel({ articles }: { articles: HeroArticleItem[] 
                     src={current.heroImage}
                     alt={current.title ?? "Top Story"}
                     fill
+                    unoptimized
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                     className="hero-carousel-card__art-img"
                     priority

@@ -16,7 +16,7 @@ import { CommentsSection } from "@/components/article/comments-section";
 import { auth } from "@/lib/auth";
 import { isStaff } from "@/lib/permissions";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 interface ArticlePageProps {
   params: Promise<{ category: string; slug: string }>;

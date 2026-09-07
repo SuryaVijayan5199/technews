@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { getArticlesByCategory } from "@/lib/actions/article.actions";
 import { cleanAuthorName } from "@/lib/utils";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
