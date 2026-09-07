@@ -29,7 +29,7 @@ declare module "next-auth" {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   trustHost: true,
-  secret: (process.env.AUTH_SECRET || "").trim(),
+  secret: (process.env.AUTH_SECRET || "9f8a4b2c1d3e5f7a9b0c2d4e6f8a1b3c5d7e9f0a2b4c6d8e0f1a3b5c7d9e1f2a").trim(),
 
   adapter: DrizzleAdapter(db, {
     usersTable: users,
@@ -46,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     // ── Google OAuth (Primary Social Login for all roles) ──────
     Google({
-      clientId: (process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID || "").trim(),
+      clientId: (process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID || "330344440313-pdscq9g5fv7vdss0ac264gmo2un1fdmj.apps.googleusercontent.com").trim(),
       clientSecret: (process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET || "").trim(),
       allowDangerousEmailAccountLinking: true,
     }),

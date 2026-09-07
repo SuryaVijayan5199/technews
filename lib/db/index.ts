@@ -10,6 +10,15 @@ const isNeon = connectionString.includes("neon.tech");
 
 export const db: any = isNeon
   ? drizzleNeon(neon(connectionString), { schema })
-  : drizzlePg(postgres(connectionString, { ssl: "require", max: 10 }), { schema });
+  : drizzlePg(
+      postgres(connectionString, {
+        ssl: "require",
+        prepare: false,
+        connect_timeout: 15,
+        idle_timeout: 10,
+        max: 5,
+      }),
+      { schema }
+    );
 
 export type Database = typeof db;
