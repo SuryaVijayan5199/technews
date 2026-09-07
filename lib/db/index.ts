@@ -4,10 +4,7 @@ import { neon } from "@neondatabase/serverless";
 import postgres from "postgres";
 import * as schema from "./schema";
 
-function getConnectionString(): string {
-  if (typeof process !== "undefined" && process.env?.DATABASE_URL) {
-    return process.env.DATABASE_URL;
-  }
+export function getConnectionString(): string {
   try {
     const { getCloudflareContext } = require("@opennextjs/cloudflare");
     const cf = getCloudflareContext();
@@ -15,14 +12,15 @@ function getConnectionString(): string {
       return cf.env.HYPERDRIVE.connectionString;
     }
   } catch {
-    // Ignore error outside Cloudflare request scope
+    // Ignore error if invoked outside request scope
   }
-  return "postgresql://placeholder:placeholder@localhost:5432/placeholder";
+  return process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder";
 }
 
 const connectionString = getConnectionString();
+const isNeon = connectionString.includes("neon.tech");
 
-export const db: any = connectionString.includes("neon.tech")
+export const db: any = isNeon
   ? drizzleNeon(neon(connectionString), { schema })
   : drizzlePg(
       postgres(connectionString, {
