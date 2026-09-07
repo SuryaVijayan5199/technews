@@ -13,10 +13,9 @@ export const db: any = isNeon
   : drizzlePg(
       postgres(connectionString, {
         ssl: "require",
-        prepare: false,
-        connect_timeout: 15,
-        idle_timeout: 10,
         max: 5,
+        connect_timeout: 10,
+        idle_timeout: 30,
       }),
       { schema }
     );
