@@ -4,7 +4,10 @@ import { neon } from "@neondatabase/serverless";
 import postgres from "postgres";
 import * as schema from "./schema";
 
-export function getConnectionString(): string {
+function getConnectionString(): string {
+  if (typeof process !== "undefined" && process.env?.DATABASE_URL) {
+    return process.env.DATABASE_URL;
+  }
   try {
     const { getCloudflareContext } = require("@opennextjs/cloudflare");
     const cf = getCloudflareContext();
@@ -12,29 +15,23 @@ export function getConnectionString(): string {
       return cf.env.HYPERDRIVE.connectionString;
     }
   } catch {
-    // Fallback for build time or non-Cloudflare request context
+    // Ignore error outside Cloudflare request scope
   }
-  return process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder";
+  return "postgresql://placeholder:placeholder@localhost:5432/placeholder";
 }
 
-export function createDatabaseInstance() {
-  const connStr = getConnectionString();
-  const isNeon = connStr.includes("neon.tech");
+const connectionString = getConnectionString();
 
-  if (isNeon) {
-    return drizzleNeon(neon(connStr), { schema });
-  }
-
-  const client = postgres(connStr, {
-    ssl: "require",
-    max: 5,
-    connect_timeout: 10,
-    idle_timeout: 30,
-  });
-
-  return drizzlePg(client, { schema });
-}
-
-export const db: any = createDatabaseInstance();
+export const db: any = connectionString.includes("neon.tech")
+  ? drizzleNeon(neon(connectionString), { schema })
+  : drizzlePg(
+      postgres(connectionString, {
+        ssl: "require",
+        max: 5,
+        connect_timeout: 10,
+        idle_timeout: 30,
+      }),
+      { schema }
+    );
 
 export type Database = typeof db;
