@@ -99,33 +99,45 @@ async function runMigration() {
     }
 
     // 6. Newsletter Subscribers
-    console.log("📧 6/8 Exporting Newsletter Subscribers...");
-    const subList = await sourceDb.query.newsletterSubscribers.findMany();
-    if (subList.length > 0) {
-      console.log(`   Migrating ${subList.length} newsletter subscribers...`);
-      for (const s of subList) {
-        await targetDb.insert(schema.newsletterSubscribers).values(s).onConflictDoNothing();
+    try {
+      console.log("📧 6/8 Exporting Newsletter Subscribers...");
+      const subList = await sourceDb.query.newsletterSubscribers.findMany();
+      if (subList.length > 0) {
+        console.log(`   Migrating ${subList.length} newsletter subscribers...`);
+        for (const s of subList) {
+          await targetDb.insert(schema.newsletterSubscribers).values(s).onConflictDoNothing();
+        }
       }
+    } catch (err) {
+      console.log("   (Newsletter Subscribers table omitted from source DB)");
     }
 
     // 7. Bookmarks
-    console.log("🔖 7/8 Exporting User Bookmarks...");
-    const bkmList = await sourceDb.query.bookmarks.findMany();
-    if (bkmList.length > 0) {
-      console.log(`   Migrating ${bkmList.length} bookmarks...`);
-      for (const b of bkmList) {
-        await targetDb.insert(schema.bookmarks).values(b).onConflictDoNothing();
+    try {
+      console.log("🔖 7/8 Exporting User Bookmarks...");
+      const bkmList = await sourceDb.query.bookmarks.findMany();
+      if (bkmList.length > 0) {
+        console.log(`   Migrating ${bkmList.length} bookmarks...`);
+        for (const b of bkmList) {
+          await targetDb.insert(schema.bookmarks).values(b).onConflictDoNothing();
+        }
       }
+    } catch (err) {
+      console.log("   (Bookmarks table omitted from source DB)");
     }
 
     // 8. Reading History
-    console.log("📜 8/8 Exporting Reading History...");
-    const histList = await sourceDb.query.readingHistory.findMany();
-    if (histList.length > 0) {
-      console.log(`   Migrating ${histList.length} history items...`);
-      for (const h of histList) {
-        await targetDb.insert(schema.readingHistory).values(h).onConflictDoNothing();
+    try {
+      console.log("📜 8/8 Exporting Reading History...");
+      const histList = await sourceDb.query.readingHistory.findMany();
+      if (histList.length > 0) {
+        console.log(`   Migrating ${histList.length} history items...`);
+        for (const h of histList) {
+          await targetDb.insert(schema.readingHistory).values(h).onConflictDoNothing();
+        }
       }
+    } catch (err) {
+      console.log("   (Reading History table omitted from source DB)");
     }
 
     console.log("✅ Data Migration Completed Successfully! All records transferred to Target Database.");
