@@ -1,16 +1,35 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Volume2, Play, Headphones, Sparkles, TrendingUp, Shield, Zap, ArrowRight } from "lucide-react";
+import {
+  Volume2,
+  Play,
+  Headphones,
+  Sparkles,
+  TrendingUp,
+  Shield,
+  Zap,
+  ArrowRight,
+  Smartphone,
+  Bot,
+  Activity,
+  Brain,
+  Home as HomeIcon,
+  Bitcoin,
+  Gamepad2,
+} from "lucide-react";
 import {
   getFeaturedArticles,
   getLatestArticles,
   getTrendingArticles,
   getEditorsPicks,
+  getBriefingArticles,
+  getGlobalBriefingArticles,
   getBreakingArticle,
   getArticlesGroupedByTopics,
 } from "@/lib/actions/article.actions";
 import { HeroSectionCarousel } from "@/components/shared/hero-carousel";
 import { NewsletterCta } from "@/components/shared/newsletter-cta";
+import { AudioBriefingPlayer } from "@/components/shared/audio-briefing-player";
 
 function timeAgo(date: Date | string | null | undefined): string {
   if (!date) return "";
@@ -28,15 +47,16 @@ function kViews(n: number): string {
 }
 
 const TOPICS = [
-  { label: "Phone", sub: "Smartphones • iOS • Android", href: "/phone" },
-  { label: "Audio", sub: "Headphones • Speakers • Hi-Fi", href: "/audio" },
-  { label: "Robotic", sub: "Humanoids • Drones • Automation", href: "/robotics" },
-  { label: "Fitness", sub: "Wearables • Biosensors • Trackers", href: "/fitness" },
-  { label: "Security", sub: "Zero-Trust • Privacy • Defense", href: "/security" },
-  { label: "AI", sub: "LLMs • Autonomous Agents • Research", href: "/ai" },
-  { label: "Home", sub: "Matter • Hubs • Energy Automation", href: "/smart-home" },
-  { label: "EVs", sub: "Electric Vehicles • Charging • Battery", href: "/evs" },
-  { label: "Crypto", sub: "Tokenization • Zero-Knowledge • DePIN", href: "/crypto" },
+  { label: "Phone", sub: "Smartphones • iOS • Android", href: "/phone", icon: Smartphone, color: "#0ea5e9" },
+  { label: "Audio", sub: "Headphones • Speakers • Hi-Fi", href: "/audio", icon: Headphones, color: "#8b5cf6" },
+  { label: "Robotic", sub: "Humanoids • Drones • Automation", href: "/robotics", icon: Bot, color: "#6366f1" },
+  { label: "Fitness", sub: "Wearables • Biosensors • Trackers", href: "/fitness", icon: Activity, color: "#10b981" },
+  { label: "Security", sub: "Zero-Trust • Privacy • Defense", href: "/security", icon: Shield, color: "#f59e0b" },
+  { label: "AI", sub: "LLMs • Autonomous Agents • Research", href: "/ai", icon: Brain, color: "#a855f7" },
+  { label: "Home", sub: "Matter • Hubs • Automation", href: "/smart-home", icon: HomeIcon, color: "#14b8a6" },
+  { label: "EVs", sub: "Electric Vehicles • Charging", href: "/evs", icon: Zap, color: "#22c55e" },
+  { label: "Crypto", sub: "Tokenization • Zero-Knowledge", href: "/crypto", icon: Bitcoin, color: "#f97316" },
+  { label: "Gaming", sub: "Consoles • PC Gaming • Hardware", href: "/gaming", icon: Gamepad2, color: "#ef4444" },
 ];
 
 const PRINCIPLES = [
@@ -61,30 +81,78 @@ const DEFAULT_BRIEF_ITEMS = [
   { title: "Consumer hardware makers double down on local neural processing units", category: "Hardware & Devices", meta: "Updated 3h ago • 4 min read" },
 ];
 
-export async function TechCrestHomePage() {
-  const [featured, latest, trending, editorsPicks, breakingArticle, topicShowcase] = await Promise.all([
+function getCategoryIcon(iconName?: string | null, categoryName?: string | null) {
+  const key = (iconName || categoryName || "").toLowerCase();
+  if (key.includes("phone") || key.includes("smartphone") || key.includes("mobile")) return Smartphone;
+  if (key.includes("audio") || key.includes("headphone") || key.includes("sound")) return Headphones;
+  if (key.includes("robot") || key.includes("bot") || key.includes("automation")) return Bot;
+  if (key.includes("fit") || key.includes("health") || key.includes("wearable")) return Activity;
+  if (key.includes("sec") || key.includes("shield") || key.includes("cyber")) return Shield;
+  if (key.includes("ai") || key.includes("brain") || key.includes("intelligence")) return Brain;
+  if (key.includes("home") || key.includes("house") || key.includes("smart")) return HomeIcon;
+  if (key.includes("ev") || key.includes("zap") || key.includes("electric")) return Zap;
+  if (key.includes("crypto") || key.includes("coin") || key.includes("web3")) return Bitcoin;
+  if (key.includes("game") || key.includes("gaming") || key.includes("console")) return Gamepad2;
+  return Sparkles;
+}
+
+export async function TechCrestHomepage() {
+  const [
+    featuredArticles,
+    latestArticles,
+    trendingArticles,
+    editorsPicks,
+    briefingArticles,
+    globalBriefings,
+    breakingArticle,
+    groupedTopics,
+  ] = await Promise.all([
     getFeaturedArticles(5),
-    getLatestArticles(10),
-    getTrendingArticles(5),
-    getEditorsPicks(4),
+    getLatestArticles(8),
+    getTrendingArticles(10),
+    getEditorsPicks(6),
+    getBriefingArticles(5),
+    getGlobalBriefingArticles(3),
     getBreakingArticle(),
     getArticlesGroupedByTopics(),
   ]);
 
-  const topStories = featured.length >= 5 ? featured : [...featured, ...latest].slice(0, 5);
-  const latestStories = latest.slice(0, 5);
-  const mostRead = trending.slice(0, 5);
-  const briefItems = editorsPicks.slice(0, 5);
-  const globalBriefing = trending.slice(0, 3);
+  const activeExploreTopics = groupedTopics.length > 0
+    ? groupedTopics.map((gt: any) => {
+        const cat = gt.category;
+        return {
+          label: cat.name,
+          sub: cat.description || `${cat.name} news & updates`,
+          href: `/${cat.slug}`,
+          icon: getCategoryIcon(cat.icon, cat.name),
+          color: cat.color || "#2D7FF9",
+        };
+      })
+    : TOPICS;
 
-  const filteredTopicShowcase = topicShowcase.filter(
-    ({ category }) => category.slug !== "news" && category.name.toLowerCase() !== "news"
+  // Deduplicate topStories by unique article ID so story 1 and story 5 are guaranteed unique
+  const rawTopStories = [...editorsPicks, ...latestArticles];
+  const seenTopStoryIds = new Set<number>();
+  const topStories: typeof editorsPicks = [];
+  for (const art of rawTopStories) {
+    if (art && art.id && !seenTopStoryIds.has(art.id)) {
+      seenTopStoryIds.add(art.id);
+      topStories.push(art);
+      if (topStories.length === 5) break;
+    }
+  }
+  const latestStories = latestArticles.slice(0, 5);
+  const mostRead = trendingArticles.slice(0, 10);
+  const briefItems = briefingArticles.slice(0, 5);
+
+  const filteredTopicShowcase = groupedTopics.filter(
+    ({ category }: any) => category.slug !== "news" && category.name.toLowerCase() !== "news"
   );
 
   return (
     <div className="tc-page">
       {/* HERO SECTION CAROUSEL */}
-      <HeroSectionCarousel articles={featured} />
+      <HeroSectionCarousel articles={featuredArticles} />
 
       {/* TOP STORIES (5 Articles) */}
       <section className="tc-section">
@@ -114,7 +182,7 @@ export async function TechCrestHomePage() {
                       TechCrest Editorial &bull; {topStories[0].readingTimeMinutes ?? 5} min read &bull; {kViews(topStories[0].viewCount ?? 0)}
                     </div>
                     <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-read-btn">
-                      Read Story <ArrowRight className="w-3.5 h-3.5 inline ml-1" />
+                      Read Story <ArrowRight className="tc-inline-icon inline ml-1" />
                     </Link>
                   </div>
                 </div>
@@ -177,7 +245,7 @@ export async function TechCrestHomePage() {
           </div>
           <div className="tc-latest-grid">
             <div className="tc-latest-list">
-              {(latestStories.length > 0 ? latestStories : []).map((article, i) => (
+              {(latestStories.length > 0 ? latestStories : []).map((article: any, i: number) => (
                 <article key={article.id ?? i} className="tc-latest-row">
                   <div className="tc-thumb">
                     {article.heroImage ? <Image src={article.heroImage} alt={article.title} fill className="object-cover" style={{ borderRadius: "8px" }} /> : null}
@@ -193,7 +261,7 @@ export async function TechCrestHomePage() {
             </div>
             <aside className="tc-most-read">
               <h3>Trending Stories</h3>
-              {(mostRead.length > 0 ? mostRead : []).map((article, idx) => (
+              {(mostRead.length > 0 ? mostRead : []).map((article: any, idx: number) => (
                 <div key={article.id} className="tc-rank">
                   <span className="tc-rank__num">{String(idx + 1).padStart(2, "0")}</span>
                   <div>
@@ -218,23 +286,13 @@ export async function TechCrestHomePage() {
 
             {/* Left Panel: Executive Audio & 5 Daily Briefing Signals */}
             <div className="tc-brief-panel">
-              {/* Audio Briefing Bar */}
-              <div className="tc-brief-audio-bar">
-                <div className="tc-brief-audio-left">
-                  <span className="tc-brief-live-dot" />
-                  <Volume2 className="w-4 h-4 text-[#2D7FF9]" />
-                  <span className="tc-brief-audio-title">TODAY&apos;S 2-MIN EXECUTIVE AUDIO BRIEFING</span>
-                </div>
-                <button className="tc-brief-play-btn" aria-label="Listen to Audio Briefing">
-                  <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Listen</span>
-                </button>
-              </div>
+              {/* Audio Briefing Bar (Interactive Web Speech Audio Player) */}
+              <AudioBriefingPlayer items={briefItems.length > 0 ? briefItems : DEFAULT_BRIEF_ITEMS} />
 
               {/* Briefing Items (5 Items) */}
               <div className="tc-brief-items">
                 {briefItems.length > 0
-                  ? briefItems.map((item) => (
+                  ? briefItems.map((item: any) => (
                       <div key={item.id} className="tc-brief-item">
                         <Link href={`/${item.category?.slug ?? "news"}/${item.slug}`}>
                           <b>{item.title}</b>
@@ -270,14 +328,14 @@ export async function TechCrestHomePage() {
                 <span>SIGNAL &bull; SECURITY &bull; FUTURE</span>
               </div>
               <div className="tc-dark-brief__grid">
-                {(globalBriefing.length > 0 ? globalBriefing : []).map((item, idx) => (
+                {(globalBriefings.length > 0 ? globalBriefings : []).map((item: any, idx: number) => (
                   <article key={item.id} className="tc-dark-card">
                     <i>{BRIEF_LABELS[idx] ?? `0${idx + 1} / INSIGHT`}</i>
                     <h3><Link href={`/${item.category?.slug ?? "news"}/${item.slug}`}>{item.title}</Link></h3>
                     <p>{item.excerpt ?? "Strategic evaluation of technological capability, enterprise readiness, and systemic market shifts."}</p>
                   </article>
                 ))}
-                {globalBriefing.length === 0 && GLOBAL_FALLBACK.map((item) => (
+                {globalBriefings.length === 0 && GLOBAL_FALLBACK.map((item) => (
                   <article key={item.label} className="tc-dark-card">
                     <i>{item.label}</i>
                     <h3>{item.title}</h3>
@@ -303,7 +361,7 @@ export async function TechCrestHomePage() {
               <span className="tc-section-head__label">ALL TOPICS</span>
             </div>
             <div className="tc-topic-showcase-grid">
-              {filteredTopicShowcase.map(({ category, articles }) => (
+              {filteredTopicShowcase.map(({ category, articles }: any) => (
                 <div key={category.id} className="tc-topic-block">
                   <div className="tc-topic-block__header">
                     <div className="tc-topic-block__title-group">
@@ -318,7 +376,7 @@ export async function TechCrestHomePage() {
                     <p className="tc-topic-block__desc">{category.description}</p>
                   )}
                   <div className="tc-topic-block__articles">
-                    {articles.map((art) => (
+                    {articles.map((art: any) => (
                       <article key={art.id} className="tc-topic-art-card">
                         <Link href={`/${category.slug}/${art.slug}`} className="tc-topic-art-card__thumb">
                           {art.heroImage && (
@@ -336,7 +394,7 @@ export async function TechCrestHomePage() {
                             <Link href={`/${category.slug}/${art.slug}`}>{art.title}</Link>
                           </h4>
                           <p className="tc-topic-art-card__excerpt">{art.excerpt}</p>
-                          <div className="tc-meta text-[11px] mt-1">
+                          <div className="tc-meta tc-meta--small mt-1">
                             {timeAgo(art.publishedAt)} &bull; {art.readingTimeMinutes ?? 5} min read
                           </div>
                         </div>
@@ -350,19 +408,39 @@ export async function TechCrestHomePage() {
         </section>
       )}
 
-      {/* EXPLORE TOPICS (Positioned Below Topic Coverage) */}
-      <section className="tc-section">
+      {/* EXPLORE TOPICS (2 Rows - 5 Columns Layout) */}
+      <section className="tc-section tc-explore-topics-section">
         <div className="tc-wrap">
           <div className="tc-section-head">
             <h2>Explore Topics</h2>
-            <Link href="/news">DISCOVER &rarr;</Link>
+            <Link href="/news" className="tc-section-head__link">DISCOVER ALL &rarr;</Link>
           </div>
           <div className="tc-topics-grid">
-            {TOPICS.map((topic) => (
-              <Link key={topic.label} href={topic.href} className="tc-topic">
-                {topic.label}<span>{topic.sub}</span>
-              </Link>
-            ))}
+            {activeExploreTopics.map((topic: any) => {
+              const Icon = topic.icon;
+              return (
+                <Link
+                  key={topic.label}
+                  href={topic.href}
+                  className="tc-topic-card group"
+                  style={{ "--topic-accent": topic.color } as React.CSSProperties}
+                >
+                  <div className="tc-topic-card__top">
+                    <div
+                      className="tc-topic-card__icon"
+                      style={{ backgroundColor: `${topic.color}15`, color: topic.color }}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <ArrowRight className="tc-topic-card__arrow" />
+                  </div>
+                  <div className="tc-topic-card__content">
+                    <h3 className="tc-topic-card__title">{topic.label}</h3>
+                    <p className="tc-topic-card__sub">{topic.sub}</p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

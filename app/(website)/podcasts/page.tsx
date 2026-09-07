@@ -36,41 +36,41 @@ const EPISODES = [
 
 export default function PodcastsPage() {
   return (
-    <div className="container py-10 max-w-4xl">
+    <div className="container tc-page-section tc-page-narrow">
       <div className="mb-10">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-[var(--color-text-muted)] mb-4">
-          <Link href="/" className="hover:text-[var(--color-text-secondary)]">Home</Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[var(--color-text-secondary)]">Podcasts</span>
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 mb-4 tc-breadcrumb">
+          <Link href="/" className="tc-breadcrumb__link">Home</Link>
+          <ChevronRight className="tc-icon-xs" />
+          <span className="tc-text-muted">Podcasts</span>
         </nav>
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-500)] text-white flex items-center justify-center">
-            <Mic className="w-5 h-5" />
+          <div className="tc-page-icon">
+            <Mic className="tc-icon-md" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-outfit)" }}>
+            <h1 className="tc-page-title" style={{ fontFamily: "var(--font-outfit)" }}>
               The TechCrest Podcast
             </h1>
-            <p className="text-xs text-[var(--color-text-muted)]">New episodes every Tuesday</p>
+            <p className="tc-text-meta">New episodes every Tuesday</p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="tc-list-spaced-sm">
         {EPISODES.map((ep) => (
-          <div key={ep.id} className="card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex-1 space-y-1">
+          <div key={ep.id} className="card p-6 flex justify-between gap-4 tc-podcast-card">
+            <div className="tc-podcast-card__body">
               <div className="flex items-center gap-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand-400)]">{ep.episode}</span>
-                <span className="text-xs text-[var(--color-text-muted)]">{ep.date} · {ep.duration}</span>
+                <span className="tc-podcast-card__cat">{ep.episode}</span>
+                <span className="tc-text-meta">{ep.date} · {ep.duration}</span>
               </div>
-              <h2 className="text-xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-outfit)" }}>
+              <h2 className="tc-podcast-card__title" style={{ fontFamily: "var(--font-outfit)" }}>
                 {ep.title}
               </h2>
-              <p className="text-sm text-[var(--color-text-secondary)]">{ep.summary}</p>
+              <p className="tc-podcast-card__desc">{ep.summary}</p>
             </div>
             <button className="btn btn-primary flex-shrink-0 text-xs py-2 px-4">
-              <Play className="w-4 h-4 fill-current" /> Listen Now
+              <Play className="tc-icon-play" /> Listen Now
             </button>
           </div>
         ))}

@@ -17,53 +17,53 @@ export function TrendingSection({ articles }: { articles: Article[] }) {
       {/* Section Header */}
       <div className="section-header mb-6">
         <div className="section-header__left">
-          <TrendingUp className="w-5 h-5 text-brand" />
+          <TrendingUp className="tc-section-icon" />
           <h2 className="section-header__title">Trending Now</h2>
-          <span className="badge badge-breaking flex items-center gap-1">
-            <Flame className="w-3 h-3" /> Hot
+          <span className="badge badge-breaking tc-badge-flex">
+            <Flame className="tc-icon-sm" /> Hot
           </span>
         </div>
       </div>
 
       {articles.length === 0 ? (
-        <p className="text-center text-[var(--color-text-muted)] py-8">
+        <p className="text-center py-8 tc-empty-state">
           No trending articles yet.
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="tc-trending-grid">
           {articles.map((article, idx) => (
             <Link
               key={article.id}
               href={`/${article.category?.slug ?? "news"}/${article.slug}`}
-              className="card group relative overflow-hidden hover:-translate-y-1 transition-transform"
+              className="card relative overflow-hidden tc-trending-card"
             >
-              <div className="aspect-video relative overflow-hidden">
+              <div className="tc-trending-card__media">
                 {article.heroImage ? (
                   <Image
                     src={article.heroImage}
                     alt={article.title}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="tc-trending-card__img"
                   />
                 ) : (
-                  <div className="w-full h-full bg-[var(--color-surface-2)]" />
+                  <div className="tc-trending-card__placeholder" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <span className="absolute top-2 left-2 text-white font-black text-2xl opacity-60 leading-none">
+                <div className="tc-trending-card__overlay" />
+                <span className="tc-trending-card__rank">
                   {String(idx + 1).padStart(2, "0")}
                 </span>
               </div>
               <div className="p-4">
                 {article.category && (
-                  <span className="text-xs font-bold text-[var(--color-brand-400)] uppercase tracking-wider">
+                  <span className="tc-trending-card__cat">
                     {article.category.name}
                   </span>
                 )}
-                <h3 className="text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-400)] transition-colors mt-1 line-clamp-2 leading-snug">
+                <h3 className="tc-trending-card__title">
                   {article.title}
                 </h3>
                 {(article.viewCount ?? 0) > 0 && (
-                  <p className="text-xs text-[var(--color-text-muted)] mt-2">
+                  <p className="tc-trending-card__meta">
                     {article.viewCount! >= 1000
                       ? `${(article.viewCount! / 1000).toFixed(1)}k reads`
                       : `${article.viewCount} reads`}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Clock, Eye, MessageCircle } from "lucide-react";
 import { formatRelativeTime, truncate, cn, getAuthorInitials } from "@/lib/utils";
+import { BookmarkButton } from "@/components/shared/bookmark-button";
 
 export interface ArticleCardData {
   id: number;
@@ -39,7 +40,7 @@ export function ArticleCard({
 
   if (variant === "compact") {
     return (
-      <article className={cn("article-card article-card--compact group", className)}>
+      <article className={cn("article-card article-card--compact", className)}>
         {article.heroImage && (
           <div className="article-card__image-wrap">
             <Image
@@ -74,7 +75,7 @@ export function ArticleCard({
 
   if (variant === "horizontal") {
     return (
-      <article className={cn("article-card article-card--horizontal card group", className)}>
+      <article className={cn("article-card article-card--horizontal card", className)}>
         {article.heroImage && (
           <div className="article-card__image-wrap">
             <Image
@@ -89,7 +90,7 @@ export function ArticleCard({
         <div className="article-card__content">
           <div>
             {article.categoryName && (
-              <span className="badge badge-news mb-3 relative z-10">{article.categoryName}</span>
+              <span className="badge badge-news mb-3 relative tc-card-badge">{article.categoryName}</span>
             )}
             <h3 className="article-card__title">
               <Link href={href} className="article-card__link">
@@ -108,7 +109,7 @@ export function ArticleCard({
             )}
             {article.readingTimeMinutes && (
               <span className="article-card__meta-item">
-                <Clock className="w-3.5 h-3.5" />
+                <Clock className="tc-icon-xs" />
                 {article.readingTimeMinutes} min read
               </span>
             )}
@@ -120,13 +121,14 @@ export function ArticleCard({
 
   if (variant === "featured") {
     return (
-      <article className={cn("article-card article-card--featured card group", className)}>
+      <article className={cn("article-card article-card--featured card", className)}>
         <div className="article-card__featured-inner">
           {article.heroImage ? (
             <Image
               src={article.heroImage}
               alt={article.heroImageAlt ?? article.title}
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="article-card__image"
               priority
             />
@@ -136,10 +138,10 @@ export function ArticleCard({
           <div className="article-card__featured-overlay" />
           <div className="article-card__featured-content">
             {article.isBreaking && (
-              <span className="badge badge-breaking mb-3 relative z-10">Breaking</span>
+              <span className="badge badge-breaking mb-3 relative tc-card-badge">Breaking</span>
             )}
             {!article.isBreaking && article.categoryName && (
-              <span className="badge badge-news mb-3 relative z-10">{article.categoryName}</span>
+              <span className="badge badge-news mb-3 relative tc-card-badge">{article.categoryName}</span>
             )}
             <h2 className="article-card__featured-title">
               <Link href={href} className="article-card__link">
@@ -153,11 +155,8 @@ export function ArticleCard({
             )}
             <div className="article-card__featured-meta">
               {article.authorName && (
-                <div className="article-card__author flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#2D7FF9] to-[#165bb8] text-white text-[9px] font-extrabold flex items-center justify-center border border-white/20 shrink-0">
-                    {getAuthorInitials(article.authorName)}
-                  </div>
-                  <span className="article-card__author-name text-white">
+                <div className="article-card__author">
+                  <span className="article-card__author-name">
                     {article.authorName}
                   </span>
                 </div>
@@ -174,10 +173,10 @@ export function ArticleCard({
     );
   }
 
-  // Default card (Ncmaz Modern Magazine Card Style)
+  // Default card (TechCrest Modern Magazine Card Style)
   return (
     <article 
-      className={cn("article-card article-card--default card group", className)}
+      className={cn("article-card article-card--default card", className)}
     >
       {article.heroImage && (
         <div className="article-card__image-wrap">
@@ -190,7 +189,7 @@ export function ArticleCard({
           />
           {article.isBreaking && (
             <div className="article-card__badge-wrap">
-              <span className="badge badge-breaking shadow-md">Breaking</span>
+              <span className="badge badge-breaking tc-shadow-md">Breaking</span>
             </div>
           )}
           {article.categoryName && !article.isBreaking && (
@@ -217,10 +216,7 @@ export function ArticleCard({
         
         {/* Refactored Accessible Metadata Row */}
         <div className="article-card__meta-footer">
-          <div className="article-card__author flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#2D7FF9] to-[#165bb8] text-white text-[9px] font-extrabold flex items-center justify-center border border-white/20 shrink-0">
-              {getAuthorInitials(article.authorName)}
-            </div>
+          <div className="article-card__author">
             {article.authorName && (
               <span className="article-card__author-name">
                 {article.authorName}
@@ -230,17 +226,28 @@ export function ArticleCard({
 
           <div className="article-card__stats">
             {article.readingTimeMinutes && (
-              <span className="article-card__meta-item text-brand">
-                <Clock className="w-3 h-3" />
+              <span className="article-card__meta-item tc-text-brand">
+                <Clock className="tc-icon-xs" />
                 {article.readingTimeMinutes} min
               </span>
             )}
             {article.commentCount !== undefined && (
-              <span className="article-card__meta-item text-teal">
-                <MessageCircle className="w-3 h-3" />
+              <span className="article-card__meta-item tc-text-teal">
+                <MessageCircle className="tc-icon-xs" />
                 {article.commentCount}
               </span>
             )}
+            <BookmarkButton
+              article={{
+                id: article.id,
+                title: article.title,
+                slug: article.slug,
+                categorySlug: article.categorySlug,
+                categoryName: article.categoryName,
+                heroImage: article.heroImage ?? undefined,
+                readingTimeMinutes: article.readingTimeMinutes ?? undefined,
+              }}
+            />
           </div>
         </div>
       </div>

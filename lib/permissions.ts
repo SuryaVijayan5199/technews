@@ -29,6 +29,8 @@ export function isStaff(role?: string | null): boolean {
 const RoutePermissions: Record<string, Role[]> = {
   "/dashboard/settings": RoleTiers.ADMIN,
   "/dashboard/team": ["super_admin"],
+  "/dashboard/authors": [...RoleTiers.ADMIN, "editor"],
+  "/dashboard/subscribers": [...RoleTiers.ADMIN, "editor"],
   "/dashboard/categories": [...RoleTiers.ADMIN, "editor"],
   "/dashboard/analytics": [...RoleTiers.ADMIN, "editor"],
   "/dashboard/comments": [...RoleTiers.ADMIN, "editor", "reviewer"],
@@ -84,5 +86,17 @@ export function canPerformAction(role: string | null | undefined, action: Action
       return r === "super_admin" || r === "editor";
     default:
       return false;
+  }
+}
+
+export function requireStaff(role: string | null | undefined): void {
+  if (!role || !isStaff(role)) {
+    throw new Error("Forbidden: Staff access required");
+  }
+}
+
+export function requireRole(role: string | null | undefined, allowedRoles: Role[]): void {
+  if (!role || !allowedRoles.includes(role as Role)) {
+    throw new Error("Forbidden: Insufficient permissions");
   }
 }

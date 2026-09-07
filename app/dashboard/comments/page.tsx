@@ -21,6 +21,7 @@ type Comment = {
   likeCount: number | null;
   articleTitle: string | null;
   articleSlug: string | null;
+  categorySlug?: string | null;
 };
 
 const STATUS_STYLE: Record<string, { color: string; bg: string; border: string }> = {
@@ -74,6 +75,7 @@ export default function CommentModerationPage() {
   };
 
   const handleDelete = (id: number) => {
+    if (!confirm("Are you sure you want to delete this comment?")) return;
     startTransition(async () => {
       const result = await deleteComment(id);
       if (result.success) {
@@ -101,23 +103,23 @@ export default function CommentModerationPage() {
   return (
     <div className="dashboard-page-container">
       {toast && (
-        <div className={`dashboard-toast flex items-center gap-2 ${toast.type === "error" ? "text-red-400" : ""}`}>
-          {toast.type === "success" ? <CheckCircle className="w-4 h-4 text-green-400" /> : <AlertCircle className="w-4 h-4 text-red-400" />}
+        <div className={`dashboard-toast ${toast.type === "error" ? "dashboard-text-error" : ""}`}>
+          {toast.type === "success" ? <CheckCircle className="dashboard-icon dashboard-text-success" /> : <AlertCircle className="dashboard-icon dashboard-text-error" />}
           <span>{toast.msg}</span>
         </div>
       )}
 
       <div className="dashboard-page-header">
         <div>
-          <h1 className="dashboard-page-title flex items-center gap-2">
-            <MessageSquare className="w-6 h-6 text-[var(--color-brand-400)]" /> Comment Moderation
+          <h1 className="dashboard-page-title">
+            <MessageSquare className="dashboard-page-icon" /> Comment Moderation
           </h1>
           <p className="dashboard-page-subtitle">
             Review, approve, flag spam, and delete reader comments across all articles.
           </p>
         </div>
         <button onClick={load} disabled={isPending} className="btn btn-ghost" title="Refresh">
-          <RefreshCw className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
+          <RefreshCw className={isPending ? "dashboard-spinner" : "dashboard-icon"} />
         </button>
       </div>
 
@@ -153,7 +155,7 @@ export default function CommentModerationPage() {
             </thead>
             <tbody>
               {isPending && comments.length === 0 ? (
-                <tr><td colSpan={5} className="td-empty"><Loader2 className="w-4 h-4 animate-spin inline mr-2" />Loading…</td></tr>
+                <tr><td colSpan={5} className="td-empty"><Loader2 className="dashboard-spinner inline mr-2" />Loading…</td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={5} className="td-empty">
                   {comments.length === 0 ? "No comments yet." : "No comments match your search."}
@@ -175,8 +177,8 @@ export default function CommentModerationPage() {
                     </td>
                     <td className="td-cat">
                       {c.articleSlug ? (
-                        <Link href={`/${c.articleSlug}`} target="_blank"
-                          className="dashboard-comment-article hover:underline" style={{ color: "hsl(var(--color-brand-500))" }}>
+                        <Link href={`/${c.categorySlug ? c.categorySlug + '/' : ''}${c.articleSlug}`} target="_blank"
+                          className="dashboard-comment-article dashboard-link" style={{ color: "hsl(var(--color-brand-500))" }}>
                           {c.articleTitle?.slice(0, 40) ?? "Article"}…
                         </Link>
                       ) : (
@@ -204,18 +206,24 @@ export default function CommentModerationPage() {
                         {c.status !== "approved" && (
                           <button onClick={() => handleModerate(c.id, "approved")} disabled={isPending}
                             className="dashboard-action-btn dashboard-action-btn--edit" title="Approve">
-                            <Check className="w-4 h-4 text-green-400" />
+                            <Check className="dashboard-icon dashboard-text-success" />
+                          </button>
+                        )}
+                        {c.status !== "rejected" && (
+                          <button onClick={() => handleModerate(c.id, "rejected")} disabled={isPending}
+                            className="dashboard-action-btn" title="Reject">
+                            <X className="dashboard-icon dashboard-text-error" />
                           </button>
                         )}
                         {c.status !== "spam" && (
                           <button onClick={() => handleModerate(c.id, "spam")} disabled={isPending}
                             className="dashboard-action-btn" title="Mark as Spam">
-                            <ShieldAlert className="w-4 h-4 text-amber-400" />
+                            <ShieldAlert className="dashboard-icon dashboard-text-warning" />
                           </button>
                         )}
                         <button onClick={() => handleDelete(c.id)} disabled={isPending}
                           className="dashboard-action-btn dashboard-action-btn--delete" title="Delete">
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="dashboard-icon" />
                         </button>
                       </div>
                     </td>

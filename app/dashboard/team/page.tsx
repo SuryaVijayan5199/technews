@@ -12,7 +12,7 @@ import {
   updateStaffRole,
 } from "@/lib/actions/user.actions";
 
-const SUPER_ADMIN_EMAIL = "suryashc5199@gmail.com";
+import { isSuperAdminEmail } from "@/config/site";
 
 type StaffMember = {
   id: string;
@@ -25,7 +25,6 @@ type StaffMember = {
 };
 
 const ROLE_OPTIONS = [
-  { value: "super_admin", label: "Super Admin", desc: "Full platform authority & team role allocation" },
   { value: "publisher", label: "Publisher", desc: "Final approval, publishing & story placement" },
   { value: "managing_editor", label: "Managing Editor", desc: "Editorial operations, categories & assignments" },
   { value: "editor", label: "Editor", desc: "Write, edit & submit articles for publication" },
@@ -100,7 +99,7 @@ export default function TeamManagementPage() {
 
   // Change role
   const handleRoleChange = (userId: string, newRole: string, email: string) => {
-    if (email.toLowerCase() === SUPER_ADMIN_EMAIL) return;
+    if (isSuperAdminEmail(email)) return;
     startTransition(async () => {
       const result = await updateStaffRole(userId, newRole as any);
       if (result.success) {
@@ -114,7 +113,7 @@ export default function TeamManagementPage() {
 
   // Revoke access
   const handleRevoke = (userId: string, name: string, email: string) => {
-    if (email.toLowerCase() === SUPER_ADMIN_EMAIL) return;
+    if (isSuperAdminEmail(email)) return;
     startTransition(async () => {
       const result = await revokeStaffAccess(userId);
       if (result.success) {
@@ -137,19 +136,19 @@ export default function TeamManagementPage() {
 
       {/* Toast */}
       {toast && (
-        <div className={`dashboard-toast flex items-center gap-2 ${toast.type === "error" ? "border-red-500/30 text-red-400 bg-red-500/10" : ""}`}>
+        <div className={`dashboard-toast ${toast.type === "error" ? "dashboard-text-error" : ""}`}>
           {toast.type === "success"
-            ? <CheckCircle className="w-4 h-4 text-green-400" />
-            : <AlertCircle className="w-4 h-4 text-red-400" />}
+            ? <CheckCircle className="dashboard-icon dashboard-text-success" />
+            : <AlertCircle className="dashboard-icon dashboard-text-error" />}
           <span>{toast.msg}</span>
         </div>
       )}
 
       {/* Header */}
-      <div className="dashboard-page-header flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="dashboard-page-header">
         <div>
-          <h1 className="dashboard-page-title flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-[var(--color-brand-400)]" />
+          <h1 className="dashboard-page-title">
+            <ShieldCheck className="dashboard-page-icon" />
             Editorial Team Management
           </h1>
           <p className="dashboard-page-subtitle">
@@ -163,13 +162,13 @@ export default function TeamManagementPage() {
             className="btn btn-ghost"
             title="Refresh team list"
           >
-            <RefreshCw className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
+            <RefreshCw className={isPending ? "dashboard-spinner" : "dashboard-icon"} />
           </button>
           <button
             onClick={() => setShowModal(true)}
             className="btn btn-primary dashboard-primary-btn shrink-0"
           >
-            <UserPlus className="w-4 h-4" /> Add Staff Member
+            <UserPlus className="dashboard-icon" /> Add Staff Member
           </button>
         </div>
       </div>
@@ -177,9 +176,9 @@ export default function TeamManagementPage() {
       {/* Role Summary Cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "1rem" }}>
         {[
-          { label: "Total Staff", count: team.length, icon: <Users className="w-5 h-5" /> },
-          { label: "Editors", count: team.filter(m => ["editor", "managing_editor"].includes(m.role)).length, icon: <ShieldCheck className="w-5 h-5" /> },
-          { label: "Writers", count: team.filter(m => ["author", "contributor"].includes(m.role)).length, icon: <UserPlus className="w-5 h-5" /> },
+          { label: "Total Staff", count: team.length, icon: <Users className="dashboard-icon-md" /> },
+          { label: "Editors", count: team.filter(m => ["editor", "managing_editor"].includes(m.role)).length, icon: <ShieldCheck className="dashboard-icon-md" /> },
+          { label: "Writers", count: team.filter(m => ["author", "contributor"].includes(m.role)).length, icon: <UserPlus className="dashboard-icon-md" /> },
         ].map(c => (
           <div key={c.label} className="card" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             <div style={{ color: "var(--color-text-muted)" }}>{c.icon}</div>
@@ -213,12 +212,12 @@ export default function TeamManagementPage() {
                 <th className="th-title">Staff Member</th>
                 <th className="th-cat">Email</th>
                 <th className="th-status">Access Role</th>
-                <th className="th-actions text-right">Actions</th>
+                <th className="th-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
               {isPending && team.length === 0 ? (
-                <tr><td colSpan={4} className="td-empty"><Loader2 className="w-5 h-5 animate-spin inline mr-2" />Loading team...</td></tr>
+                <tr><td colSpan={4} className="td-empty"><Loader2 className="dashboard-spinner inline mr-2" />Loading team...</td></tr>
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="td-empty">
@@ -229,11 +228,11 @@ export default function TeamManagementPage() {
                 </tr>
               ) : (
                 filtered.map((m) => {
-                  const isSuperAdminRow = m.email.toLowerCase() === SUPER_ADMIN_EMAIL;
+                  const isSuperAdminRow = isSuperAdminEmail(m.email);
                   return (
                     <tr key={m.id} className="dashboard-table-row">
-                      <td className="td-title font-semibold">
-                        <div className="flex items-center gap-2.5">
+                      <td className="td-title">
+                        <div className="dashboard-user-row">
                           <img
                             src={m.image || `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(m.email)}`}
                             alt={m.name || m.email}
@@ -244,7 +243,7 @@ export default function TeamManagementPage() {
                           <div>
                             <span className="flex items-center gap-1.5">
                               {m.name || m.email.split("@")[0]}
-                              {isSuperAdminRow && <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />}
+                              {isSuperAdminRow && <Crown className="dashboard-star-icon" />}
                             </span>
                             <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
                               {m.isActive ? "Active" : "Inactive"}
@@ -252,7 +251,7 @@ export default function TeamManagementPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="td-cat font-mono text-xs text-brand">{m.email}</td>
+                      <td className="td-cat">{m.email}</td>
                       <td className="td-status">
                         {isSuperAdminRow ? (
                           <RoleBadge role="super_admin" />
@@ -270,15 +269,16 @@ export default function TeamManagementPage() {
                           </select>
                         )}
                       </td>
-                      <td className="td-actions text-right">
+                      <td className="td-actions">
                         {!isSuperAdminRow && (
                           <button
                             onClick={() => handleRevoke(m.id, m.name || m.email, m.email)}
                             disabled={isPending}
-                            className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+                            className="dashboard-delete-btn"
                             title="Revoke Staff Access"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Revoke</span>
                           </button>
                         )}
                       </td>
@@ -296,17 +296,17 @@ export default function TeamManagementPage() {
         <div className="modal-backdrop" onClick={() => setShowModal(false)}>
           <div className="modal-card card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title flex items-center gap-2">
-                <UserPlus className="w-4 h-4 text-brand" /> Add Staff Member
+              <h3 className="modal-title">
+                <UserPlus className="dashboard-icon dashboard-icon-brand" /> Add Staff Member
               </h3>
               <button onClick={() => setShowModal(false)} className="modal-close-btn">
-                <X className="w-5 h-5" />
+                <X className="dashboard-icon-md" />
               </button>
             </div>
 
-            <form onSubmit={handleAddStaff} className="space-y-4">
+            <form onSubmit={handleAddStaff} className="dashboard-form-fields">
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1">
+                <label className="dashboard-label">
                   Google Email Address <span style={{ color: "#ef4444" }}>*</span>
                 </label>
                 <input
@@ -315,7 +315,7 @@ export default function TeamManagementPage() {
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="editor@gmail.com"
                   required
-                  className="input text-sm w-full"
+                  className="input"
                 />
                 <p style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", marginTop: "0.3rem" }}>
                   They must sign in with this exact Google account.
@@ -323,7 +323,7 @@ export default function TeamManagementPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1">
+                <label className="dashboard-label">
                   Display Name
                 </label>
                 <input
@@ -331,18 +331,18 @@ export default function TeamManagementPage() {
                   value={inviteName}
                   onChange={(e) => setInviteName(e.target.value)}
                   placeholder="e.g. Sarah Chen"
-                  className="input text-sm w-full"
+                  className="input"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1">
+                <label className="dashboard-label">
                   Access Role <span style={{ color: "#ef4444" }}>*</span>
                 </label>
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="input text-sm w-full"
+                  className="input"
                   aria-label="Select role"
                 >
                   {ROLE_OPTIONS.map(r => (
@@ -359,10 +359,10 @@ export default function TeamManagementPage() {
                 ℹ️ The person must sign in with Google using the email address you enter above. Their role will activate automatically on first login.
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-1">
+              <div className="dashboard-modal-footer">
                 <button type="button" onClick={() => setShowModal(false)} className="btn btn-ghost text-sm">Cancel</button>
                 <button type="submit" disabled={isPending} className="btn btn-primary text-sm">
-                  {isPending ? <><Loader2 className="w-3 h-3 animate-spin" /> Adding...</> : "Add Staff Member"}
+                  {isPending ? <><Loader2 className="dashboard-spinner dashboard-spinner--sm" /> Adding...</> : "Add Staff Member"}
                 </button>
               </div>
             </form>

@@ -14,17 +14,18 @@ const PAGE_SIZE = 15;
 export default async function EditorialArticlesPage({
   searchParams,
 }: {
-  searchParams: {
+  searchParams: Promise<{
     search?: string;
     tab?: string;
     category?: string;
     page?: string;
-  };
+  }>;
 }) {
-  const search = searchParams?.search || "";
-  const tab = searchParams?.tab || "all";
-  const categorySlug = searchParams?.category || "";
-  const page = Math.max(1, parseInt(searchParams?.page || "1", 10));
+  const params = await searchParams;
+  const search = params?.search || "";
+  const tab = params?.tab || "all";
+  const categorySlug = params?.category || "";
+  const page = Math.max(1, parseInt(params?.page || "1", 10));
 
   const [articles, categories] = await Promise.all([
     getArticles(search, tab),
@@ -41,11 +42,9 @@ export default async function EditorialArticlesPage({
             Manage, edit, review, and publish all editorial content across TechCrest.
           </p>
         </div>
-        <RoleGate action="publish_article">
-          <Link href="/dashboard/articles/new" className="btn btn-primary dashboard-articles-btn">
-            <Plus className="w-4 h-4" /> New Article
-          </Link>
-        </RoleGate>
+        <Link href="/dashboard/articles/new" className="btn btn-primary dashboard-articles-btn">
+          <Plus className="w-4 h-4" /> New Article
+        </Link>
       </header>
 
       {/* Full client-side filtering, pagination */}

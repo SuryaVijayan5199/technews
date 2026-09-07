@@ -6,7 +6,7 @@
 import type { NextAuthConfig } from "next-auth";
 import { canAccessRoute } from "@/lib/permissions";
 
-const SUPER_ADMIN_EMAIL = "suryashc5199@gmail.com";
+import { isSuperAdminEmail } from "@/config/site";
 
 const STAFF_ROLES = [
   "super_admin",
@@ -26,6 +26,7 @@ function getPostLoginDestination(role: string | undefined): string {
 }
 
 export const authConfig: NextAuthConfig = {
+  secret: (process.env.AUTH_SECRET || "").trim(),
   pages: {
     signIn: "/login",
     error: "/auth/error",
@@ -39,7 +40,7 @@ export const authConfig: NextAuthConfig = {
         token.role = (user as any).role ?? "subscriber";
       }
       // Super admin is always super_admin regardless of DB state read at edge
-      if (token.email?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+      if (isSuperAdminEmail(token.email)) {
         token.role = "super_admin";
       }
       return token;

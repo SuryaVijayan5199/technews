@@ -15,9 +15,10 @@ import {
   ChevronRight,
   Filter,
   X,
+  Star,
 } from "lucide-react";
 import { RoleGate } from "@/components/shared/role-gate";
-import { deleteArticleAction } from "@/lib/actions/article.actions";
+import { deleteArticleAction, toggleFeaturedArticleAction } from "@/lib/actions/article.actions";
 
 type Category = { id: number; name: string; slug: string };
 
@@ -26,6 +27,7 @@ type Article = {
   title: string;
   slug: string;
   status: string;
+  isFeatured?: boolean;
   viewCount: number;
   publishedAt: Date | null;
   createdAt: Date;
@@ -51,6 +53,7 @@ type Props = {
 
 const STATUS_TABS = [
   { id: "all", label: "All" },
+  { id: "featured", label: "★ Featured Stories" },
   { id: "published", label: "Published" },
   { id: "pending_review", label: "In Review" },
   { id: "draft", label: "Drafts" },
@@ -91,7 +94,11 @@ export function ArticlesClient({
 
     // Status tab
     if (activeTab !== "all") {
-      list = list.filter((a) => a.status === activeTab);
+      if (activeTab === "featured") {
+        list = list.filter((a) => a.isFeatured);
+      } else {
+        list = list.filter((a) => a.status === activeTab);
+      }
     }
 
     // Category
@@ -144,6 +151,26 @@ export function ArticlesClient({
 
   const hasActiveFilters = activeTab !== "all" || categorySlug !== "" || search.trim() !== "";
 
+  // Feature toggle handler
+  const handleToggleFeatured = async (id: number, currentVal: boolean | undefined) => {
+    const newVal = !currentVal;
+    startTransition(async () => {
+      setArticles((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, isFeatured: newVal } : a))
+      );
+      const res = await toggleFeaturedArticleAction(id, newVal);
+      if (res.success) {
+        setNotification(newVal ? "Article added to Featured Stories!" : "Article removed from Featured Stories.");
+      } else {
+        setArticles((prev) =>
+          prev.map((a) => (a.id === id ? { ...a, isFeatured: currentVal } : a))
+        );
+        setNotification(`Error: ${res.error}`);
+      }
+      setTimeout(() => setNotification(null), 3000);
+    });
+  };
+
   // Delete handler
   const handleDelete = async (id: number, title: string) => {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
@@ -164,8 +191,8 @@ export function ArticlesClient({
     <div className="da-wrapper">
       {/* ── Toast ── */}
       {notification && (
-        <div className="dashboard-toast flex items-center gap-2">
-          <CheckCircle className="w-4 h-4" />
+        <div className="dashboard-toast">
+          <CheckCircle className="dashboard-icon" />
           <span>{notification}</span>
         </div>
       )}
@@ -177,6 +204,8 @@ export function ArticlesClient({
             const count =
               tab.id === "all"
                 ? articles.length
+                : tab.id === "featured"
+                ? articles.filter((a) => a.isFeatured).length
                 : articles.filter((a) => a.status === tab.id).length;
             return (
               <button
@@ -210,7 +239,7 @@ export function ArticlesClient({
           />
           {search && (
             <button onClick={() => handleSearchChange("")} className="da-clear-btn" aria-label="Clear search">
-              <X className="w-3.5 h-3.5" />
+              <X className="dashboard-icon-sm" />
             </button>
           )}
         </div>
@@ -235,7 +264,7 @@ export function ArticlesClient({
         {/* Clear all filters */}
         {hasActiveFilters && (
           <button onClick={clearFilters} className="da-clear-all-btn">
-            <X className="w-3.5 h-3.5" /> Clear Filters
+            <X className="dashboard-icon-sm" /> Clear Filters
           </button>
         )}
 
@@ -277,7 +306,7 @@ export function ArticlesClient({
                       <>
                         <span className="dashboard-article-card__dot">•</span>
                         <span className="dashboard-article-card__date">
-                          <Calendar className="w-3 h-3" />
+                          <Calendar className="dashboard-icon-xs" />
                           {new Date(article.publishedAt).toLocaleDateString("en-IN")}
                         </span>
                       </>
@@ -288,26 +317,46 @@ export function ArticlesClient({
 
               <div className="dashboard-article-card__side">
                 <div className="dashboard-article-card__stats">
+                  {article.isFeatured && (
+                    <span className="status-badge status-badge--featured" style={{ backgroundColor: "rgba(234, 179, 8, 0.15)", color: "#eab308", borderColor: "rgba(234, 179, 8, 0.3)", display: "inline-flex", alignItems: "center", gap: "0.25rem", fontWeight: 700 }}>
+                      <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                      Featured
+                    </span>
+                  )}
                   <span className={`status-badge status-badge--${article.status}`}>
+                    <span className="status-badge__dot" />
                     {article.status.replace(/_/g, " ")}
                   </span>
                   {article.viewCount > 0 && (
                     <span className="dashboard-article-card__views">
-                      <TrendingUp className="w-3.5 h-3.5" />
-                      {article.viewCount >= 1000
-                        ? `${(article.viewCount / 1000).toFixed(1)}K`
-                        : article.viewCount}
+                      <TrendingUp className="dashboard-icon-sm dashboard-icon-brand" />
+                      <span>
+                        {article.viewCount >= 1000
+                          ? `${(article.viewCount / 1000).toFixed(1)}K`
+                          : article.viewCount}
+                      </span>
                     </span>
                   )}
                 </div>
 
                 <div className="dashboard-article-card__actions">
+                  {/* Quick Feature Toggle Star */}
+                  <button
+                    type="button"
+                    onClick={() => handleToggleFeatured(article.id, article.isFeatured)}
+                    className={`dashboard-article-btn ${article.isFeatured ? "text-amber-400 bg-amber-500/10 border-amber-500/30" : "text-muted-foreground hover:text-amber-400"}`}
+                    title={article.isFeatured ? "Remove from Featured Stories" : "Set as Featured Story"}
+                    disabled={isPending}
+                  >
+                    <Star className={`dashboard-icon ${article.isFeatured ? "fill-amber-400 text-amber-400" : ""}`} />
+                  </button>
+
                   <Link
                     href={`/dashboard/articles/${article.id}/edit`}
                     className="dashboard-article-btn dashboard-article-btn--edit"
                     title="Edit Article"
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit className="dashboard-icon" />
                   </Link>
                   <Link
                     href={`/${article.category?.slug || "news"}/${article.slug}`}
@@ -316,7 +365,7 @@ export function ArticlesClient({
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Eye className="w-4 h-4" />
+                    <Eye className="dashboard-icon" />
                   </Link>
                   <RoleGate action="delete_article">
                     <button
@@ -325,7 +374,7 @@ export function ArticlesClient({
                       title="Delete Article"
                       disabled={isPending}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="dashboard-icon" />
                     </button>
                   </RoleGate>
                 </div>
@@ -344,7 +393,7 @@ export function ArticlesClient({
             className="da-page-btn"
             aria-label="Previous page"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="dashboard-icon" />
           </button>
 
           {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -374,7 +423,7 @@ export function ArticlesClient({
             className="da-page-btn"
             aria-label="Next page"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="dashboard-icon" />
           </button>
 
           <span className="da-page-info">

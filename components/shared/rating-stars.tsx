@@ -25,8 +25,8 @@ export function RatingStars({
     size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm";
 
   return (
-    <div className={cn("flex items-center gap-1.5", className)}>
-      <div className="flex items-center gap-0.5">
+    <div className={cn("tc-rating", className)}>
+      <div className="tc-rating__stars">
         {Array.from({ length: fullStars }).map((_, i) => (
           <Star
             key={`full-${i}`}
@@ -35,9 +35,9 @@ export function RatingStars({
           />
         ))}
         {hasHalfStar && (
-          <div className="relative">
+          <div className="tc-rating__star">
             <Star className={cn(iconSize, "star-empty")} fill="currentColor" />
-            <div className="absolute inset-0 overflow-hidden w-1/2">
+            <div className="tc-rating__half">
               <Star className={cn(iconSize, "star-fill")} fill="currentColor" />
             </div>
           </div>
@@ -52,7 +52,7 @@ export function RatingStars({
       </div>
       {showValue && (
         <span
-          className={cn(textSize, "font-bold text-[var(--color-text-primary)]")}
+          className={cn(textSize, "font-bold tc-rating__score")}
         >
           {rating.toFixed(1)}
         </span>
@@ -70,16 +70,16 @@ export function RatingBar({
 }) {
   const pct = (value / 10) * 100;
   return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between text-sm">
+    <div className="tc-rating__breakdown">
+      <div className="tc-rating__breakdown-row">
         <span className="text-[var(--color-text-secondary)]">{label}</span>
         <span className="font-bold text-[var(--color-text-primary)]">
           {value.toFixed(1)}
         </span>
       </div>
-      <div className="h-1.5 bg-[var(--color-surface-3)] rounded-full overflow-hidden">
+      <div className="tc-rating__bar-track">
         <div
-          className="h-full rounded-full transition-all duration-700"
+          className="tc-rating__bar-fill"
           style={{
             width: `${pct}%`,
             background:

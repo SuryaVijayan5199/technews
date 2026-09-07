@@ -3,7 +3,7 @@
 import { cache } from "react";
 import { db } from "@/lib/db";
 import { articles, authors, categories } from "@/lib/db/schema";
-import { eq, or, ilike, and, desc, isNotNull, inArray, ne } from "drizzle-orm";
+import { eq, or, ilike, and, desc, isNotNull, inArray, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { cleanAuthorName } from "@/lib/utils";
@@ -19,12 +19,38 @@ export async function getAllCategories() {
       orderBy: [categories.sortOrder],
     });
     // Return parent categories only (children embedded)
-    return all.filter((c) => c.parentId === null);
+    return all.filter((c: any) => c.parentId === null);
   } catch (error) {
     console.error("Error fetching categories:", error);
     return [];
   }
 }
+
+const ARTICLE_CARD_COLUMNS = {
+  id: true,
+  title: true,
+  slug: true,
+  excerpt: true,
+  heroImage: true,
+  heroImageAlt: true,
+  heroImageCaption: true,
+  status: true,
+  isFeatured: true,
+  isEditorsPick: true,
+  isBreaking: true,
+  isTrending: true,
+  isLatest: true,
+  isBriefing: true,
+  isGlobalBriefing: true,
+  publishedAt: true,
+  readingTimeMinutes: true,
+  viewCount: true,
+  categoryId: true,
+  secondaryCategoryIds: true,
+  authorId: true,
+  createdAt: true,
+  updatedAt: true,
+};
 
 // ─────────────────────────────────────────────
 // GET ARTICLES BY CATEGORY SLUG
@@ -42,14 +68,18 @@ export async function getArticlesByCategory(categorySlug: string, limit = 30) {
       where: and(
         eq(articles.status, "published"),
         isNotNull(articles.publishedAt),
-        eq(articles.categoryId, categoryObj.id)
+        or(
+          eq(articles.categoryId, categoryObj.id),
+          sql`${categoryObj.id} = ANY(${articles.secondaryCategoryIds})`
+        )
       ),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
       limit,
     });
 
-    return { category: categoryObj, articles: result };
+    return { category: categoryObj, articles: result as any };
   } catch (error) {
     console.error("Error fetching articles by category:", error);
     return { category: null, articles: [] };
@@ -61,49 +91,39 @@ export async function getArticlesByCategory(categorySlug: string, limit = 30) {
 // ─────────────────────────────────────────────
 export async function getArticlesGroupedByTopics() {
   try {
-    const allCategories = await db.query.categories.findMany({
-      where: eq(categories.isActive, true),
-      orderBy: [categories.sortOrder],
+    const [allCategories, allPublishedArticles] = await Promise.all([
+      db.query.categories.findMany({
+        where: eq(categories.isActive, true),
+        orderBy: [categories.sortOrder],
+      }),
+      db.query.articles.findMany({
+        where: and(
+          eq(articles.status, "published"),
+          isNotNull(articles.publishedAt)
+        ),
+        columns: ARTICLE_CARD_COLUMNS,
+        with: { author: true, category: true },
+        orderBy: [desc(articles.publishedAt)],
+        limit: 100,
+      }),
+    ]);
+
+    const result = allCategories.map((catObj: any) => {
+      const catArticles = allPublishedArticles
+        .filter(
+          (art: any) =>
+            art.categoryId === catObj.id ||
+            (art.secondaryCategoryIds && (art.secondaryCategoryIds as number[]).includes(catObj.id))
+        )
+        .slice(0, 3);
+
+      return {
+        category: catObj,
+        articles: catArticles as any,
+      };
     });
 
-    const result = await Promise.all(
-      allCategories.map(async (catObj) => {
-        let catArticles = await db.query.articles.findMany({
-          where: and(
-            eq(articles.status, "published"),
-            isNotNull(articles.publishedAt),
-            eq(articles.categoryId, catObj.id)
-          ),
-          with: { author: true, category: true },
-          orderBy: [desc(articles.publishedAt)],
-          limit: 3,
-        });
-
-        // If category has fewer than 3 articles, fallback to latest published articles
-        if (catArticles.length < 3) {
-          const fallback = await db.query.articles.findMany({
-            where: and(
-              eq(articles.status, "published"),
-              isNotNull(articles.publishedAt)
-            ),
-            with: { author: true, category: true },
-            orderBy: [desc(articles.publishedAt)],
-            limit: 6,
-          });
-
-          const existingIds = new Set(catArticles.map((a) => a.id));
-          const extra = fallback.filter((a) => !existingIds.has(a.id));
-          catArticles = [...catArticles, ...extra].slice(0, 3);
-        }
-
-        return {
-          category: catObj,
-          articles: catArticles,
-        };
-      })
-    );
-
-    return result.filter((item): item is NonNullable<typeof item> => item !== null && item.articles.length > 0);
+    return result.filter((item: any) => item.articles.length > 0);
   } catch (error) {
     console.error("Error fetching articles grouped by topics:", error);
     return [];
@@ -129,6 +149,48 @@ function estimateReadingTime(html: string): number {
   return Math.max(1, Math.ceil(words / 200));
 }
 
+async function sanitizeHeroImage(image?: string | null): Promise<string | null> {
+  if (!image) return null;
+  if (image.startsWith("data:image/")) {
+    // If image is an optimized WebP data URL under 400 KB, preserve it directly!
+    if (image.length < 400000) {
+      return image;
+    }
+    try {
+      const { v2: cloudinary } = await import("cloudinary");
+      const cloudName = (process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "").trim();
+      if (cloudName) {
+        cloudinary.config({
+          cloud_name: cloudName,
+          api_key: (process.env.CLOUDINARY_API_KEY || "984383337327624").trim(),
+          api_secret: (process.env.CLOUDINARY_API_SECRET || "xN3fNkM01NYiUZ2q8t1J7HAohjE").trim(),
+        });
+        const res = await cloudinary.uploader.upload(image, {
+          folder: "technews_articles",
+          resource_type: "image",
+          transformation: [{ quality: "auto", fetch_format: "auto" }],
+        });
+        return res.secure_url;
+      }
+    } catch (err) {
+      console.error("Failed to auto-upload base64 hero image to Cloudinary:", err);
+    }
+    return image;
+  }
+  return image;
+}
+
+export async function getAuthorsList() {
+  try {
+    return await db.query.authors.findMany({
+      orderBy: [authors.displayName],
+    });
+  } catch (error) {
+    console.error("Error fetching authors list:", error);
+    return [];
+  }
+}
+
 // ─────────────────────────────────────────────
 // CREATE ARTICLE
 // ─────────────────────────────────────────────
@@ -145,11 +207,16 @@ export async function createArticle(data: {
   canonicalUrl?: string;
   sources?: string;
   categorySlug: string;
+  secondaryCategoryIds?: number[];
   status: string;
+  authorId?: number;
   isFeatured?: boolean;
   isEditorsPick?: boolean;
   isBreaking?: boolean;
   isTrending?: boolean;
+  isLatest?: boolean;
+  isBriefing?: boolean;
+  isGlobalBriefing?: boolean;
   publishedAt?: Date | string | null;
 }) {
   const session = await auth();
@@ -157,38 +224,62 @@ export async function createArticle(data: {
     return { success: false, error: "Not authenticated" };
   }
 
+  // Prevent subscribers from publishing directly
+  const { isStaff, canPerformAction } = await import("@/lib/permissions");
+  if (!isStaff(session.user.role)) {
+    return { success: false, error: "Staff access required to create articles." };
+  }
+  if (data.status === "published" && !canPerformAction(session.user.role, "publish_article")) {
+    // Downgrade to pending_review for non-publishers
+    data = { ...data, status: "pending_review" };
+  }
+
   try {
-    // Get or create author record for this user
-    let author = await db.query.authors.findFirst({
-      where: eq(authors.userId, session.user.id),
-    });
+    let authorIdToAssign: number | null = null;
 
-    if (!author) {
-      const baseSlug = (
-        session.user.email
-          ?.split("@")[0]
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, "-") || `author`
-      ).substring(0, 80);
-
-      let authorSlug = baseSlug;
-      const existingAuthorSlug = await db.query.authors.findFirst({
-        where: eq(authors.slug, authorSlug),
+    if (data.authorId) {
+      const explicitAuthor = await db.query.authors.findFirst({
+        where: eq(authors.id, data.authorId),
       });
-      if (existingAuthorSlug) {
-        authorSlug = `${baseSlug}-${Date.now()}`;
+      if (explicitAuthor) {
+        authorIdToAssign = explicitAuthor.id;
       }
+    }
 
-      const [newAuthor] = await db
-        .insert(authors)
-        .values({
-          userId: session.user.id,
-          displayName: cleanAuthorName(session.user.name ?? session.user.email?.split("@")[0] ?? "Editor"),
-          slug: authorSlug,
-          avatar: session.user.image ?? `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(session.user.email || "author")}`,
-        })
-        .returning();
-      author = newAuthor;
+    if (!authorIdToAssign) {
+      // Get or create author record for this user
+      let author = await db.query.authors.findFirst({
+        where: eq(authors.userId, session.user.id),
+      });
+
+      if (!author) {
+        const baseSlug = (
+          session.user.email
+            ?.split("@")[0]
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, "-") || `author`
+        ).substring(0, 80);
+
+        let authorSlug = baseSlug;
+        const existingAuthorSlug = await db.query.authors.findFirst({
+          where: eq(authors.slug, authorSlug),
+        });
+        if (existingAuthorSlug) {
+          authorSlug = `${baseSlug}-${Date.now()}`;
+        }
+
+        const [newAuthor] = await db
+          .insert(authors)
+          .values({
+            userId: session.user.id,
+            displayName: cleanAuthorName(session.user.name ?? session.user.email?.split("@")[0] ?? "Editor"),
+            slug: authorSlug,
+            avatar: session.user.image ?? `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(session.user.email || "author")}`,
+          })
+          .returning();
+        author = newAuthor;
+      }
+      authorIdToAssign = author.id;
     }
 
     // Look up category
@@ -218,27 +309,32 @@ export async function createArticle(data: {
         slug,
         excerpt: data.excerpt || null,
         contentHtml: data.contentHtml || null,
-        heroImage: data.heroImage || null,
+        heroImage: await sanitizeHeroImage(data.heroImage),
         heroImageAlt: data.heroImageAlt || null,
         heroImageCaption: data.heroImageCaption || null,
         seoTitle: data.seoTitle || null,
         seoDescription: data.seoDescription || null,
         canonicalUrl: data.canonicalUrl || null,
-        authorId: author.id,
+        authorId: authorIdToAssign,
         categoryId: category?.id ?? null,
+        secondaryCategoryIds: data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0 ? data.secondaryCategoryIds : null,
         status: data.status as any,
         isFeatured: data.isFeatured ?? false,
         isEditorsPick: data.isEditorsPick ?? false,
         isBreaking: data.isBreaking ?? false,
         isTrending: data.isTrending ?? false,
+        isLatest: data.isLatest ?? true,
+        isBriefing: data.isBriefing ?? false,
+        isGlobalBriefing: data.isGlobalBriefing ?? false,
         publishedAt: publishedAt ?? null,
         readingTimeMinutes: estimateReadingTime(data.contentHtml ?? ""),
       })
       .returning();
 
-    revalidatePath("/dashboard/articles");
     revalidatePath("/");
-    // Revalidate the category page so new article appears immediately
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/articles");
+    revalidatePath("/dashboard/analytics");
     revalidatePath(`/${data.categorySlug}`);
     if (category?.parentId) {
       const parentCat = await db.query.categories.findFirst({
@@ -259,13 +355,17 @@ export async function createArticle(data: {
 // ─────────────────────────────────────────────
 export async function deleteArticleAction(id: number) {
   const session = await auth();
-  if (!session?.user) {
-    return { success: false, error: "Not authenticated" };
+  if (!session?.user) return { success: false, error: "Not authenticated" };
+  const { canPerformAction } = await import("@/lib/permissions");
+  if (!canPerformAction(session.user.role, "delete_article")) {
+    return { success: false, error: "Insufficient permissions to delete articles." };
   }
 
   try {
     await db.delete(articles).where(eq(articles.id, id));
+    revalidatePath("/dashboard");
     revalidatePath("/dashboard/articles");
+    revalidatePath("/dashboard/analytics");
     revalidatePath("/");
     return { success: true };
   } catch (error) {
@@ -309,7 +409,11 @@ export async function getArticles(search: string = "", tab: string = "all") {
     }
 
     if (tab !== "all") {
-      conditions.push(eq(articles.status, tab as any));
+      if (tab === "featured") {
+        conditions.push(eq(articles.isFeatured, true));
+      } else {
+        conditions.push(eq(articles.status, tab as any));
+      }
     }
 
     const whereClause =
@@ -331,6 +435,30 @@ export async function getArticles(search: string = "", tab: string = "all") {
   }
 }
 
+export async function toggleFeaturedArticleAction(id: number, isFeatured: boolean) {
+  const session = await auth();
+  const { isStaff } = await import("@/lib/permissions");
+  if (!session?.user || !isStaff(session.user.role)) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    await db
+      .update(articles)
+      .set({ isFeatured, updatedAt: new Date() })
+      .where(eq(articles.id, id));
+
+    revalidatePath("/dashboard/articles");
+    revalidatePath("/dashboard");
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error toggling featured article:", error);
+    return { success: false, error: error.message || "Failed to update featured status" };
+  }
+}
+
 // ─────────────────────────────────────────────
 // PUBLIC HOMEPAGE QUERIES
 // ─────────────────────────────────────────────
@@ -345,6 +473,7 @@ export async function getBreakingArticle() {
         eq(articles.isBreaking, true),
         isNotNull(articles.publishedAt)
       ),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
     });
@@ -355,7 +484,7 @@ export async function getBreakingArticle() {
   }
 }
 
-export async function getBreakingArticles(limit = 10) {
+export async function getBreakingArticles(limit = 10): Promise<any[]> {
   try {
     const flagged = await db.query.articles.findMany({
       where: and(
@@ -363,6 +492,7 @@ export async function getBreakingArticles(limit = 10) {
         eq(articles.isBreaking, true),
         isNotNull(articles.publishedAt)
       ),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
       limit,
@@ -375,21 +505,22 @@ export async function getBreakingArticles(limit = 10) {
         eq(articles.status, "published"),
         isNotNull(articles.publishedAt)
       ),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
       limit,
     });
 
-    const existingIds = new Set(flagged.map((a) => a.id));
-    const fallback = latest.filter((a) => !existingIds.has(a.id));
-    return [...flagged, ...fallback].slice(0, limit);
+    const existingIds = new Set((flagged as any[]).map((a: any) => a.id));
+    const fallback = (latest as any[]).filter((a: any) => !existingIds.has(a.id));
+    return [...flagged, ...fallback].slice(0, limit) as any;
   } catch (error) {
     console.error("Error fetching breaking articles:", error);
     return [];
   }
 }
 
-export async function getFeaturedArticles(limit = 5) {
+export async function getFeaturedArticles(limit = 5): Promise<any[]> {
   try {
     // First, fetch articles explicitly flagged as featured
     const flagged = await db.query.articles.findMany({
@@ -398,34 +529,36 @@ export async function getFeaturedArticles(limit = 5) {
         eq(articles.isFeatured, true),
         isNotNull(articles.publishedAt)
       ),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
       limit,
     });
 
-    if (flagged.length >= limit) return flagged;
+    if (flagged.length >= limit) return flagged as any;
 
     // Fill remaining slots with latest published articles
-    const existingIds = new Set(flagged.map((a) => a.id));
+    const existingIds = new Set((flagged as any[]).map((a: any) => a.id));
     const latest = await db.query.articles.findMany({
       where: and(
         eq(articles.status, "published"),
         isNotNull(articles.publishedAt)
       ),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
       limit: limit * 2,
     });
 
-    const fallback = latest.filter((a) => !existingIds.has(a.id));
-    return [...flagged, ...fallback].slice(0, limit);
+    const fallback = (latest as any[]).filter((a: any) => !existingIds.has(a.id));
+    return [...flagged, ...fallback].slice(0, limit) as any;
   } catch (error) {
     console.error("Error fetching featured articles:", error);
     return [];
   }
 }
 
-export async function getEditorsPicks(limit = 4) {
+export async function getEditorsPicks(limit = 4): Promise<any[]> {
   try {
     const flagged = await db.query.articles.findMany({
       where: and(
@@ -433,12 +566,13 @@ export async function getEditorsPicks(limit = 4) {
         eq(articles.isEditorsPick, true),
         isNotNull(articles.publishedAt)
       ),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
       limit,
     });
 
-    if (flagged.length >= limit) return flagged;
+    if (flagged.length >= limit) return flagged as any;
 
     // Fallback if not enough flagged
     const latest = await db.query.articles.findMany({
@@ -446,14 +580,15 @@ export async function getEditorsPicks(limit = 4) {
         eq(articles.status, "published"),
         isNotNull(articles.publishedAt)
       ),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
       limit: limit * 2,
     });
 
-    const existingIds = new Set(flagged.map((a) => a.id));
-    const fallback = latest.filter((a) => !existingIds.has(a.id));
-    return [...flagged, ...fallback].slice(0, limit);
+    const existingIds = new Set((flagged as any[]).map((a: any) => a.id));
+    const fallback = (latest as any[]).filter((a: any) => !existingIds.has(a.id));
+    return [...flagged, ...fallback].slice(0, limit) as any;
   } catch (error) {
     console.error("Error fetching editor's picks:", error);
     return [];
@@ -464,7 +599,7 @@ export async function getRelatedArticles(
   currentArticleId: number,
   categorySlug?: string,
   limit = 3
-) {
+): Promise<any[]> {
   try {
     let categoryId: number | undefined;
     if (categorySlug) {
@@ -486,6 +621,7 @@ export async function getRelatedArticles(
 
     let results = await db.query.articles.findMany({
       where: and(...conditions),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
       limit,
@@ -498,23 +634,24 @@ export async function getRelatedArticles(
           isNotNull(articles.publishedAt),
           ne(articles.id, currentArticleId)
         ),
+        columns: ARTICLE_CARD_COLUMNS,
         with: { author: true, category: true },
         orderBy: [desc(articles.publishedAt)],
         limit: limit * 2,
       });
-      const existingIds = new Set(results.map((a) => a.id));
-      const needed = fallback.filter((a) => !existingIds.has(a.id));
+      const existingIds = new Set((results as any[]).map((a: any) => a.id));
+      const needed = (fallback as any[]).filter((a: any) => !existingIds.has(a.id));
       results = [...results, ...needed].slice(0, limit);
     }
 
-    return results;
+    return results as any;
   } catch (error) {
     console.error("Error fetching related articles:", error);
     return [];
   }
 }
 
-export async function getLatestArticles(limit = 6, categorySlug?: string) {
+export async function getLatestArticles(limit = 6, categorySlug?: string): Promise<any[]> {
   try {
     const conditions: any[] = [
       eq(articles.status, "published"),
@@ -523,23 +660,24 @@ export async function getLatestArticles(limit = 6, categorySlug?: string) {
 
     const results = await db.query.articles.findMany({
       where: and(...conditions),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
       limit,
     });
 
     if (categorySlug) {
-      return results.filter((a) => a.category?.slug === categorySlug);
+      return (results as any[]).filter((a: any) => a.category?.slug === categorySlug) as any;
     }
 
-    return results;
+    return results as any;
   } catch (error) {
     console.error("Error fetching latest articles:", error);
     return [];
   }
 }
 
-export async function getTrendingArticles(limit = 4) {
+export async function getTrendingArticles(limit = 4): Promise<any[]> {
   try {
     const flagged = await db.query.articles.findMany({
       where: and(
@@ -547,12 +685,13 @@ export async function getTrendingArticles(limit = 4) {
         eq(articles.isTrending, true),
         isNotNull(articles.publishedAt)
       ),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.viewCount)],
       limit,
     });
 
-    if (flagged.length >= limit) return flagged;
+    if (flagged.length >= limit) return flagged as any;
 
     // Fallback sorted by view count
     const latest = await db.query.articles.findMany({
@@ -560,16 +699,89 @@ export async function getTrendingArticles(limit = 4) {
         eq(articles.status, "published"),
         isNotNull(articles.publishedAt)
       ),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.viewCount)],
       limit: limit * 2,
     });
 
-    const existingIds = new Set(flagged.map((a) => a.id));
-    const fallback = latest.filter((a) => !existingIds.has(a.id));
-    return [...flagged, ...fallback].slice(0, limit);
+    const existingIds = new Set((flagged as any[]).map((a: any) => a.id));
+    const fallback = (latest as any[]).filter((a: any) => !existingIds.has(a.id));
+    return [...flagged, ...fallback].slice(0, limit) as any;
   } catch (error) {
     console.error("Error fetching trending articles:", error);
+    return [];
+  }
+}
+
+export async function getBriefingArticles(limit = 5): Promise<any[]> {
+  try {
+    const flagged = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        eq(articles.isBriefing, true),
+        isNotNull(articles.publishedAt)
+      ),
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit,
+    });
+
+    if (flagged.length >= limit) return flagged as any;
+
+    const latest = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        isNotNull(articles.publishedAt)
+      ),
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit: limit * 2,
+    });
+
+    const existingIds = new Set((flagged as any[]).map((a: any) => a.id));
+    const fallback = (latest as any[]).filter((a: any) => !existingIds.has(a.id));
+    return [...flagged, ...fallback].slice(0, limit) as any;
+  } catch (error) {
+    console.error("Error fetching briefing articles:", error);
+    return [];
+  }
+}
+
+export async function getGlobalBriefingArticles(limit = 3): Promise<any[]> {
+  try {
+    const flagged = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        eq(articles.isGlobalBriefing, true),
+        isNotNull(articles.publishedAt)
+      ),
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit,
+    });
+
+    if (flagged.length >= limit) return flagged as any;
+
+    const latest = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        isNotNull(articles.publishedAt)
+      ),
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit: limit * 2,
+    });
+
+    const existingIds = new Set((flagged as any[]).map((a: any) => a.id));
+    const fallback = (latest as any[]).filter((a: any) => !existingIds.has(a.id));
+    return [...flagged, ...fallback].slice(0, limit) as any;
+  } catch (error) {
+    console.error("Error fetching global briefing articles:", error);
     return [];
   }
 }
@@ -592,7 +804,7 @@ export const getArticleBySlug = cache(async (slug: string) => {
     if (article) {
       // Increment view count asynchronously
       db.update(articles)
-        .set({ viewCount: article.viewCount + 1 })
+        .set({ viewCount: sql`${articles.viewCount} + 1` })
         .where(eq(articles.id, article.id))
         .catch(() => {});
     }
@@ -641,17 +853,30 @@ export async function updateArticleAction(
     canonicalUrl?: string;
     sources?: string;
     categorySlug: string;
+    secondaryCategoryIds?: number[];
     status: string;
+    authorId?: number;
     isFeatured?: boolean;
     isEditorsPick?: boolean;
     isBreaking?: boolean;
     isTrending?: boolean;
+    isLatest?: boolean;
+    isBriefing?: boolean;
+    isGlobalBriefing?: boolean;
     publishedAt?: Date | string | null;
   }
 ) {
   const session = await auth();
   if (!session?.user?.id) {
     return { success: false, error: "Not authenticated" };
+  }
+
+  const { isStaff, canPerformAction } = await import("@/lib/permissions");
+  if (!isStaff(session.user.role)) {
+    return { success: false, error: "Staff access required." };
+  }
+  if (data.status === "published" && !canPerformAction(session.user.role, "publish_article")) {
+    data = { ...data, status: "pending_review" };
   }
 
   try {
@@ -672,37 +897,77 @@ export async function updateArticleAction(
       ? new Date(data.publishedAt)
       : isNowPublished
       ? existingArticle.publishedAt ?? new Date()
-      : null;
+      : existingArticle.publishedAt; // PRESERVE existing publishedAt when archiving/drafting
+
+    let newSlug = data.customSlug ? generateSlug(data.customSlug) : existingArticle.slug;
+    if (data.customSlug) {
+      const slugConflict = await db.query.articles.findFirst({
+        where: and(eq(articles.slug, newSlug), ne(articles.id, id)),
+      });
+      if (slugConflict) {
+        newSlug = `${newSlug}-${Date.now()}`;
+      }
+    }
+
+    const updatePayload: any = {
+      title: data.title,
+      slug: newSlug,
+      excerpt: data.excerpt || null,
+      contentHtml: data.contentHtml || null,
+      heroImage: await sanitizeHeroImage(data.heroImage),
+      heroImageAlt: data.heroImageAlt || null,
+      heroImageCaption: data.heroImageCaption || null,
+      seoTitle: data.seoTitle || null,
+      seoDescription: data.seoDescription || null,
+      canonicalUrl: data.canonicalUrl || null,
+      categoryId: category?.id ?? null,
+      secondaryCategoryIds: data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0 ? data.secondaryCategoryIds : null,
+      status: data.status as any,
+      isFeatured: data.isFeatured ?? false,
+      isEditorsPick: data.isEditorsPick ?? false,
+      isBreaking: data.isBreaking ?? false,
+      isTrending: data.isTrending ?? false,
+      isLatest: data.isLatest ?? true,
+      isBriefing: data.isBriefing ?? false,
+      isGlobalBriefing: data.isGlobalBriefing ?? false,
+      publishedAt,
+      readingTimeMinutes: estimateReadingTime(data.contentHtml ?? ""),
+      updatedAt: new Date(),
+    };
+
+    if (data.authorId) {
+      updatePayload.authorId = data.authorId;
+    }
 
     const [updated] = await db
       .update(articles)
-      .set({
-        title: data.title,
-        slug: data.customSlug ? generateSlug(data.customSlug) : existingArticle.slug,
-        excerpt: data.excerpt || null,
-        contentHtml: data.contentHtml || null,
-        heroImage: data.heroImage || null,
-        heroImageAlt: data.heroImageAlt || null,
-        heroImageCaption: data.heroImageCaption || null,
-        seoTitle: data.seoTitle || null,
-        seoDescription: data.seoDescription || null,
-        canonicalUrl: data.canonicalUrl || null,
-        categoryId: category?.id ?? null,
-        status: data.status as any,
-        isFeatured: data.isFeatured ?? false,
-        isEditorsPick: data.isEditorsPick ?? false,
-        isBreaking: data.isBreaking ?? false,
-        isTrending: data.isTrending ?? false,
-        publishedAt,
-        readingTimeMinutes: estimateReadingTime(data.contentHtml ?? ""),
-        updatedAt: new Date(),
-      })
+      .set(updatePayload)
       .where(eq(articles.id, id))
       .returning();
 
-    revalidatePath("/dashboard/articles");
     revalidatePath("/");
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/articles");
+    revalidatePath("/dashboard/analytics");
     revalidatePath(`/${data.categorySlug}`);
+    if (data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0) {
+      const secCats = await db.query.categories.findMany({
+        where: inArray(categories.id, data.secondaryCategoryIds),
+      });
+      for (const sc of secCats) {
+        revalidatePath(`/${sc.slug}`);
+      }
+    }
+    // Revalidate new slug path if it changed
+    if (updated.slug !== existingArticle.slug) {
+      revalidatePath(`/${data.categorySlug}/${updated.slug}`);
+    }
+    // Revalidate old category path if category changed
+    const oldCategory = await db.query.categories.findFirst({ where: eq(categories.id, existingArticle.categoryId ?? 0) });
+    if (oldCategory && oldCategory.slug !== data.categorySlug) {
+      revalidatePath(`/${oldCategory.slug}`);
+      revalidatePath(`/${oldCategory.slug}/${existingArticle.slug}`);
+    }
     if (existingArticle.slug) {
       revalidatePath(`/${data.categorySlug}/${existingArticle.slug}`);
     }

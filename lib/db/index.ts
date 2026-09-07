@@ -1,12 +1,8 @@
-import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
+import { drizzle as drizzlePg } from "drizzle-orm/postgres-js";
+import { neon } from "@neondatabase/serverless";
 import postgres from "postgres";
 import * as schema from "./schema";
-
-// Prevent multiple connections in development (Next.js hot-reload)
-declare global {
-  // eslint-disable-next-line no-var
-  var __db: ReturnType<typeof postgres> | undefined;
-}
 
 const connectionString = process.env.DATABASE_URL!;
 
@@ -14,19 +10,10 @@ if (!connectionString) {
   throw new Error("DATABASE_URL environment variable is not set");
 }
 
-// Use a singleton connection in development to avoid exhausting the pool
-const sql =
-  global.__db ??
-  postgres(connectionString, {
-    max: process.env.NODE_ENV === "production" ? 10 : 3,
-    idle_timeout: 20,
-    connect_timeout: 10,
-  });
+const isNeon = connectionString.includes("neon.tech");
 
-if (process.env.NODE_ENV !== "production") {
-  global.__db = sql;
-}
-
-export const db = drizzle(sql, { schema });
+export const db: any = isNeon
+  ? drizzleNeon(neon(connectionString), { schema })
+  : drizzlePg(postgres(connectionString, { ssl: "require", max: 10 }), { schema });
 
 export type Database = typeof db;

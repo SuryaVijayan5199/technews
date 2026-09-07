@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { CheckCircle2, ChevronRight, Award } from "lucide-react";
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Tech Buying Guides 2026 — Expert Recommendations",
   description: "Curated tech buying guides to help you make informed decisions on laptops, smartphones, gaming PCs, headphones, and more.",
@@ -43,40 +45,40 @@ const GUIDES = [
 
 export default function BuyingGuidesPage() {
   return (
-    <div className="container py-10">
+    <div className="container tc-page-section">
       <div className="mb-10">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-[var(--color-text-muted)] mb-4">
-          <Link href="/" className="hover:text-[var(--color-text-secondary)]">Home</Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[var(--color-text-secondary)]">Buying Guides</span>
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 mb-4 tc-breadcrumb">
+          <Link href="/" className="tc-breadcrumb__link">Home</Link>
+          <ChevronRight className="tc-icon-xs" />
+          <span className="tc-text-muted">Buying Guides</span>
         </nav>
-        <h1 className="text-3xl sm:text-5xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-outfit)" }}>
+        <h1 className="tc-page-title" style={{ fontFamily: "var(--font-outfit)" }}>
           Tech Buying Guides 2026
         </h1>
-        <p className="text-[var(--color-text-secondary)] text-base sm:text-lg mt-2 max-w-3xl">
+        <p className="tc-page-subtitle">
           Zero marketing hype. Rigorous testing. Transparent recommendations updated continuously as new devices release.
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="tc-list-spaced">
         {GUIDES.map((guide) => (
-          <Link key={guide.id} href={`/buying-guides/${guide.slug}`} className="group card flex flex-col md:flex-row gap-6 p-6">
-            <div className="relative w-full md:w-72 h-48 rounded-xl overflow-hidden flex-shrink-0">
-              <Image src={guide.image} alt={guide.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+          <Link key={guide.id} href={`/buying-guides/${guide.slug}`} className="group card flex gap-6 p-6 tc-guide-card">
+            <div className="tc-guide-card__img-wrap">
+              <Image src={guide.image} alt={guide.title} fill className="tc-guide-card__img" />
             </div>
-            <div className="flex-1 flex flex-col justify-between">
+            <div className="tc-guide-card__body">
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <span className="badge badge-news">{guide.category}</span>
-                  <span className="text-xs text-[var(--color-text-muted)]">{guide.updatedDate}</span>
+                  <span className="tc-text-meta">{guide.updatedDate}</span>
                 </div>
-                <h2 className="text-2xl font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-300)] transition-colors mb-2" style={{ fontFamily: "var(--font-outfit)" }}>
+                <h2 className="tc-guide-card__title" style={{ fontFamily: "var(--font-outfit)" }}>
                   {guide.title}
                 </h2>
-                <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed mb-4">{guide.excerpt}</p>
+                <p className="tc-guide-card__excerpt">{guide.excerpt}</p>
               </div>
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-[var(--color-surface-2)] text-xs text-[var(--color-text-secondary)]">
-                <Award className="w-4 h-4 text-[var(--color-brand-400)] flex-shrink-0" />
+              <div className="flex items-center gap-2 p-3 tc-guide-card__info">
+                <Award className="tc-icon-brand" />
                 <span>Our Top Overall Pick: <strong className="text-[var(--color-text-primary)]">{guide.topPick}</strong></span>
               </div>
             </div>

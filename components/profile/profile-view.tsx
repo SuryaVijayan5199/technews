@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { updateUserProfile } from "@/lib/actions/user.actions";
+import { EnhancedImageUploader } from "@/components/dashboard/enhanced-image-uploader";
 
 // ─── Types ──────────────────────────────────────────────────────
 interface ProfileUser {
@@ -44,6 +45,7 @@ interface BookmarkItem {
   readingTimeMinutes: number | null;
   publishedAt: Date | null;
   createdAt: Date;
+  categorySlug?: string | null;
 }
 
 interface HistoryItem {
@@ -53,6 +55,7 @@ interface HistoryItem {
   title: string | null;
   slug: string | null;
   heroImage: string | null;
+  categorySlug?: string | null;
 }
 
 interface ProfileViewProps {
@@ -371,18 +374,16 @@ export function ProfileView({ user, bookmarks, readingHistory }: ProfileViewProp
           </div>
 
           <div>
-            <label style={labelStyle}><Camera style={{ width: 14, height: 14, display: "inline", marginRight: 4 }} />Avatar Image URL</label>
-            <input
-              type="text"
-              value={avatar}
-              onChange={(e) => setAvatar(e.target.value)}
-              placeholder="https://example.com/avatar.jpg"
-              className="input-field-v2"
-              style={{ width: "100%" }}
-            />
-            <p style={{ fontSize: "0.8rem", color: "var(--color-text-muted)", marginTop: "0.4rem" }}>
-              Enter a public image URL. Preview updates in the header above.
-            </p>
+            <label style={labelStyle}>
+              <Camera style={{ width: 14, height: 14, display: "inline", marginRight: 4 }} />
+              Profile Avatar Photo (Direct Upload or URL)
+            </label>
+            <div style={{ marginTop: "0.4rem" }}>
+              <EnhancedImageUploader
+                value={avatar}
+                onChange={(url) => setAvatar(url)}
+              />
+            </div>
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -439,7 +440,7 @@ export function ProfileView({ user, bookmarks, readingHistory }: ProfileViewProp
                     </span>
                   </div>
                   <Link
-                    href={`/${b.slug ?? ""}`}
+                    href={b.categorySlug ? `/${b.categorySlug}/${b.slug ?? ""}` : `/${b.slug ?? ""}`}
                     style={{
                       display: "inline-flex", alignItems: "center", gap: "0.35rem",
                       fontSize: "0.82rem", fontWeight: 600,
@@ -505,7 +506,7 @@ export function ProfileView({ user, bookmarks, readingHistory }: ProfileViewProp
                       </span>
                     )}
                     <Link
-                      href={`/${h.slug ?? ""}`}
+                      href={h.categorySlug ? `/${h.categorySlug}/${h.slug ?? ""}` : `/${h.slug ?? ""}`}
                       style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", fontSize: "0.82rem", fontWeight: 600, color: "hsl(var(--color-brand-500))", textDecoration: "none" }}
                     >
                       Continue <ExternalLink style={{ width: 13, height: 13 }} />

@@ -67,31 +67,31 @@ const AUTHORS = [
 
 export function PopularAuthors() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div className="tc-authors-grid">
       {AUTHORS.map((author) => (
         <Link
           key={author.id}
           href={`/authors/${author.slug}`}
-          className="group card p-4 text-center block"
+          className="card p-4 text-center block"
         >
-          <div className="relative w-16 h-16 mx-auto mb-3">
+          <div className="tc-author-card__avatar-wrap">
             <Image
               src={author.avatar}
               alt={author.name}
               fill
-              className="rounded-full object-cover group-hover:ring-2 ring-[var(--color-brand-500)] transition-all"
+              className="tc-author-card__avatar"
             />
             {author.isVerified && (
-              <CheckCircle className="absolute -bottom-1 -right-1 w-5 h-5 text-[var(--color-brand-400)] bg-[var(--color-surface-0)] rounded-full" />
+              <CheckCircle className="tc-author-card__verified" />
             )}
           </div>
-          <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-0.5 group-hover:text-[var(--color-brand-300)] transition-colors">
+          <h3 className="tc-author-card__name">
             {author.name}
           </h3>
-          <p className="text-[10px] text-[var(--color-text-muted)] mb-1">
+          <p className="tc-author-card__role">
             {author.role}
           </p>
-          <p className="text-[10px] text-[var(--color-brand-400)] font-medium">
+          <p className="tc-author-card__count">
             {author.articleCount} articles
           </p>
         </Link>

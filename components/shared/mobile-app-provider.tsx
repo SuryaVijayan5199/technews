@@ -57,8 +57,8 @@ export function MobileAppProvider({ children }: { children: React.ReactNode }) {
     <>
       {children}
       {isOffline && (
-        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[99999] flex items-center gap-2 px-5 py-2.5 rounded-full bg-red-600 text-white text-xs font-bold shadow-lg">
-          <WifiOff className="w-4 h-4 animate-pulse" />
+        <div className="tc-app-toast">
+          <WifiOff className="tc-app-toast__icon" />
           <span>Offline - Showing cached content</span>
         </div>
       )}

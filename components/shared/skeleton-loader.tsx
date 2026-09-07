@@ -14,31 +14,31 @@ export function ArticleCardSkeleton({
 }) {
   if (variant === "compact") {
     return (
-      <div className="flex items-start gap-3">
-        <Skeleton className="w-20 h-16 rounded-lg flex-shrink-0" />
-        <div className="flex-1 space-y-2">
-          <Skeleton className="h-3 w-16" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-3 w-3/4" />
+      <div className="tc-skel-compact">
+        <Skeleton className="tc-skel-thumb" />
+        <div className="tc-skel-compact__body">
+          <Skeleton style={{ height: "0.75rem", width: "4rem" }} />
+          <Skeleton style={{ height: "1rem", width: "100%" }} />
+          <Skeleton style={{ height: "0.75rem", width: "75%" }} />
         </div>
       </div>
     );
   }
 
   if (variant === "featured") {
-    return <Skeleton className="aspect-[16/9] rounded-xl" />;
+    return <Skeleton className="tc-skel-media" />;
   }
 
   return (
     <div className="card">
-      <Skeleton className="aspect-[16/10]" />
+      <Skeleton className="tc-skel-media--wide" />
       <div className="p-4 space-y-3">
-        <Skeleton className="h-4 w-16" />
-        <Skeleton className="h-5 w-full" />
-        <Skeleton className="h-5 w-4/5" />
+        <Skeleton style={{ height: "1rem", width: "4rem" }} />
+        <Skeleton style={{ height: "1.25rem", width: "100%" }} />
+        <Skeleton style={{ height: "1.25rem", width: "80%" }} />
         <div className="flex items-center justify-between pt-2">
-          <Skeleton className="h-3 w-24" />
-          <Skeleton className="h-3 w-16" />
+          <Skeleton style={{ height: "0.75rem", width: "6rem" }} />
+          <Skeleton style={{ height: "0.75rem", width: "4rem" }} />
         </div>
       </div>
     </div>
@@ -49,11 +49,11 @@ export function HeroSkeleton() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
       <div className="lg:col-span-3">
-        <Skeleton className="aspect-[16/9] rounded-xl" />
+        <Skeleton className="tc-skel-media" />
       </div>
       <div className="lg:col-span-2 flex flex-col gap-4">
-        <Skeleton className="aspect-[16/9] rounded-xl" />
-        <Skeleton className="aspect-[16/9] rounded-xl" />
+        <Skeleton className="tc-skel-media" />
+        <Skeleton className="tc-skel-media" />
       </div>
     </div>
   );
@@ -62,15 +62,15 @@ export function HeroSkeleton() {
 export function ReviewCardSkeleton() {
   return (
     <div className="card">
-      <Skeleton className="h-48" />
+      <Skeleton className="tc-skel-card-img" />
       <div className="p-5 space-y-3">
-        <Skeleton className="h-5 w-3/4" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-8 w-32" />
+        <Skeleton style={{ height: "1.25rem", width: "75%" }} />
+        <Skeleton style={{ height: "1rem", width: "100%" }} />
+        <Skeleton style={{ height: "2rem", width: "8rem" }} />
         <div className="space-y-2">
-          <Skeleton className="h-3 w-full" />
-          <Skeleton className="h-3 w-4/5" />
-          <Skeleton className="h-3 w-3/5" />
+          <Skeleton style={{ height: "0.75rem", width: "100%" }} />
+          <Skeleton style={{ height: "0.75rem", width: "80%" }} />
+          <Skeleton style={{ height: "0.75rem", width: "60%" }} />
         </div>
       </div>
     </div>

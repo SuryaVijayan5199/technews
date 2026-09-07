@@ -15,36 +15,12 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
   };
 }
 
-const MOCK_SEARCH_RESULTS = [
-  {
-    id: 1,
-    title: "OpenAI GPT-5 Deep Dive Review",
-    slug: "openai-gpt5-deep-dive-next-frontier-ai",
-    excerpt: "We tested GPT-5 for two weeks. Here's our complete analysis.",
-    heroImage: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&h=375&fit=crop&q=80",
-    publishedAt: "2026-07-30T10:00:00Z",
-    readingTimeMinutes: 12,
-    categorySlug: "ai",
-    categoryName: "AI",
-    authorName: "Dr. Sarah Chen",
-  },
-  {
-    id: 2,
-    title: "The Rise of Agentic AI: How Autonomous Models Are Changing Software",
-    slug: "rise-agentic-ai-autonomous-models-software-development",
-    excerpt: "Agentic AI systems that can plan, execute, and self-correct.",
-    heroImage: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&h=375&fit=crop&q=80",
-    publishedAt: "2026-07-30T09:00:00Z",
-    readingTimeMinutes: 9,
-    categorySlug: "ai",
-    categoryName: "AI",
-    authorName: "Dr. Kenji Nakamura",
-  },
-];
+import { searchPublicArticles } from "@/lib/actions/article.actions";
 
 export default async function SearchResultsPage({ searchParams }: SearchPageProps) {
   const { q } = await searchParams;
   const query = q ?? "";
+  const results = query ? await searchPublicArticles(query, 20) : [];
 
   return (
     <div className="search-page">
@@ -76,12 +52,24 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
         {query ? (
           <div>
             <p className="search-page__meta">
-              Found {MOCK_SEARCH_RESULTS.length} results
+              Found {results.length} results
             </p>
             <div className="search-page__grid">
-              {MOCK_SEARCH_RESULTS.map((article) => (
-                <ArticleCard key={article.id} article={article} />
-              ))}
+              {results.map((result: any) => {
+                const article = {
+                  id: result.id,
+                  title: result.title,
+                  slug: result.slug,
+                  excerpt: result.excerpt,
+                  heroImage: result.heroImage,
+                  publishedAt: result.publishedAt ? new Date(result.publishedAt).toISOString() : new Date().toISOString(),
+                  readingTimeMinutes: result.readingTimeMinutes,
+                  categorySlug: result.category?.slug,
+                  categoryName: result.category?.name,
+                  authorName: result.author?.displayName,
+                };
+                return <ArticleCard key={article.id} article={article as any} />;
+              })}
             </div>
           </div>
         ) : (

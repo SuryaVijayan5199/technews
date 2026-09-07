@@ -13,11 +13,12 @@ import {
   AlertCircle,
   CheckCircle,
   Calendar,
+  Check,
 } from "lucide-react";
 import { RichTextEditor } from "@/components/editor/rich-text-editor";
 import { AiAssistantPanel } from "@/components/editor/ai-assistant-panel";
 import { EnhancedImageUploader } from "@/components/dashboard/enhanced-image-uploader";
-import { createArticle } from "@/lib/actions/article.actions";
+import { createArticle, getAuthorsList } from "@/lib/actions/article.actions";
 import { getCategories } from "@/lib/actions/dashboard.actions";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -42,13 +43,17 @@ export default function NewArticleEditorPage() {
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("news");
+  const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState<number[]>([]);
   const [categoriesList, setCategoriesList] = useState<any[]>([]);
+  const [authorsList, setAuthorsList] = useState<any[]>([]);
+  const [selectedAuthorId, setSelectedAuthorId] = useState<number | undefined>(undefined);
   const [status, setStatus] = useState("draft");
   const [isFeatured, setIsFeatured] = useState(false);
   const [isEditorsPick, setIsEditorsPick] = useState(false);
   const [isLatest, setIsLatest] = useState(true);
   const [isTrending, setIsTrending] = useState(false);
   const [isBriefing, setIsBriefing] = useState(false);
+  const [isGlobalBriefing, setIsGlobalBriefing] = useState(false);
   const [isBreaking, setIsBreaking] = useState(false);
   const [publishedAtStr, setPublishedAtStr] = useState<string>(
     new Date().toISOString().slice(0, 16)
@@ -68,6 +73,11 @@ export default function NewArticleEditorPage() {
       if (data && data.length > 0) {
         setCategoriesList(data);
         setCategory(data[0].slug);
+      }
+    });
+    getAuthorsList().then((data) => {
+      if (data && data.length > 0) {
+        setAuthorsList(data);
       }
     });
   }, []);
@@ -188,11 +198,16 @@ export default function NewArticleEditorPage() {
         canonicalUrl: canonicalUrl.trim() || undefined,
         sources: sources.trim() || undefined,
         categorySlug: category,
+        secondaryCategoryIds: selectedSubcategoryIds,
         status: saveStatus,
+        authorId: selectedAuthorId,
         isFeatured,
         isEditorsPick,
-        isBreaking,
+        isLatest,
         isTrending,
+        isBriefing,
+        isGlobalBriefing,
+        isBreaking,
         publishedAt: publishedAtStr ? new Date(publishedAtStr) : undefined,
       });
 
@@ -200,12 +215,16 @@ export default function NewArticleEditorPage() {
         showToast(
           "success",
           saveStatus === "published"
-            ? "Article published successfully!"
+            ? "Article published successfully! Opening article..."
             : saveStatus === "pending_review"
             ? "Article submitted for review!"
             : "Draft saved successfully!"
         );
-        setTimeout(() => router.push("/dashboard/articles"), 1200);
+        const targetUrl =
+          saveStatus === "published" && result.article?.slug
+            ? `/${category}/${result.article.slug}`
+            : "/dashboard/articles";
+        setTimeout(() => router.push(targetUrl), 1000);
       } else {
         showToast("error", result.error ?? "Failed to save article.");
       }
@@ -302,49 +321,73 @@ export default function NewArticleEditorPage() {
       <div className="dashboard-editor__layout">
         {/* Main Editor */}
         <div className="dashboard-editor__main">
-          {/* Title */}
-          <input
-            id="editor-article-title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Article Title..."
-            className="dashboard-editor__title-input"
-            style={{ fontFamily: "var(--font-outfit)" }}
-          />
-
-          {/* Excerpt */}
-          <textarea
-            id="editor-article-excerpt"
-            value={excerpt}
-            onChange={(e) => setExcerpt(e.target.value)}
-            placeholder="Write a short summary or excerpt for social previews..."
-            rows={2}
-            className="input dashboard-editor__excerpt-input text-sm sm:text-base"
-          />
-
-          {/* Enhanced Cover Image Options */}
-          <EnhancedImageUploader
-            value={heroImage}
-            onChange={setHeroImage}
-            altText={heroImageAlt}
-            onAltTextChange={setHeroImageAlt}
-            captionText={heroImageCaption}
-            onCaptionTextChange={setHeroImageCaption}
-          />
-
-          {/* Image error */}
-          {imageError && (
-            <div className="flex items-center gap-2 text-red-400 text-xs sm:text-sm p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              {imageError}
+          {/* Unified Container Card for Article Title & Short Description */}
+          <div className="card p-4 sm:p-6 border border-[var(--color-surface-border)] rounded-2xl bg-[var(--color-surface-1)] shadow-sm flex flex-col gap-4">
+            {/* Article Title Field */}
+            <div className="dashboard-editor__field">
+              <label
+                htmlFor="editor-article-title"
+                className="dashboard-editor__label text-xs sm:text-sm font-bold block mb-1 text-[var(--color-text-primary)]"
+              >
+                Article Title <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                id="editor-article-title"
+                rows={1}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onInput={(e) => {
+                  const target = e.currentTarget;
+                  target.style.height = "auto";
+                  target.style.height = `${target.scrollHeight}px`;
+                }}
+                ref={(el) => {
+                  if (el) {
+                    el.style.height = "auto";
+                    el.style.height = `${el.scrollHeight}px`;
+                  }
+                }}
+                placeholder="Enter a compelling article title..."
+                className="w-full p-3.5 text-lg sm:text-2xl font-extrabold rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-2)] text-[var(--color-text-primary)] focus:border-[#2D7FF9] focus:outline-none transition-all shadow-sm overflow-hidden resize-none leading-snug"
+                style={{ fontFamily: "var(--font-outfit)", minHeight: "56px" }}
+              />
             </div>
-          )}
 
-          {/* Content Editor */}
-          <div className="dashboard-editor__content-wrapper">
+            {/* Short Description / Summary Excerpt Field */}
+            <div className="dashboard-editor__field">
+              <label
+                htmlFor="editor-article-excerpt"
+                className="dashboard-editor__label text-xs sm:text-sm font-bold block mb-1 text-[var(--color-text-primary)]"
+              >
+                Short Description / Summary Excerpt <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                id="editor-article-excerpt"
+                rows={2}
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                onInput={(e) => {
+                  const target = e.currentTarget;
+                  target.style.height = "auto";
+                  target.style.height = `${target.scrollHeight}px`;
+                }}
+                ref={(el) => {
+                  if (el) {
+                    el.style.height = "auto";
+                    el.style.height = `${el.scrollHeight}px`;
+                  }
+                }}
+                placeholder="Write a clear, engaging short description or summary for social cards & search previews..."
+                className="w-full p-3 text-sm sm:text-base rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-2)] text-[var(--color-text-primary)] focus:border-[#2D7FF9] focus:outline-none transition-all shadow-sm overflow-hidden resize-none leading-normal"
+                style={{ minHeight: "72px" }}
+              />
+            </div>
+          </div>
+
+          {/* Content Editor (Before Cover Image) */}
+          <div className="dashboard-editor__content-wrapper mt-2">
             <div className="dashboard-editor__toolbar flex-wrap">
-              <span className="dashboard-editor__toolbar-title text-xs sm:text-sm">
+              <span className="dashboard-editor__toolbar-title text-xs sm:text-sm font-bold">
                 Rich Content Editor
               </span>
               <button
@@ -361,6 +404,27 @@ export default function NewArticleEditorPage() {
               onChange={setContent}
               placeholder="Start writing article content here..."
             />
+          </div>
+
+          {/* Featured Cover Image Options */}
+          <div className="mt-4 pt-4 border-t border-[var(--color-surface-border)]">
+            <label className="dashboard-editor__label text-xs sm:text-sm font-bold block mb-2 text-[var(--color-text-primary)]">
+              Featured Cover Image &amp; Media
+            </label>
+            <EnhancedImageUploader
+              value={heroImage}
+              onChange={setHeroImage}
+              altText={heroImageAlt}
+              onAltTextChange={setHeroImageAlt}
+              captionText={heroImageCaption}
+              onCaptionTextChange={setHeroImageCaption}
+            />
+            {imageError && (
+              <div className="flex items-center gap-2 text-red-400 text-xs sm:text-sm p-3 mt-2 rounded-lg bg-red-500/10 border border-red-500/20">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {imageError}
+              </div>
+            )}
           </div>
         </div>
 
@@ -408,7 +472,7 @@ export default function NewArticleEditorPage() {
                 htmlFor="editor-category-select"
                 className="dashboard-editor__label text-xs sm:text-sm"
               >
-                Category
+                Primary Category
               </label>
               <select
                 id="editor-category-select"
@@ -422,6 +486,95 @@ export default function NewArticleEditorPage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Subcategory */}
+            <div className="dashboard-editor__field mt-3">
+              <label
+                htmlFor="editor-subcategory-select"
+                className="dashboard-editor__label text-xs sm:text-sm"
+              >
+                Subcategory
+              </label>
+              
+              <select
+                id="editor-subcategory-select"
+                value=""
+                onChange={(e) => {
+                  if (e.target.value) {
+                    const catId = Number(e.target.value);
+                    if (!selectedSubcategoryIds.includes(catId)) {
+                      setSelectedSubcategoryIds([...selectedSubcategoryIds, catId]);
+                    }
+                  }
+                }}
+                className="input dashboard-editor__select text-xs sm:text-sm w-full"
+              >
+                <option value="">Select subcategory...</option>
+                {categoriesList
+                  .filter((cat) => cat.slug !== category && !selectedSubcategoryIds.includes(cat.id))
+                  .map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      + {cat.name}
+                    </option>
+                  ))}
+              </select>
+
+              {/* Ticker Pills for Quick Category Ticking */}
+              <div className="flex flex-wrap gap-1.5 mt-2.5">
+                {categoriesList
+                  .filter((cat) => cat.slug !== category)
+                  .map((cat) => {
+                    const isSelected = selectedSubcategoryIds.includes(cat.id);
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedSubcategoryIds(selectedSubcategoryIds.filter((id) => id !== cat.id));
+                          } else {
+                            setSelectedSubcategoryIds([...selectedSubcategoryIds, cat.id]);
+                          }
+                        }}
+                        className={`tc-subcategory-chip ${isSelected ? "tc-subcategory-chip--active" : ""}`}
+                      >
+                        {isSelected ? (
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        ) : (
+                          <span className="text-[11px] font-bold text-muted-foreground">+</span>
+                        )}
+                        {cat.name}
+                      </button>
+                    );
+                  })}
+              </div>
+            </div>
+
+            {/* Author Name Selection Dropdown */}
+            <div className="dashboard-editor__field mt-3">
+              <label
+                htmlFor="editor-author-select"
+                className="dashboard-editor__label text-xs sm:text-sm font-semibold"
+              >
+                Author Name
+              </label>
+              <select
+                id="editor-author-select"
+                value={selectedAuthorId ?? ""}
+                onChange={(e) => setSelectedAuthorId(e.target.value ? Number(e.target.value) : undefined)}
+                className="input dashboard-editor__select text-xs sm:text-sm mt-1"
+              >
+                <option value="">Auto (Default Logged-in Author)</option>
+                {authorsList.map((authObj) => (
+                  <option key={authObj.id} value={authObj.id}>
+                    {authObj.displayName}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Select an author profile created by Super Admin.
+              </p>
             </div>
 
             {/* Extended Attributes Fields */}
@@ -448,7 +601,7 @@ export default function NewArticleEditorPage() {
                 type="text"
                 value={heroImageCaption}
                 onChange={(e) => setHeroImageCaption(e.target.value)}
-                placeholder="e.g. Photo by Reuters / John Doe"
+                placeholder="e.g. Photo by TechCrest / John Doe"
                 className="input dashboard-editor__input text-xs mt-1 w-full"
               />
             </div>
@@ -492,34 +645,6 @@ export default function NewArticleEditorPage() {
                 onChange={(e) => setCustomSlug(e.target.value)}
                 placeholder="e.g. apple-m4-ultra-launch"
                 className="input dashboard-editor__input text-xs mt-1 w-full"
-              />
-            </div>
-
-            <div className="dashboard-editor__field mt-3">
-              <label htmlFor="editor-canonical-url" className="dashboard-editor__label text-xs sm:text-sm font-semibold">
-                Canonical URL
-              </label>
-              <input
-                id="editor-canonical-url"
-                type="text"
-                value={canonicalUrl}
-                onChange={(e) => setCanonicalUrl(e.target.value)}
-                placeholder="https://technews-lyart.vercel.app/..."
-                className="input dashboard-editor__input text-xs mt-1 w-full"
-              />
-            </div>
-
-            <div className="dashboard-editor__field mt-3">
-              <label htmlFor="editor-sources" className="dashboard-editor__label text-xs sm:text-sm font-semibold">
-                Sources &amp; References
-              </label>
-              <textarea
-                id="editor-sources"
-                rows={2}
-                value={sources}
-                onChange={(e) => setSources(e.target.value)}
-                placeholder="List citations, official press releases, benchmarks..."
-                className="input dashboard-editor__input text-xs mt-1 w-full p-2"
               />
             </div>
 
@@ -583,9 +708,16 @@ export default function NewArticleEditorPage() {
                     setter: setIsBriefing,
                   },
                   {
-                    id: "flag-breaking",
-                    label: "6. Global Briefing",
-                    sub: "Global Briefing section & Breaking ticker",
+                    id: "flag-global-briefing",
+                    label: "6. Global Briefing Section",
+                    sub: "Global Briefing editorial feature section on Homepage",
+                    value: isGlobalBriefing,
+                    setter: setIsGlobalBriefing,
+                  },
+                  {
+                    id: "flag-breaking-ticker",
+                    label: "7. LIVE NEWS Scroller / Breaking Ticker",
+                    sub: "Top marquee LIVE NEWS ticker scroller bar across the site",
                     value: isBreaking,
                     setter: setIsBreaking,
                   },

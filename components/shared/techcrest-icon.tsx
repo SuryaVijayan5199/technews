@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 
 interface TechCrestIconProps extends React.SVGProps<SVGSVGElement> {
   size?: number | string;
@@ -6,8 +6,8 @@ interface TechCrestIconProps extends React.SVGProps<SVGSVGElement> {
 }
 
 export function TechCrestIcon({
-  size = 64,
-  color = "#2D7FF9",
+  size = 34,
+  color = "#0066FF",
   className = "",
   style,
   ...props

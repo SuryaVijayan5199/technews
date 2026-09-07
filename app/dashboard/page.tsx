@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, FileText, Eye, MessageSquare, Clock, TrendingUp, CheckCircle, LayoutDashboard, Sparkles } from "lucide-react";
+import { Plus, FileText, Eye, MessageSquare, Clock, TrendingUp, CheckCircle, LayoutDashboard, Sparkles, ArrowRight } from "lucide-react";
 import { getDashboardStats } from "@/lib/actions/dashboard.actions";
 import { getFeaturedArticles } from "@/lib/actions/article.actions";
 import { HeroCarousel } from "@/components/shared/hero-carousel";
@@ -24,7 +24,7 @@ const STATUS_COLORS: Record<string, string> = {
 export default async function DashboardOverviewPage() {
   const [stats, featuredArticles] = await Promise.all([
     getDashboardStats(),
-    getFeaturedArticles(5),
+    getFeaturedArticles(4),
   ]);
 
   const statCards = [
@@ -63,8 +63,8 @@ export default async function DashboardOverviewPage() {
       {/* Header */}
       <div className="dashboard-overview__header">
         <div>
-          <h1 className="dashboard-overview__title flex items-center gap-2">
-            <LayoutDashboard className="w-6 h-6 text-[var(--color-brand-400)]" />
+          <h1 className="dashboard-overview__title">
+            <LayoutDashboard className="dashboard-page-icon" />
             Editorial Dashboard
           </h1>
           <p className="dashboard-overview__subtitle">
@@ -80,41 +80,24 @@ export default async function DashboardOverviewPage() {
       <div className="card p-6 mb-6">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-[var(--color-text-primary)] flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#2D7FF9]" /> Top 5 News Carousel (Live Preview)
+            <h2 className="dashboard-chart-title">
+              <Sparkles className="dashboard-icon-md dashboard-icon-brand" /> Top 4 News Carousel (Live Preview)
             </h2>
-            <p className="text-xs text-[var(--color-text-muted)]">
-              This interactive carousel displays the top 5 featured stories across the homepage and CMS.
+            <p className="dashboard-text-muted">
+              This interactive carousel displays the top 4 featured stories across the homepage and CMS.
             </p>
           </div>
-          <Link href="/dashboard/articles" className="text-xs font-bold text-[#2D7FF9] hover:underline">
-            Manage Featured Articles &rarr;
+          <Link
+            href="/dashboard/articles"
+            className="dashboard-btn-primary"
+          >
+            <span>Manage Featured Articles</span>
+            <ArrowRight className="dashboard-icon-sm" />
           </Link>
         </div>
-        <div style={{ maxWidth: 540, width: "100%" }}>
+        <div className="w-full mt-6">
           <HeroCarousel articles={featuredArticles} />
         </div>
-      </div>
-
-      {/* Live Stat Cards */}
-      <div className="dashboard-overview__stats">
-        {statCards.map((s) => {
-          const Icon = s.icon;
-          return (
-            <div key={s.label} className="card dashboard-stat">
-              <div className="dashboard-stat__header">
-                <span className="dashboard-stat__label">{s.label}</span>
-                <div className="dashboard-stat__icon-wrap" style={{ backgroundColor: `${s.color}20` }}>
-                  <Icon className="dashboard-stat__icon" style={{ color: s.color }} />
-                </div>
-              </div>
-              <p className="dashboard-stat__value">{s.value}</p>
-              <p className="dashboard-stat__change" style={{ color: "var(--color-text-muted)", fontSize: "0.8rem" }}>
-                {s.sub}
-              </p>
-            </div>
-          );
-        })}
       </div>
 
       {/* Workflow Grid */}
@@ -131,11 +114,11 @@ export default async function DashboardOverviewPage() {
                 No articles yet. <Link href="/dashboard/articles/new" style={{ color: "hsl(var(--color-brand-500))" }}>Write your first article →</Link>
               </div>
             ) : (
-              stats!.recentArticles.map((a) => (
+              stats!.recentArticles.map((a: any) => (
                 <div key={a.id} className="dashboard-draft-item">
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h3 className="dashboard-draft-item__title" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {a.title}
+                      <Link href={`/dashboard/articles/${a.id}/edit`}>{a.title}</Link>
                     </h3>
                     <p className="dashboard-draft-item__meta">
                       {a.viewCount} views · {a.publishedAt
@@ -202,14 +185,14 @@ export default async function DashboardOverviewPage() {
 
       {/* Recent Comments */}
       {(stats?.recentComments ?? []).length > 0 && (
-        <div className="dashboard-workflow-card card">
+        <div className="dashboard-workflow-card card mb-6">
           <div className="dashboard-workflow-card__header">
             <h2 className="dashboard-workflow-card__title">Recent Comments</h2>
             <Link href="/dashboard/comments" className="dashboard-workflow-card__link">Moderate →</Link>
           </div>
           <div className="dashboard-workflow-card__list">
-            {stats!.recentComments.map((c) => (
-              <div key={c.id} className="dashboard-draft-item">
+            {stats!.recentComments.map((c: any) => (
+              <Link href="/dashboard/comments" key={c.id} className="dashboard-draft-item hover:bg-[var(--color-surface-2)] transition-colors block cursor-pointer">
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p className="dashboard-draft-item__title" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     <strong>{c.authorName ?? "Anonymous"}</strong>: {c.content?.slice(0, 80)}…
@@ -219,11 +202,35 @@ export default async function DashboardOverviewPage() {
                   </p>
                 </div>
                 <span className={`status-badge status-badge--${c.status}`}>{c.status}</span>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
       )}
+
+      {/* Live Stat Cards (Platform Analytics at Bottom) */}
+      <div className="mt-8">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Platform Analytics Overview</h2>
+        <div className="dashboard-overview__stats">
+          {statCards.map((s) => {
+            const Icon = s.icon;
+            return (
+              <div key={s.label} className="card dashboard-stat">
+                <div className="dashboard-stat__header">
+                  <span className="dashboard-stat__label">{s.label}</span>
+                  <div className="dashboard-stat__icon-wrap" style={{ backgroundColor: `${s.color}20` }}>
+                    <Icon className="dashboard-stat__icon" style={{ color: s.color }} />
+                  </div>
+                </div>
+                <p className="dashboard-stat__value">{s.value}</p>
+                <p className="dashboard-stat__change" style={{ color: "var(--color-text-muted)", fontSize: "0.8rem" }}>
+                  {s.sub}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

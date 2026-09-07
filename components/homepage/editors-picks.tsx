@@ -36,7 +36,7 @@ export function EditorsPicks({ articles }: { articles: Article[] }) {
   if (!articles || articles.length === 0) {
     return (
       <div className="editors-picks-grid">
-        <p className="col-span-full text-center text-[var(--color-text-muted)] py-12">
+        <p className="tc-empty-state">
           No editor's picks yet. Mark articles as Editor's Pick in the dashboard.
         </p>
       </div>

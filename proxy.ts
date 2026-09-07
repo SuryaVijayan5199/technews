@@ -4,10 +4,10 @@ import { NextResponse } from "next/server";
 
 const { auth } = NextAuth(authConfig);
 
-export const proxy = auth((req) => {
+export async function proxy(req: any) {
   const host = req.headers.get("host") || "";
   
-  // Automatically redirect any old temporary Vercel preview URLs (e.g., technews-9j0fbu843...) to canonical production domain
+  // Automatically redirect any old temporary Vercel preview URLs to canonical production domain
   if (
     host.includes("surya-vijayans-projects.vercel.app") ||
     (host.startsWith("technews-") && !host.includes("technews-lyart"))
@@ -18,9 +18,21 @@ export const proxy = auth((req) => {
     );
     return NextResponse.redirect(targetUrl, 301);
   }
-});
 
-export const middleware = proxy;
+  const pathname = req.nextUrl.pathname;
+  // Only invoke NextAuth session middleware on protected routes
+  if (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/saved")
+  ) {
+    return (auth as any)(req);
+  }
+
+  return NextResponse.next();
+}
+
+export default proxy;
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],

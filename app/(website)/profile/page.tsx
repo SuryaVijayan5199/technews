@@ -29,8 +29,8 @@ export default async function ProfilePage() {
   ]);
 
   return (
-    <div className="min-h-screen bg-[var(--color-surface-0)] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
+    <div className="tc-profile-page">
+      <div className="tc-profile-page__inner">
         <ProfileView
           user={{
             id: session.user.id,

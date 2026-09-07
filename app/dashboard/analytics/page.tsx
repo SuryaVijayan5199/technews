@@ -2,8 +2,8 @@
 
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
-import { TrendingUp, Eye, FileText, MessageSquare, BarChart3, RefreshCw, ExternalLink, Loader2 } from "lucide-react";
-import { getAnalyticsData } from "@/lib/actions/dashboard.actions";
+import { TrendingUp, Eye, FileText, MessageSquare, BarChart3, RefreshCw, ExternalLink, Loader2, FolderOpen } from "lucide-react";
+import { getAnalyticsData, getDashboardStats } from "@/lib/actions/dashboard.actions";
 
 type AnalyticsData = Awaited<ReturnType<typeof getAnalyticsData>>;
 
@@ -24,36 +24,38 @@ function formatNum(n: number): string {
 
 export default function AnalyticsDashboardPage() {
   const [data, setData] = useState<AnalyticsData>(null);
+  const [stats, setStats] = useState<any>(null);
   const [isPending, startTransition] = useTransition();
 
   const load = () => {
     startTransition(async () => {
-      const result = await getAnalyticsData();
+      const [result, statsResult] = await Promise.all([getAnalyticsData(), getDashboardStats()]);
       setData(result);
+      setStats(statsResult);
     });
   };
 
   useEffect(() => { load(); }, []);
 
-  const maxViews = Math.max(...(data?.topArticles ?? []).map(a => a.viewCount ?? 0), 1);
+  const maxViews = Math.max(...(data?.topArticles ?? []).map((a: any) => a.viewCount ?? 0), 1);
 
   const statusBreakdown = data?.statusBreakdown ?? [];
-  const totalArticles = statusBreakdown.reduce((sum, s) => sum + (s.count ?? 0), 0);
+  const totalArticles = statusBreakdown.reduce((sum: number, s: any) => sum + (s.count ?? 0), 0);
 
   return (
     <div className="dashboard-page-container">
       <div className="dashboard-page-header">
         <div>
-          <h1 className="dashboard-page-title flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-[var(--color-brand-400)]" /> Publication Analytics
+          <h1 className="dashboard-page-title">
+            <BarChart3 className="dashboard-page-icon" /> Publication Analytics
           </h1>
           <p className="dashboard-page-subtitle">
             Live platform stats pulled from your database — article performance, categories, and status breakdown.
           </p>
         </div>
         <button onClick={load} disabled={isPending} className="btn btn-ghost" title="Refresh data">
-          <RefreshCw className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
-          <span className="ml-1 text-sm">Refresh</span>
+          <RefreshCw className={isPending ? "dashboard-spinner" : "dashboard-icon"} />
+          <span className="dashboard-refresh-label">Refresh</span>
         </button>
       </div>
 
@@ -61,10 +63,10 @@ export default function AnalyticsDashboardPage() {
       <div className="analytics-metrics-grid">
         {[
           { label: "Total Views", value: formatNum(data?.totalViews ?? 0), icon: Eye, color: "#6366f1" },
-          { label: "Published Articles", value: formatNum((data?.statusBreakdown ?? []).find(s => s.status === "published")?.count ?? 0), icon: FileText, color: "#10b981" },
+          { label: "Published Articles", value: formatNum((data?.statusBreakdown ?? []).find((s: any) => s.status === "published")?.count ?? 0), icon: FileText, color: "#10b981" },
           { label: "Total Articles", value: formatNum(totalArticles), icon: TrendingUp, color: "#f59e0b" },
-          { label: "Active Categories", value: formatNum(data?.byCategory?.length ?? 0), icon: MessageSquare, color: "#8b5cf6" },
-        ].map(s => {
+          { label: "Active Categories", value: formatNum(stats?.totalCategories ?? 0), icon: FolderOpen, color: "#8b5cf6" },
+        ].map((s: any) => {
           const Icon = s.icon;
           return (
             <div key={s.label} className="dashboard-card analytics-stat-card">
@@ -75,7 +77,7 @@ export default function AnalyticsDashboardPage() {
                 </div>
               </div>
               <p className="analytics-stat-card__value">
-                {isPending ? <Loader2 className="w-5 h-5 animate-spin inline" /> : s.value}
+                {isPending ? <Loader2 className="dashboard-spinner inline" /> : s.value}
               </p>
               <p className="analytics-stat-card__change">Live from database</p>
             </div>
@@ -93,14 +95,14 @@ export default function AnalyticsDashboardPage() {
           <div className="analytics-stories-list">
             {isPending ? (
               <div style={{ textAlign: "center", padding: "2rem", color: "var(--color-text-muted)" }}>
-                <Loader2 className="w-5 h-5 animate-spin inline" />
+                <Loader2 className="dashboard-spinner" />
               </div>
             ) : (data?.topArticles ?? []).length === 0 ? (
               <div style={{ textAlign: "center", padding: "2rem", color: "var(--color-text-muted)", fontSize: "0.875rem" }}>
                 No published articles yet.
               </div>
             ) : (
-              (data?.topArticles ?? []).map((a, i) => (
+              (data?.topArticles ?? []).map((a: any, i: number) => (
                 <div key={a.id} className="analytics-story-item">
                   <div className="analytics-story-item__top">
                     <div className="analytics-story-item__title-group">
@@ -113,8 +115,8 @@ export default function AnalyticsDashboardPage() {
                     </div>
                     <div className="analytics-story-item__metrics">
                       <span>{formatNum(a.viewCount ?? 0)} views</span>
-                      <Link href={`/${a.slug}`} target="_blank" title="Open article">
-                        <ExternalLink className="w-3 h-3" style={{ color: "hsl(var(--color-brand-500))" }} />
+                      <Link href={`/${(a as any).categorySlug ? (a as any).categorySlug + '/' : ''}${a.slug}`} target="_blank" title="Open article">
+                        <ExternalLink className="dashboard-icon-xs" style={{ color: "hsl(var(--color-brand-500))" }} />
                       </Link>
                     </div>
                   </div>
@@ -133,11 +135,11 @@ export default function AnalyticsDashboardPage() {
           <div className="analytics-devices-list">
             {isPending ? (
               <div style={{ textAlign: "center", padding: "2rem", color: "var(--color-text-muted)" }}>
-                <Loader2 className="w-5 h-5 animate-spin inline" />
+                <Loader2 className="dashboard-spinner" />
               </div>
             ) : statusBreakdown.length === 0 ? (
               <div style={{ textAlign: "center", padding: "2rem", color: "var(--color-text-muted)", fontSize: "0.875rem" }}>No articles yet.</div>
-            ) : statusBreakdown.map(s => (
+            ) : statusBreakdown.map((s: any) => (
               <div key={s.status} className="analytics-device-item">
                 <div className="analytics-device-item__top">
                   <span className="analytics-device-item__name" style={{ textTransform: "capitalize" }}>
@@ -168,7 +170,7 @@ export default function AnalyticsDashboardPage() {
               <h3 style={{ fontSize: "0.875rem", fontWeight: 700, marginTop: "1.5rem", marginBottom: "0.75rem", color: "var(--color-text-primary)" }}>
                 Articles by Category
               </h3>
-              {(data?.byCategory ?? []).map(c => (
+              {(data?.byCategory ?? []).map((c: any) => (
                 <div key={c.categoryId ?? "uncategorized"} style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem", fontSize: "0.8rem" }}>
                   <span style={{ color: "var(--color-text-secondary)" }}>{c.categoryName ?? "Uncategorized"}</span>
                   <span style={{ fontWeight: 700, color: "var(--color-text-primary)" }}>{c.count}</span>

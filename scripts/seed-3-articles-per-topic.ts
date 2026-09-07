@@ -25,6 +25,7 @@ const CATEGORIES_DATA = [
   { name: "Home", slug: "smart-home", description: "Smart home devices, hubs, and automation", icon: "Home", color: "#14b8a6", sortOrder: 8 },
   { name: "EVs", slug: "evs", description: "Electric vehicles, charging, and future mobility", icon: "Zap", color: "#22c55e", sortOrder: 9 },
   { name: "Crypto", slug: "crypto", description: "Cryptocurrency, blockchain, and Web3", icon: "Bitcoin", color: "#f97316", sortOrder: 10 },
+  { name: "Gaming", slug: "gaming", description: "Video games, consoles, PC gaming, hardware, and esports", icon: "Gamepad2", color: "#ef4444", sortOrder: 11 },
 ];
 
 const TOPIC_ARTICLES: Record<string, Array<{

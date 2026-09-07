@@ -36,9 +36,9 @@ export function LatestArticles({ articles }: { articles: Article[] }) {
   if (!articles || articles.length === 0) {
     return (
       <div className="latest-articles-grid">
-        <p className="col-span-full text-center text-[var(--color-text-muted)] py-12">
+        <p className="tc-empty-state">
           No articles published yet. Publish your first article from the{" "}
-          <a href="/dashboard/articles/new" className="text-[var(--color-brand-400)] underline">
+          <a href="/dashboard/articles/new" className="tc-text-link">
             dashboard
           </a>
           .

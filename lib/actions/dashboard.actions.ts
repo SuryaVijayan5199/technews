@@ -4,11 +4,17 @@ import { db } from "@/lib/db";
 import { categories, articles, comments, users, authors } from "@/lib/db/schema";
 import { eq, desc, asc, sql, count, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/lib/auth";
+import { isStaff, canPerformAction } from "@/lib/permissions";
 
 // ─────────────────────────────────────────────
 // DASHBOARD STATS (home)
 // ─────────────────────────────────────────────
 export async function getDashboardStats() {
+  const session = await auth();
+  if (!session?.user || !isStaff(session.user.role)) {
+    throw new Error("Forbidden");
+  }
   try {
     const [
       totalArticles,
@@ -106,7 +112,7 @@ export async function getCategories() {
       }
     }
 
-    return cats.map((cat) => ({
+    return cats.map((cat: any) => ({
       ...cat,
       articleCount: countMap.get(cat.id) ?? cat.articleCount ?? 0,
     }));
@@ -124,6 +130,10 @@ export async function createCategory(data: {
   icon?: string;
 }) {
   if (!data.name || !data.slug) return { success: false, error: "Name and slug are required." };
+  const session = await auth();
+  if (!session?.user || !isStaff(session.user.role)) {
+    return { success: false, error: "Forbidden" };
+  }
   try {
     await db.insert(categories).values({
       name: data.name.trim(),
@@ -149,6 +159,10 @@ export async function updateCategory(id: number, data: {
   isActive: boolean;
 }) {
   try {
+    const session = await auth();
+    if (!session?.user || !isStaff(session.user.role)) {
+      return { success: false, error: "Forbidden" };
+    }
     await db.update(categories).set({
       name: data.name.trim(),
       description: data.description?.trim() || null,
@@ -167,6 +181,10 @@ export async function updateCategory(id: number, data: {
 
 export async function deleteCategory(id: number) {
   try {
+    const session = await auth();
+    if (!session?.user || !isStaff(session.user.role)) {
+      return { success: false, error: "Forbidden" };
+    }
     // Check if any articles use this category
     const articleCount = await db.select({ count: count() }).from(articles).where(eq(articles.categoryId, id));
     if ((articleCount[0]?.count ?? 0) > 0) {
@@ -186,6 +204,10 @@ export async function deleteCategory(id: number) {
 // ─────────────────────────────────────────────
 export async function getComments(filter: "all" | "pending" | "approved" | "spam" = "all") {
   try {
+    const session = await auth();
+    if (!session?.user || !isStaff(session.user.role)) {
+      throw new Error("Forbidden");
+    }
     const rows = await db
       .select({
         id: comments.id,
@@ -199,10 +221,12 @@ export async function getComments(filter: "all" | "pending" | "approved" | "spam
         likeCount: comments.likes,
         articleTitle: articles.title,
         articleSlug: articles.slug,
+        categorySlug: categories.slug,
       })
       .from(comments)
       .leftJoin(articles, eq(comments.articleId, articles.id))
       .leftJoin(users, eq(comments.authorId, users.id))
+      .leftJoin(categories, eq(articles.categoryId, categories.id))
       .where(filter !== "all" ? eq(comments.status, filter as any) : undefined)
       .orderBy(desc(comments.createdAt))
       .limit(50);
@@ -216,6 +240,10 @@ export async function getComments(filter: "all" | "pending" | "approved" | "spam
 
 export async function moderateComment(id: number, status: "approved" | "rejected" | "spam") {
   try {
+    const session = await auth();
+    if (!session?.user || !canPerformAction(session.user.role, "moderate_comments")) {
+      return { success: false, error: "Forbidden" };
+    }
     await db.update(comments).set({ status, updatedAt: new Date() }).where(eq(comments.id, id));
     revalidatePath("/dashboard/comments");
     return { success: true };
@@ -227,6 +255,12 @@ export async function moderateComment(id: number, status: "approved" | "rejected
 
 export async function deleteComment(id: number) {
   try {
+    const session = await auth();
+    if (!session?.user || !canPerformAction(session.user.role, "moderate_comments")) {
+      return { success: false, error: "Forbidden" };
+    }
+    // Delete child replies first to avoid FK constraint
+    await db.delete(comments).where(eq(comments.parentId, id));
     await db.delete(comments).where(eq(comments.id, id));
     revalidatePath("/dashboard/comments");
     return { success: true };
@@ -241,6 +275,10 @@ export async function deleteComment(id: number) {
 // ─────────────────────────────────────────────
 export async function getAnalyticsData() {
   try {
+    const session = await auth();
+    if (!session?.user || !isStaff(session.user.role)) {
+      throw new Error("Forbidden");
+    }
     // Top articles by views
     const topArticles = await db
       .select({
@@ -252,8 +290,10 @@ export async function getAnalyticsData() {
         bookmarkCount: articles.bookmarkCount,
         publishedAt: articles.publishedAt,
         status: articles.status,
+        categorySlug: categories.slug,
       })
       .from(articles)
+      .leftJoin(categories, eq(articles.categoryId, categories.id))
       .where(eq(articles.status, "published"))
       .orderBy(desc(articles.viewCount))
       .limit(10);
@@ -302,9 +342,13 @@ export async function getAnalyticsData() {
 // ─────────────────────────────────────────────
 export async function getEditorProfiles() {
   try {
+    const session = await auth();
+    if (!session?.user || !isStaff(session.user.role)) {
+      throw new Error("Forbidden");
+    }
     const STAFF_ROLES = ["super_admin", "publisher", "managing_editor", "editor", "author", "reviewer", "contributor"] as const;
     const staffUsers = await db.query.users.findMany({
-      where: sql`${users.role} = ANY(ARRAY[${sql.join(STAFF_ROLES.map(r => sql`${r}`), sql`, `)}]::text[])`,
+      where: sql`${users.role} = ANY(ARRAY[${sql.join(STAFF_ROLES.map((r: any) => sql`${r}`), sql`, `)}]::text[])`,
       columns: { id: true, name: true, email: true, role: true, image: true, bio: true, createdAt: true },
     });
 
@@ -313,9 +357,9 @@ export async function getEditorProfiles() {
       columns: { userId: true, displayName: true, avatar: true, bio: true, articleCount: true, totalViews: true },
     });
 
-    const authorMap = new Map(authorProfiles.map(a => [a.userId, a]));
+    const authorMap = new Map(authorProfiles.map((a: any) => [a.userId, a]));
 
-    return staffUsers.map(u => ({
+    return staffUsers.map((u: any) => ({
       ...u,
       authorProfile: authorMap.get(u.id) ?? null,
     }));

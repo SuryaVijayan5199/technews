@@ -37,30 +37,40 @@ const EXPERTS = [
   },
 ];
 
-export function ExpertsSection() {
+interface ExpertsSectionProps {
+  authors?: any[];
+}
+
+export function ExpertsSection({ authors }: ExpertsSectionProps) {
+  const displayList =
+    authors && authors.length > 0
+      ? authors.map((a) => ({
+          id: a.id,
+          name: a.displayName,
+          role: a.user?.role ? a.user.role.replace(/_/g, " ").toUpperCase() : "TECHCREST AUTHOR",
+          bio: a.bio || `Official TechCrest editorial contributor.`,
+          avatar: a.avatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(a.displayName)}`,
+          slug: a.slug,
+        }))
+      : EXPERTS;
+
   return (
     <section className="experts-section">
       <div className="container">
         <div className="experts-section__header">
           <div>
             <h2 className="experts-section__title">
-              Meet Our Experts
+              Meet Our Editorial Team
             </h2>
             <p className="experts-section__subtitle">
-              Independent journalism backed by industry veterans. Our specialized editors bring decades of hands-on experience to every review.
+              Independent journalism backed by dedicated tech writers and specialized editors.
             </p>
           </div>
-          <Link href="/authors" className="btn btn-ghost experts-section__link">
-            View All Experts <ExternalLink className="w-4 h-4 ml-1" />
-          </Link>
         </div>
 
         <div className="experts-section__grid">
-          {EXPERTS.map((expert) => (
-            <article 
-              key={expert.id}
-              className="expert-card group"
-            >
+          {displayList.map((expert) => (
+            <article key={expert.id} className="expert-card">
               <div className="expert-card__avatar-wrap">
                 <div className="expert-card__avatar-inner">
                   <Image
@@ -78,7 +88,7 @@ export function ExpertsSection() {
               
               <h3 className="expert-card__name">
                 <Link 
-                  href={`/author/${expert.slug}`}
+                  href={`/authors/${expert.slug}`}
                   className="expert-card__link"
                 >
                   {expert.name}
@@ -93,9 +103,9 @@ export function ExpertsSection() {
               </p>
               
               <div className="expert-card__footer">
-                <span className="expert-card__action">
+                <Link href={`/authors/${expert.slug}`} className="expert-card__action">
                   View Profile
-                </span>
+                </Link>
               </div>
             </article>
           ))}

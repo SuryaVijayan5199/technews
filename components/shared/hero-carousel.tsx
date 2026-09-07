@@ -67,24 +67,24 @@ export function HeroSectionCarousel({ articles }: { articles: HeroArticleItem[] 
               <span>TECHCREST / FEATURED STORY {currentIndex + 1} OF {total}</span>
             </div>
 
-            <h1 className="tc-hero__headline transition-all duration-300">
-              <Link href={articleUrl} className="hover:text-[#2D7FF9] transition-colors">
+            <h1 className="tc-hero__headline">
+              <Link href={articleUrl} className="tc-hero__headline-link">
                 {current?.title}
               </Link>
             </h1>
 
-            <p className="tc-hero__lead mt-4 text-base sm:text-lg text-[var(--color-text-muted)] leading-relaxed">
+            <p className="tc-hero__lead mt-4">
               {current?.excerpt || "A clean, premium editorial experience designed around the stories that matter."}
             </p>
           </div>
 
-          <div className="tc-hero__tags mt-6 flex flex-wrap items-center gap-3 pt-4 border-t border-[var(--color-surface-border)]">
-            <span className="tc-tag font-bold uppercase tracking-wider">{catName}</span>
-            <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] font-medium">
-              <User className="w-3.5 h-3.5 text-[#2D7FF9]" />
-              <span>Author: <strong className="text-[var(--color-text-primary)]">{authorName}</strong></span>
+          <div className="tc-hero__tags mt-6 flex flex-wrap items-center gap-3 pt-4">
+            <span className="tc-tag">{catName}</span>
+            <div className="tc-hero__meta">
+              <User className="tc-hero__meta-icon" />
+              <span>Author: <strong className="tc-hero__meta-value">{authorName}</strong></span>
               <span>&bull;</span>
-              <Clock className="w-3.5 h-3.5 text-[#2D7FF9]" />
+              <Clock className="tc-hero__meta-icon" />
               <span>{current?.readingTimeMinutes ?? 5} min read</span>
             </div>
           </div>
@@ -102,6 +102,7 @@ export function HeroSectionCarousel({ articles }: { articles: HeroArticleItem[] 
                     src={current.heroImage}
                     alt={current.title ?? "Top Story"}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                     className="hero-carousel-card__art-img"
                     priority
                   />
@@ -118,7 +119,7 @@ export function HeroSectionCarousel({ articles }: { articles: HeroArticleItem[] 
 
             {/* Controls Bar */}
             <div className="hero-carousel-card__caption p-4">
-              <div className="hero-carousel-card__footer pt-0 border-t-0">
+              <div className="hero-carousel-card__footer hero-carousel-card__footer--no-border">
                 {/* Dots */}
                 <div className="hero-carousel-card__dots">
                   {slides.map((s, idx) => (
@@ -140,7 +141,7 @@ export function HeroSectionCarousel({ articles }: { articles: HeroArticleItem[] 
                     className="hero-carousel-card__arrow-btn"
                     aria-label="Previous story"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="tc-carousel-arrow-icon" />
                   </button>
                   <span className="hero-carousel-card__counter">
                     {currentIndex + 1}/{total}
@@ -150,7 +151,7 @@ export function HeroSectionCarousel({ articles }: { articles: HeroArticleItem[] 
                     className="hero-carousel-card__arrow-btn"
                     aria-label="Next story"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="tc-carousel-arrow-icon" />
                   </button>
                 </div>
               </div>

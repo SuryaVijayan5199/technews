@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { getArticlesByCategory } from "@/lib/actions/article.actions";
 import { cleanAuthorName } from "@/lib/utils";
 
+export const revalidate = 3600;
+
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
 }
@@ -94,7 +96,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
         {rest.length > 0 && (
           <div className="cat-grid">
-            {rest.map((article) => (
+            {rest.map((article: any) => (
               <article key={article.id} className="cat-card">
                 <Link href={`/${article.category?.slug ?? slug}/${article.slug}`} className="cat-card__art-wrap">
                   <div className="cat-card__art">

@@ -9,7 +9,14 @@ import { ArticleCard } from "@/components/article/article-card";
 import { ReadingProgress } from "@/components/article/reading-progress";
 import { TableOfContents } from "@/components/article/table-of-contents";
 import { ShareButtons } from "@/components/article/share-buttons";
+import { BookmarkButton } from "@/components/shared/bookmark-button";
 import { getArticleBySlug, getRelatedArticles } from "@/lib/actions/article.actions";
+import { getArticleComments } from "@/lib/actions/comment.actions";
+import { CommentsSection } from "@/components/article/comments-section";
+import { auth } from "@/lib/auth";
+import { isStaff } from "@/lib/permissions";
+
+export const revalidate = 3600;
 
 interface ArticlePageProps {
   params: Promise<{ category: string; slug: string }>;
@@ -24,12 +31,38 @@ function extractHeadings(html: string) {
     index++;
     const id = match[1] || `heading-${index}`;
     const rawText = match[2] || match[3] || "";
-    const text = rawText.replace(/<[^>]+>/g, "").trim();
+    const text = rawText
+      .replace(/<[^>]+>/g, "")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, " ")
+      .trim();
     if (text) {
       headings.push({ id, text, level: 2 });
     }
   }
+
+  // Fallback: If no h2 tags exist, generate structured content headings
+  if (headings.length === 0 && html) {
+    headings.push(
+      { id: "overview-section", text: "Overview & Key Developments", level: 2 },
+      { id: "analysis-section", text: "Technical Deep-Dive & Market Impact", level: 2 },
+      { id: "outlook-section", text: "Strategic Summary & Next Steps", level: 2 }
+    );
+  }
+
   return headings;
+}
+
+function injectHeadingIds(html: string): string {
+  let counter = 0;
+  return html.replace(/<h2((?![^>]*\bid=)[^>]*)>/gi, () => {
+    counter++;
+    return `<h2 id="heading-${counter}">`;
+  });
 }
 
 export async function generateMetadata({
@@ -79,7 +112,7 @@ async function RelatedArticlesSection({
   const relatedDbArticles = await getRelatedArticles(articleId, categorySlug, 3);
   if (relatedDbArticles.length === 0) return null;
 
-  const relatedArticles = relatedDbArticles.map((a) => ({
+  const relatedArticles = relatedDbArticles.map((a: any) => ({
     id: a.id,
     title: a.title,
     slug: a.slug,
@@ -96,12 +129,12 @@ async function RelatedArticlesSection({
   }));
 
   return (
-    <section className="article-related mt-12 pt-8 border-t border-[var(--color-surface-border)]" aria-label="Related articles">
-      <h2 className="article-related__title text-lg sm:text-xl font-bold mb-6">
+    <section className="article-related tc-article-related mt-12 pt-8" aria-label="Related articles">
+      <h2 className="article-related__title tc-article-related__title mb-6">
         Related Articles
       </h2>
       <div className="article-related__grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {relatedArticles.map((a) => (
+        {relatedArticles.map((a: any) => (
           <ArticleCard key={a.id} article={a} />
         ))}
       </div>
@@ -111,11 +144,11 @@ async function RelatedArticlesSection({
 
 function RelatedArticlesSkeleton() {
   return (
-    <div className="mt-12 pt-8 border-t border-[var(--color-surface-border)] animate-pulse">
-      <div className="h-6 w-40 bg-[var(--color-surface-2)] rounded mb-6" />
+    <div className="mt-12 pt-8 tc-article-related tc-skeleton-pulse">
+      <div className="tc-skel-line mb-6" style={{ width: "160px" }} />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-44 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-surface-border)]" />
+          <div key={i} className="tc-skel-card-img" />
         ))}
       </div>
     </div>
@@ -126,9 +159,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const { category, slug } = await params;
   const dbArticle = await getArticleBySlug(slug);
 
-  if (!dbArticle || dbArticle.status !== "published") {
-    notFound();
-  }
+  const session = await auth();
+  const userIsStaff = isStaff(session?.user?.role);
+
+  if (!dbArticle) notFound();
+  if (dbArticle.status !== "published" && !userIsStaff) notFound();
+
+  const initialComments = await getArticleComments(dbArticle.id);
 
   const authorUser = dbArticle.author?.user;
   const authorBio =
@@ -172,19 +209,19 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <link rel="canonical" href={canonicalUrl} />
       <ReadingProgress />
 
-      <article className="article-page py-6 md:py-10">
+      <article className="article-page tc-article-page-padding">
         <div className="container">
           {/* Breadcrumb Navigation */}
           <nav aria-label="Breadcrumb" className="breadcrumb mb-6">
             <Link href="/" className="breadcrumb__link">
               Home
             </Link>
-            <ChevronRight className="breadcrumb__separator w-3.5 h-3.5" />
+            <ChevronRight className="breadcrumb__separator tc-icon-xs" />
             <Link href={`/${categorySlug}`} className="breadcrumb__link capitalize">
               {categoryName}
             </Link>
-            <ChevronRight className="breadcrumb__separator w-3.5 h-3.5" />
-            <span className="breadcrumb__current breadcrumb__current--truncate max-w-[200px] sm:max-w-xs md:max-w-md">
+            <ChevronRight className="breadcrumb__separator tc-icon-xs" />
+            <span className="breadcrumb__current breadcrumb__current--truncate tc-breadcrumb-current">
               {dbArticle.title}
             </span>
           </nav>
@@ -194,20 +231,20 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             <div className="article-layout__main">
               <header className="article-header mb-6">
                 {/* 1. Headline */}
-                <h1 className="article-header__title text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4 leading-tight">
+                <h1 className="article-header__title mb-4">
                   {dbArticle.title}
                 </h1>
 
                 {/* 2. Category Badge */}
                 <div className="article-header__badge-wrap mb-4 flex items-center gap-2">
                   <Link href={`/${categorySlug}`}>
-                    <span className="badge badge-news uppercase text-xs font-bold px-2.5 py-1 rounded bg-[#2D7FF9]/15 text-[#2D7FF9] border border-[#2D7FF9]/30 hover:bg-[#2D7FF9] hover:text-white transition-all">
+                    <span className="badge badge-news tc-badge-brand">
                       {categoryName}
                     </span>
                   </Link>
 
                   {/* Editorial Status */}
-                  <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  <span className="tc-badge-green">
                     STATUS: {dbArticle.status.toUpperCase()}
                   </span>
                 </div>
@@ -218,101 +255,112 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   </p>
                 )}
 
-                {/* 3. Author & 4. Publish Date */}
-                <div className="article-meta flex flex-wrap items-center justify-between gap-4 py-4 border-y border-[var(--color-surface-border)]">
-                  <div className="article-meta__author flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2D7FF9] to-[#165bb8] text-white font-extrabold flex items-center justify-center border border-white/20 shadow-sm text-sm shrink-0">
-                      {getAuthorInitials(dbArticle.author?.displayName)}
+                {/* 3. Author & 4. Publish Date (Clean text only, no avatar icons) */}
+                <div className="article-meta flex flex-wrap items-center justify-between gap-4 py-4 tc-article-meta-row">
+                  <div className="article-meta__author">
+                    <div className="article-meta__author-name font-semibold text-sm">
+                      {dbArticle.author?.slug ? (
+                        <Link href={`/authors/${dbArticle.author.slug}`} className="hover:underline">
+                          {cleanAuthorName(dbArticle.author?.displayName)}
+                        </Link>
+                      ) : (
+                        <span>{cleanAuthorName(dbArticle.author?.displayName)}</span>
+                      )}
                     </div>
-                    <div>
-                      <p className="article-meta__author-name font-semibold text-sm">
-                        {cleanAuthorName(dbArticle.author?.displayName)}
-                      </p>
-                      <p className="article-meta__author-date text-xs text-muted-foreground">
-                        {dbArticle.publishedAt
-                          ? formatDate(dbArticle.publishedAt, {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })
-                          : "Published recently"}
-                      </p>
-                    </div>
+                    <p className="article-meta__author-date text-xs text-muted-foreground">
+                      {dbArticle.publishedAt
+                        ? formatDate(dbArticle.publishedAt, {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "Published recently"}
+                    </p>
                   </div>
 
                   <div className="article-meta__stats flex items-center gap-4 text-xs text-muted-foreground">
                     <span className="article-meta__stat-item flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-[#2D7FF9]" />
+                      <Clock className="tc-icon-xs tc-icon-brand" />
                       {dbArticle.readingTimeMinutes || 5} min read
                     </span>
                     <span className="article-meta__stat-item flex items-center gap-1.5">
-                      <Eye className="w-3.5 h-3.5 text-[#2D7FF9]" />
+                      <Eye className="tc-icon-xs tc-icon-brand" />
                       {(dbArticle.viewCount || 0).toLocaleString()} views
                     </span>
                   </div>
 
-                  <ShareButtons title={dbArticle.title} />
+                  <div className="flex items-center gap-2">
+                    <BookmarkButton
+                      variant="pill"
+                      article={{
+                        id: dbArticle.id,
+                        title: dbArticle.title,
+                        slug: dbArticle.slug,
+                        categorySlug,
+                        categoryName,
+                        heroImage: dbArticle.heroImage ?? undefined,
+                        readingTimeMinutes: dbArticle.readingTimeMinutes ?? undefined,
+                      }}
+                    />
+                    <ShareButtons title={dbArticle.title} />
+                  </div>
                 </div>
               </header>
 
               {/* Cover Image Positioned Immediately Below Heading & Header */}
               {dbArticle.heroImage && (
-                <figure className="article-hero-figure my-6 p-3 rounded-xl bg-[var(--color-surface-1)] border border-[var(--color-surface-border)] shadow-sm">
+                <figure className="article-hero-figure tc-article-figure">
                   <div className="article-hero-figure__image-wrap overflow-hidden rounded-lg">
                     <img
                       src={dbArticle.heroImage}
                       alt={dbArticle.heroImageAlt || dbArticle.title}
-                      className="article-hero-figure__image w-full h-auto max-h-[500px] object-cover"
+                      className="article-hero-figure__image tc-article-hero-img"
                     />
                   </div>
                   {(dbArticle.heroImageAlt || dbArticle.heroImageCaption) && (
-                    <figcaption className="article-hero-figure__caption text-xs text-muted-foreground mt-2.5 px-1 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      {dbArticle.heroImageAlt && (
-                        <span><strong>Alt:</strong> {dbArticle.heroImageAlt}</span>
-                      )}
-                      {dbArticle.heroImageCaption && (
-                        <span className="text-right italic"><strong>Credit:</strong> {dbArticle.heroImageCaption}</span>
-                      )}
+                    <figcaption className="article-hero-figure__caption text-muted-foreground tc-article-caption block mt-2 text-xs">
+                      <p className="m-0 p-0 leading-normal">
+                        {dbArticle.heroImageAlt}
+                        {dbArticle.heroImageAlt && dbArticle.heroImageCaption && " — "}
+                        {dbArticle.heroImageCaption && (
+                          <span className="tc-caption-source font-semibold">Credit: {dbArticle.heroImageCaption}</span>
+                        )}
+                      </p>
                     </figcaption>
                   )}
                 </figure>
               )}
+              {/* Mobile Table of Contents */}
+              {headings.length > 0 && (
+                <div className="article-layout__mobile-toc">
+                  <TableOfContents headings={headings} />
+                </div>
+              )}
 
-              {/* 5. Article Content */}
               <div
-                className="prose dark:prose-invert max-w-none text-sm sm:text-base leading-relaxed mb-8"
-                dangerouslySetInnerHTML={{ __html: dbArticle.contentHtml || "" }}
+                className="prose dark:prose-invert tc-article-body"
+                dangerouslySetInnerHTML={{ __html: injectHeadingIds(dbArticle.contentHtml || "") }}
               />
 
-              {/* Sources & Citations */}
-              <div className="article-sources p-4 rounded-xl bg-[var(--color-surface-1)] border border-[var(--color-surface-border)] my-6">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
-                  Sources &amp; References
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Information sourced directly from primary technical filings, official corporate press briefings, independent benchmarks, and Verified TechCrest Research.
-                </p>
-                <div className="mt-2 text-[11px] text-[#2D7FF9] truncate font-mono">
-                  Canonical Reference: {canonicalUrl}
+              {/* Author Bio Box (Clean text only, no avatar initials) */}
+              <div className="article-author-bio card p-4 sm:p-6 mt-8 rounded-xl bg-[var(--color-surface-1)] border">
+                <div>
+                  <span className="article-author-bio__name block font-bold text-sm sm:text-base">
+                    {cleanAuthorName(dbArticle.author?.displayName)}
+                  </span>
+                  <p className="article-author-bio__text text-muted-foreground tc-author-bio-text mt-1">
+                    {authorBio}
+                  </p>
                 </div>
               </div>
 
-              {/* Author Bio Box */}
-              <div className="article-author-bio card p-4 sm:p-6 mt-8 rounded-xl bg-[var(--color-surface-1)] border border-[var(--color-surface-border)]">
-                <div className="article-author-bio__inner flex items-center gap-4">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-[#2D7FF9] to-[#165bb8] text-white font-extrabold flex items-center justify-center border border-white/20 shadow-md text-xl shrink-0">
-                    {getAuthorInitials(dbArticle.author?.displayName)}
-                  </div>
-                  <div>
-                    <span className="article-author-bio__name block font-bold text-sm sm:text-base">
-                      {cleanAuthorName(dbArticle.author?.displayName)}
-                    </span>
-                    <p className="article-author-bio__text text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">
-                      {authorBio}
-                    </p>
-                  </div>
-                </div>
-              </div>
+              {/* Reader Discussion / Comments Section */}
+              <CommentsSection
+                articleId={dbArticle.id}
+                articleSlug={dbArticle.slug}
+                categorySlug={categorySlug}
+                initialComments={initialComments}
+              />
 
               {/* Related Articles — Streamed asynchronously with React Suspense */}
               <Suspense fallback={<RelatedArticlesSkeleton />}>
@@ -325,7 +373,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
             {/* Sidebar Table of Contents */}
             {headings.length > 0 && (
-              <aside className="article-layout__sidebar hidden lg:block">
+              <aside className="article-layout__sidebar">
                 <TableOfContents headings={headings} />
               </aside>
             )}

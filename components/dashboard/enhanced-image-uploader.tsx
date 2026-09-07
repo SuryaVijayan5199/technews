@@ -70,24 +70,11 @@ export function EnhancedImageUploader({
           onAltTextChange(file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " "));
         }
       } else {
-        // Fallback FileReader
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (e.target?.result) {
-            onChange(e.target.result as string);
-          }
-        };
-        reader.readAsDataURL(file);
+        setError(data?.error || "Failed to upload image. Please check file size or use an image URL.");
       }
     } catch (err) {
       console.error("Image upload failed:", err);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          onChange(e.target.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
+      setError("Image upload failed. Please try again or use an image URL.");
     } finally {
       setIsUploading(false);
     }

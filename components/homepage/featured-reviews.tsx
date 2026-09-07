@@ -66,8 +66,8 @@ export function FeaturedReviews() {
       {FEATURED_REVIEWS.map((review) => (
         <Link
           key={review.id}
-          href={`/reviews/${review.slug}`}
-          className="group card block overflow-hidden"
+          href={`/gaming/${review.slug}`}
+          className="card block overflow-hidden"
         >
           <div className="relative">
             <Image
@@ -75,47 +75,47 @@ export function FeaturedReviews() {
               alt={review.title}
               width={400}
               height={280}
-              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+              className="tc-review-card__img"
             />
-            <div className="absolute top-3 left-3">
+            <div className="tc-review-card__badge-pos">
               <span className="badge badge-review">{review.badge}</span>
             </div>
           </div>
           <div className="p-5">
             <h3
-              className="font-bold text-[var(--color-text-primary)] text-lg mb-1 group-hover:text-[var(--color-brand-300)] transition-colors"
+              className="tc-review-card__title"
               style={{ fontFamily: "var(--font-outfit)" }}
             >
               {review.title}
             </h3>
-            <p className="text-[var(--color-text-muted)] text-sm mb-4">
+            <p className="tc-review-card__excerpt">
               {review.subtitle}
             </p>
 
             <div className="flex items-center justify-between mb-4">
               <RatingStars rating={review.rating} size="md" />
-              <span className="text-2xl font-bold text-[var(--color-text-primary)]">
+              <span className="tc-review-card__score">
                 {review.rating}
               </span>
             </div>
 
-            <ul className="space-y-1.5 mb-4">
+            <ul className="tc-review-card__pros">
               {review.pros.map((pro) => (
                 <li
                   key={pro}
-                  className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]"
+                  className="tc-review-card__pro-item"
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-accent-green)] flex-shrink-0" />
+                  <CheckCircle2 className="tc-review-card__pro-icon" />
                   {pro}
                 </li>
               ))}
             </ul>
 
-            <div className="flex items-center justify-between pt-3 border-t border-[var(--color-surface-border)]">
-              <span className="text-[var(--color-brand-400)] font-bold">
+            <div className="tc-review-card__footer">
+              <span className="tc-review-card__price">
                 {review.price}
               </span>
-              <span className="text-xs text-[var(--color-text-muted)]">
+              <span className="tc-review-card__date">
                 By {review.reviewedBy}
               </span>
             </div>

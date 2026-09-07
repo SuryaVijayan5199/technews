@@ -4,16 +4,25 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle, Sparkles, Zap, ShieldCheck } from "lucide-react";
 import { TechCrestIcon } from "./techcrest-icon";
+import { subscribeToNewsletterAction } from "@/lib/actions/newsletter.actions";
 
 export function NewsletterCta() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setStatus("loading");
-    setTimeout(() => setStatus("success"), 800);
+    const result = await subscribeToNewsletterAction(email);
+    setStatus("idle");
+    if (result.success) {
+      setStatus("success");
+      setMessage(result.message || "Thank you for subscribing!");
+    } else {
+      alert(result.error || "Failed to subscribe. Please try again.");
+    }
   };
 
   return (

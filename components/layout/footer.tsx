@@ -29,7 +29,7 @@ export function Footer() {
 
           {/* Brand */}
           <div className="tc-footer__brand">
-            <TechCrestBrand variant="full" href="/" showTagline={true} />
+            <TechCrestBrand size="md" href="/" theme="dark" />
             <p className="tc-footer__desc">
               Independent technology journalism. Critical insights on devices, software, and ideas shaping our future.
             </p>

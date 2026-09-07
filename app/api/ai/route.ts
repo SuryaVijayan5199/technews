@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { isStaff } from "@/lib/permissions";
 
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!isStaff(session.user.role)) {
+    return NextResponse.json({ error: "Staff access required" }, { status: 403 });
   }
 
   try {

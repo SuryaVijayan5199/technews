@@ -122,10 +122,7 @@ export const verificationTokens = pgTable(
 // ─────────────────────────────────────────────
 export const authors = pgTable("authors", {
   id: serial("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .unique()
-    .references(() => users.id, { onDelete: "cascade" }),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
   slug: varchar("slug", { length: 100 }).unique().notNull(),
   displayName: varchar("display_name", { length: 100 }).notNull(),
   bio: text("bio"),
@@ -229,6 +226,7 @@ export const articles = pgTable(
 
     // Classification
     categoryId: integer("category_id").references(() => categories.id),
+    secondaryCategoryIds: integer("secondary_category_ids").array(),
 
     // Status & workflow
     status: articleStatusEnum("status").default("draft").notNull(),
@@ -236,6 +234,9 @@ export const articles = pgTable(
     isFeatured: boolean("is_featured").default(false).notNull(),
     isEditorsPick: boolean("is_editors_pick").default(false).notNull(),
     isTrending: boolean("is_trending").default(false).notNull(),
+    isLatest: boolean("is_latest").default(true).notNull(),
+    isBriefing: boolean("is_briefing").default(false).notNull(),
+    isGlobalBriefing: boolean("is_global_briefing").default(false).notNull(),
 
     // Timestamps
     publishedAt: timestamp("published_at"),

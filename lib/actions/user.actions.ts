@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { users, bookmarks, readingHistory, articles, authors } from "@/lib/db/schema";
+import { users, bookmarks, readingHistory, articles, authors, categories } from "@/lib/db/schema";
 import { eq, desc, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cleanAuthorName } from "@/lib/utils";
@@ -43,8 +43,10 @@ export interface UpdateProfileInput {
 }
 
 export async function updateUserProfile(input: UpdateProfileInput) {
-  const { userId, name, bio, website, twitterHandle, image } = input;
-  if (!userId) return { success: false, error: "Not authenticated." };
+  const { name, bio, website, twitterHandle, image } = input;
+  const session = await auth();
+  if (!session?.user?.id) return { success: false, error: "Not authenticated" };
+  const userId = session.user.id; // IGNORE input.userId — always use session
 
   const sanitizedName = cleanAuthorName(name.trim());
 
@@ -97,9 +99,11 @@ export async function getUserBookmarks(userId: string) {
         heroImage: articles.heroImage,
         readingTimeMinutes: articles.readingTimeMinutes,
         publishedAt: articles.publishedAt,
+        categorySlug: categories.slug,
       })
       .from(bookmarks)
       .innerJoin(articles, eq(bookmarks.articleId, articles.id))
+      .leftJoin(categories, eq(articles.categoryId, categories.id))
       .where(eq(bookmarks.userId, userId))
       .orderBy(desc(bookmarks.createdAt))
       .limit(20);
@@ -123,9 +127,11 @@ export async function getUserReadingHistory(userId: string) {
         title: articles.title,
         slug: articles.slug,
         heroImage: articles.heroImage,
+        categorySlug: categories.slug,
       })
       .from(readingHistory)
       .innerJoin(articles, eq(readingHistory.articleId, articles.id))
+      .leftJoin(categories, eq(articles.categoryId, categories.id))
       .where(eq(readingHistory.userId, userId))
       .orderBy(desc(readingHistory.readAt))
       .limit(20);
@@ -163,6 +169,8 @@ export async function getStaffMembers() {
   }
 }
 
+import { isSuperAdminEmail, SUPER_ADMIN_EMAILS } from "@/config/site";
+
 /**
  * Add a staff member by email + role.
  * Super Admin only.
@@ -174,6 +182,14 @@ export async function assignStaffRole(email: string, role: StaffRole, displayNam
   }
   if (!email) return { success: false, error: "Email is required." };
   const normalizedEmail = email.toLowerCase().trim();
+
+  if (role === "super_admin" && !isSuperAdminEmail(normalizedEmail)) {
+    return {
+      success: false,
+      error: `The Super Admin role is restricted exclusively to configured site super admins (${SUPER_ADMIN_EMAILS.join(", ")}).`,
+    };
+  }
+
   try {
     const existing = await db.query.users.findFirst({ where: eq(users.email, normalizedEmail) });
     if (existing) {
@@ -204,6 +220,16 @@ export async function updateStaffRole(userId: string, role: StaffRole) {
   }
   if (!userId) return { success: false, error: "User ID required." };
   try {
+    const targetUser = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    if (!targetUser) return { success: false, error: "User not found." };
+
+    if (role === "super_admin" && !isSuperAdminEmail(targetUser.email)) {
+      return {
+        success: false,
+        error: `The Super Admin role is restricted exclusively to configured site super admins (${SUPER_ADMIN_EMAILS.join(", ")}).`,
+      };
+    }
+
     await db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, userId));
     revalidatePath("/dashboard/team");
     return { success: true };

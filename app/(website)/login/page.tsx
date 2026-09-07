@@ -21,8 +21,8 @@ export default function LoginPage() {
       <div className="login-card-v2">
         {/* Header & Logo */}
         <div className="login-card-v2__header">
-          <div className="flex justify-center mb-5">
-            <TechCrestBrand variant="full" href="/" />
+          <div className="tc-login-logo-wrap">
+            <TechCrestBrand size="md" href="/" />
           </div>
 
           <h1 className="login-card-v2__title">Welcome Back</h1>

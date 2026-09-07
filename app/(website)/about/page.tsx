@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Zap, ShieldCheck, Award, Users, ChevronRight } from "lucide-react";
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "About Us — TechCrest",
   description: "Learn about TechCrest's mission, editorial standards, and the expert team behind our independent tech journalism.",
@@ -42,7 +44,7 @@ export default function AboutPage() {
               <Zap className="w-5 h-5" fill="white" />
             </div>
             <h1 className="text-3xl sm:text-5xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-outfit)" }}>
-              About Tech<span className="text-[var(--color-brand-400)]">.io</span>
+              About TechCrest
             </h1>
           </div>
           <p className="text-[var(--color-text-secondary)] text-lg leading-relaxed mt-4">

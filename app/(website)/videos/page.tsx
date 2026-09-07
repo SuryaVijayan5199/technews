@@ -43,43 +43,43 @@ const VIDEOS = [
 
 export default function VideosPage() {
   return (
-    <div className="container py-10">
+    <div className="container tc-page-section">
       <div className="mb-10">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-[var(--color-text-muted)] mb-4">
-          <Link href="/" className="hover:text-[var(--color-text-secondary)]">Home</Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[var(--color-text-secondary)]">Videos</span>
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 mb-4 tc-breadcrumb">
+          <Link href="/" className="tc-breadcrumb__link">Home</Link>
+          <ChevronRight className="tc-icon-xs" />
+          <span className="tc-text-muted">Videos</span>
         </nav>
-        <h1 className="text-3xl sm:text-5xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-outfit)" }}>
+        <h1 className="tc-page-title" style={{ fontFamily: "var(--font-outfit)" }}>
           TechCrest Video Channel
         </h1>
-        <p className="text-[var(--color-text-secondary)] text-base sm:text-lg mt-2 max-w-3xl">
+        <p className="tc-page-subtitle">
           High-production hardware unboxings, benchmark comparisons, and deep tech documentaries.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="tc-video-grid">
         {VIDEOS.map((video) => (
-          <div key={video.id} className="group card overflow-hidden cursor-pointer">
-            <div className="relative aspect-[16/9] overflow-hidden">
-              <Image src={video.thumbnail} alt={video.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                <div className="w-12 h-12 rounded-full bg-[var(--color-brand-500)] text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                  <Play className="w-5 h-5 ml-1 fill-current" />
+          <div key={video.id} className="group card overflow-hidden tc-video-card">
+            <div className="tc-video-card__media">
+              <Image src={video.thumbnail} alt={video.title} fill className="tc-video-card__img" />
+              <div className="tc-video-card__overlay">
+                <div className="tc-video-card__play">
+                  <Play className="tc-icon-play" />
                 </div>
               </div>
-              <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded bg-black/80 text-white text-xs font-mono">
+              <span className="tc-video-card__duration">
                 {video.duration}
               </span>
             </div>
             <div className="p-5">
               <span className="badge badge-news mb-2">{video.category}</span>
-              <h2 className="font-bold text-[var(--color-text-primary)] text-lg group-hover:text-[var(--color-brand-300)] transition-colors line-clamp-2 mb-2" style={{ fontFamily: "var(--font-outfit)" }}>
+              <h2 className="tc-video-card__title" style={{ fontFamily: "var(--font-outfit)" }}>
                 {video.title}
               </h2>
-              <div className="flex items-center justify-between text-xs text-[var(--color-text-muted)] pt-3 border-t border-[var(--color-surface-border)]">
+              <div className="tc-video-card__footer">
                 <span>Hosted by {video.host}</span>
-                <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{video.views}</span>
+                <span className="flex items-center gap-1"><Eye className="tc-icon-xs" />{video.views}</span>
               </div>
             </div>
           </div>

@@ -146,16 +146,16 @@ export default function CategoriesDashboardPage() {
   return (
     <div className="dashboard-page-container space-y-6">
       {toast && (
-        <div className={`dashboard-toast flex items-center gap-2 ${toast.type === "error" ? "text-red-400" : ""}`}>
-          {toast.type === "success" ? <CheckCircle className="w-4 h-4 text-green-400" /> : <AlertCircle className="w-4 h-4 text-red-400" />}
+        <div className={`dashboard-toast ${toast.type === "error" ? "dashboard-text-error" : ""}`}>
+          {toast.type === "success" ? <CheckCircle className="dashboard-icon dashboard-text-success" /> : <AlertCircle className="dashboard-icon dashboard-text-error" />}
           <span>{toast.msg}</span>
         </div>
       )}
 
-      <div className="dashboard-page-header flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="dashboard-page-header">
         <div>
-          <h1 className="dashboard-page-title flex items-center gap-2">
-            <Layers className="w-6 h-6 text-[var(--color-brand-400)]" /> Category Taxonomy
+          <h1 className="dashboard-page-title">
+            <Layers className="dashboard-page-icon" /> Category Taxonomy
           </h1>
           <p className="dashboard-page-subtitle">
             Manage article categories, slugs, and visibility. Categories with articles cannot be deleted.
@@ -163,10 +163,10 @@ export default function CategoriesDashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           <button onClick={loadCats} disabled={isPending} className="btn btn-ghost" title="Refresh">
-            <RefreshCw className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
+            <RefreshCw className={isPending ? "dashboard-spinner" : "dashboard-icon"} />
           </button>
           <button onClick={openCreate} className="btn btn-primary dashboard-primary-btn shrink-0">
-            <Plus className="w-4 h-4" /> Add Category
+            <Plus className="dashboard-icon" /> Add Category
           </button>
         </div>
       </div>
@@ -206,21 +206,21 @@ export default function CategoriesDashboardPage() {
                 <th className="th-cat">Slug</th>
                 <th className="th-views">Articles</th>
                 <th className="th-status">Status</th>
-                <th className="th-actions text-right">Actions</th>
+                <th className="th-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
               {isPending && cats.length === 0 ? (
-                <tr><td colSpan={5} className="td-empty"><Loader2 className="w-4 h-4 animate-spin inline mr-2" />Loading…</td></tr>
+                <tr><td colSpan={5} className="td-empty"><Loader2 className="dashboard-spinner inline mr-2" />Loading…</td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={5} className="td-empty">
                   {cats.length === 0 ? "No categories yet. Create your first one." : "No categories match your search."}
                 </td></tr>
               ) : filtered.map(cat => (
                 <tr key={cat.id} className="dashboard-table-row">
-                  <td className="td-title font-semibold">
+                  <td className="td-title">
                     <div className="flex items-center gap-3">
-                      <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cat.color ?? "#6366f1" }} />
+                      <span className="dashboard-color-dot" style={{ backgroundColor: cat.color ?? "#6366f1" }} />
                       <div>
                         <span>{cat.name}</span>
                         {cat.description && (
@@ -231,8 +231,8 @@ export default function CategoriesDashboardPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="td-cat font-mono text-xs text-brand">/{cat.slug}</td>
-                  <td className="td-views font-semibold">{cat.articleCount}</td>
+                  <td className="td-cat">/{cat.slug}</td>
+                  <td className="td-views">{cat.articleCount}</td>
                   <td className="td-status">
                     <button
                       onClick={() => handleToggleActive(cat)}
@@ -246,13 +246,13 @@ export default function CategoriesDashboardPage() {
                       }
                     </button>
                   </td>
-                  <td className="td-actions text-right">
+                  <td className="td-actions">
                     <div className="dashboard-action-group">
                       <button onClick={() => openEdit(cat)} className="dashboard-action-btn dashboard-action-btn--edit" title="Edit">
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="dashboard-icon" />
                       </button>
                       <button onClick={() => handleDelete(cat)} disabled={isPending} className="dashboard-action-btn dashboard-action-btn--delete" title="Delete">
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="dashboard-icon" />
                       </button>
                     </div>
                   </td>
@@ -269,28 +269,28 @@ export default function CategoriesDashboardPage() {
           <div className="modal-card card" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3 className="modal-title">{editingCat ? "Edit Category" : "Create New Category"}</h3>
-              <button onClick={() => setShowModal(false)} className="modal-close-btn"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowModal(false)} className="modal-close-btn"><X className="dashboard-icon-md" /></button>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="dashboard-form-fields">
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1">Category Name *</label>
+                <label className="dashboard-label">Category Name *</label>
                 <input type="text" value={formName} onChange={e => handleNameChange(e.target.value)}
-                  placeholder="e.g. Artificial Intelligence" required className="input text-sm w-full" />
+                  placeholder="e.g. Artificial Intelligence" required className="input" />
               </div>
               {!editingCat && (
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1">URL Slug *</label>
+                  <label className="dashboard-label">URL Slug *</label>
                   <input type="text" value={formSlug} onChange={e => setFormSlug(e.target.value)}
-                    placeholder="e.g. ai" required className="input text-sm w-full font-mono" />
+                    placeholder="e.g. ai" required className="input input--mono" />
                 </div>
               )}
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1">Description</label>
+                <label className="dashboard-label">Description</label>
                 <textarea value={formDesc} onChange={e => setFormDesc(e.target.value)} rows={2}
-                  placeholder="Short description…" className="input text-sm w-full" style={{ resize: "vertical" }} />
+                  placeholder="Short description…" className="input" style={{ resize: "vertical" }} />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-2">Color</label>
+                <label className="dashboard-label">Color</label>
                 <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
                   {COLOR_PRESETS.map(c => (
                     <button key={c} type="button" onClick={() => setFormColor(c)}
@@ -304,10 +304,10 @@ export default function CategoriesDashboardPage() {
                     style={{ width: 28, height: 28, borderRadius: "50%", border: "none", cursor: "pointer", padding: 0 }} />
                 </div>
               </div>
-              <div className="flex items-center justify-end gap-2 pt-1">
+              <div className="dashboard-modal-footer">
                 <button type="button" onClick={() => setShowModal(false)} className="btn btn-ghost text-sm">Cancel</button>
                 <button type="submit" disabled={isPending} className="btn btn-primary text-sm">
-                  {isPending ? <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</> : (editingCat ? "Save Changes" : "Create Category")}
+                  {isPending ? <><Loader2 className="dashboard-spinner dashboard-spinner--sm" /> Saving…</> : (editingCat ? "Save Changes" : "Create Category")}
                 </button>
               </div>
             </form>

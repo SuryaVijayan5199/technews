@@ -35,6 +35,9 @@ yarn-error.log*
 
 # vercel
 .vercel
+/.open-next/
+scratch-*.js
+lighthouse-report.json
 
 # typescript
 *.tsbuildinfo

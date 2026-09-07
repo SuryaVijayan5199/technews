@@ -58,7 +58,7 @@ export function AuthErrorCard() {
       <div className="login-card-v2__header">
         <Link href="/" className="login-card-v2__logo-link">
           <div className="login-card-v2__logo-icon" style={{ backgroundColor: "#ef4444" }}>
-            <AlertTriangle className="w-6 h-6 text-white" />
+            <AlertTriangle className="tc-auth-error-icon" />
           </div>
           <span className="login-card-v2__logo-text">
             Tech<span style={{ color: "hsl(var(--color-brand-500))" }}>.io</span>

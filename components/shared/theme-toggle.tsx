@@ -14,7 +14,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
 
   if (!mounted) {
     return (
-      <div className={`w-9 h-9 rounded-full bg-[var(--color-surface-2)] border border-[var(--color-surface-border)] ${className}`} />
+      <div className={`tc-theme-toggle__btn ${className}`} />
     );
   }
 
@@ -23,14 +23,14 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
   return (
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className={`p-2 rounded-full text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)] transition-all cursor-pointer border border-transparent hover:border-[var(--color-surface-border)] ${className}`}
+      className={`tc-theme-toggle__btn ${className}`}
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       title={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
       {isDark ? (
-        <Sun className="w-4 h-4 text-amber-400 transition-transform duration-300 rotate-0 hover:rotate-90" />
+        <Sun className="tc-theme-toggle__icon tc-theme-toggle__icon--sun" />
       ) : (
-        <Moon className="w-4 h-4 text-indigo-600 transition-transform duration-300 rotate-0 hover:-rotate-45" />
+        <Moon className="tc-theme-toggle__icon tc-theme-toggle__icon--moon" />
       )}
     </button>
   );

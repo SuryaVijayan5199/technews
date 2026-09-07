@@ -1,9 +1,9 @@
-﻿import React from "react";
+import React from "react";
 import Link from "next/link";
 import { getBreakingArticles } from "@/lib/actions/article.actions";
 
 export async function BreakingNewsBar() {
-  const dbArticles = await getBreakingArticles(15);
+  const dbArticles = await getBreakingArticles(5);
 
   if (!dbArticles || dbArticles.length === 0) {
     return null;

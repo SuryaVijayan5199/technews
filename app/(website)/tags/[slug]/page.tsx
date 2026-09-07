@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ChevronRight, Tag } from "lucide-react";
 import { ArticleCard } from "@/components/article/article-card";
+import { db } from "@/lib/db";
+import { tags, articleTags, articles, authors, categories } from "@/lib/db/schema";
+import { eq, desc, and } from "drizzle-orm";
 
 interface TagPageProps {
   params: Promise<{ slug: string }>;
@@ -16,24 +20,43 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
   };
 }
 
-const MOCK_TAG_ARTICLES = [
-  {
-    id: 1,
-    title: "OpenAI's GPT-5 Changes Everything: A Deep Dive Into the Next Frontier of AI",
-    slug: "openai-gpt5-deep-dive-next-frontier-ai",
-    excerpt: "After months of anticipation, GPT-5 is finally here — and it's more powerful than anyone expected.",
-    heroImage: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&h=375&fit=crop&q=80",
-    publishedAt: "2026-07-30T10:00:00Z",
-    readingTimeMinutes: 12,
-    categorySlug: "ai",
-    categoryName: "AI",
-    authorName: "Dr. Sarah Chen",
-  },
-];
-
 export default async function TagPage({ params }: TagPageProps) {
   const { slug } = await params;
   const tagName = slug.replace(/-/g, " ").toUpperCase();
+
+  let taggedArticles: any[] = [];
+  
+  try {
+    const tag = await db.query.tags.findFirst({ where: eq(tags.slug, slug) });
+    if (!tag) {
+      notFound();
+    }
+
+    taggedArticles = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        excerpt: articles.excerpt,
+        heroImage: articles.heroImage,
+        publishedAt: articles.publishedAt,
+        readingTimeMinutes: articles.readingTimeMinutes,
+        viewCount: articles.viewCount,
+        categoryName: categories.name,
+        categorySlug: categories.slug,
+        authorName: authors.displayName,
+      })
+      .from(articles)
+      .innerJoin(articleTags, eq(articles.id, articleTags.articleId))
+      .leftJoin(categories, eq(articles.categoryId, categories.id))
+      .leftJoin(authors, eq(articles.authorId, authors.id))
+      .where(and(eq(articleTags.tagId, tag.id), eq(articles.status, "published")))
+      .orderBy(desc(articles.publishedAt))
+      .limit(30);
+  } catch (error) {
+    // If the schema for tags/articleTags doesn't exist yet, we catch it here.
+    console.error("Tags feature requires schema migration:", error);
+  }
 
   return (
     <div className="container py-10">
@@ -58,9 +81,15 @@ export default async function TagPage({ params }: TagPageProps) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {MOCK_TAG_ARTICLES.map((article) => (
-          <ArticleCard key={article.id} article={article} />
-        ))}
+        {taggedArticles.length > 0 ? (
+          taggedArticles.map((article) => (
+            <ArticleCard key={article.id} article={article as any} />
+          ))
+        ) : (
+          <div className="col-span-full py-12 text-center text-[var(--color-text-muted)]">
+            No articles found for this tag.
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
-import { TechCrestHomePage } from "@/components/home/techcrest-homepage";
+import { TechCrestHomepage } from "@/components/home/techcrest-homepage";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: `${siteConfig.name} — ${siteConfig.tagline}`,
@@ -8,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <TechCrestHomePage />;
+  return <TechCrestHomepage />;
 }

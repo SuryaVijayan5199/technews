@@ -61,13 +61,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/logos/icons/favicon-dark-512.png?v=2", sizes: "512x512", type: "image/png", media: "(prefers-color-scheme: dark)" },
-      { url: "/logos/icons/favicon-light-512.png?v=2", sizes: "512x512", type: "image/png", media: "(prefers-color-scheme: light)" },
-      { url: "/logos/icons/favicon-dark-32.png?v=2", sizes: "32x32", type: "image/png" },
-      { url: "/favicon.png?v=2", type: "image/png" },
+      { url: "/icons/techcrest-app-icon-gradient-512.png?v=5", sizes: "512x512", type: "image/png" },
+      { url: "/favicon-32x32.png?v=5", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.png?v=5", type: "image/png" },
+      { url: "/favicon.ico?v=5" },
     ],
-    shortcut: "/favicon.png?v=2",
-    apple: "/apple-touch-icon.png?v=2",
+    shortcut: "/favicon.png?v=5",
+    apple: "/apple-touch-icon.png?v=5",
   },
 };
 
@@ -89,16 +89,7 @@ export default function RootLayout({
             <MobileAppProvider>
               {children}
             </MobileAppProvider>
-            <Toaster
-              position="bottom-right"
-              toastOptions={{
-                style: {
-                  background: "var(--color-surface-2)",
-                  border: "1px solid var(--color-surface-border)",
-                  color: "var(--color-text-primary)",
-                },
-              }}
-            />
+            <Toaster position="bottom-right" closeButton />
           </ThemeProvider>
         </AuthProvider>
       </body>

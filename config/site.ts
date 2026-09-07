@@ -1,3 +1,15 @@
+export const SUPER_ADMIN_EMAILS = [
+  "suryashc5199@gmail.com",
+  "mrbibhu@gmail.com",
+];
+
+export const isSuperAdminEmail = (email: string | null | undefined): boolean => {
+  if (!email) return false;
+  return SUPER_ADMIN_EMAILS.includes(email.toLowerCase().trim());
+};
+
+export const SUPER_ADMIN_EMAIL = SUPER_ADMIN_EMAILS[0];
+
 export const siteConfig = {
   name: "TechCrest",
   tagline: "The Future of Technology Journalism",

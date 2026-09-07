@@ -4,46 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle, Globe, ChevronRight } from "lucide-react";
 import { ArticleCard } from "@/components/article/article-card";
-
-const MOCK_AUTHOR = {
-  name: "Dr. Sarah Chen",
-  slug: "sarah-chen",
-  role: "Senior AI Editor",
-  avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop&q=80",
-  bio: "Dr. Sarah Chen is TechCrest's Senior AI Editor with a PhD in Computer Science from MIT. She covers artificial intelligence, neural networks, and computer vision.",
-  isVerified: true,
-  articleCount: 342,
-  totalViews: "4.8M",
-  twitter: "https://twitter.com/sarahchen_ai",
-  linkedin: "https://linkedin.com/in/sarahchen-ai",
-  website: "https://sarahchen.io",
-  articles: [
-    {
-      id: 1,
-      title: "OpenAI's GPT-5 Changes Everything: A Deep Dive Into the Next Frontier of AI",
-      slug: "openai-gpt5-deep-dive-next-frontier-ai",
-      excerpt: "After months of anticipation, GPT-5 is finally here — and it's more powerful than anyone expected.",
-      heroImage: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&h=375&fit=crop&q=80",
-      publishedAt: "2026-07-30T10:00:00Z",
-      readingTimeMinutes: 12,
-      categorySlug: "ai",
-      categoryName: "AI",
-      authorName: "Dr. Sarah Chen",
-    },
-    {
-      id: 2,
-      title: "Google DeepMind's Gemini Ultra 2 Beats Human Experts on Medical Diagnosis",
-      slug: "google-deepmind-gemini-ultra-2-medical-diagnosis",
-      excerpt: "DeepMind's newest flagship AI model sets a new state of the art.",
-      heroImage: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&h=375&fit=crop&q=80",
-      publishedAt: "2026-07-30T09:00:00Z",
-      readingTimeMinutes: 7,
-      categorySlug: "ai",
-      categoryName: "AI",
-      authorName: "Dr. Sarah Chen",
-    },
-  ],
-};
+import { getAuthorBySlugWithArticles } from "@/lib/actions/author.actions";
 
 interface AuthorPageProps {
   params: Promise<{ slug: string }>;
@@ -51,48 +12,101 @@ interface AuthorPageProps {
 
 export async function generateMetadata({ params }: AuthorPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const author = await getAuthorBySlugWithArticles(slug);
+
+  if (!author) {
+    return {
+      title: "Author Not Found | TechCrest",
+    };
+  }
+
   return {
-    title: `${MOCK_AUTHOR.name} — Author Profile | TechCrest`,
-    description: MOCK_AUTHOR.bio,
+    title: `${author.displayName} — Author Profile | TechCrest`,
+    description: author.bio || `${author.displayName} is an official TechCrest staff writer & contributor.`,
   };
 }
 
 export default async function AuthorProfilePage({ params }: AuthorPageProps) {
   const { slug } = await params;
+  const author = await getAuthorBySlugWithArticles(slug);
+
+  if (!author) {
+    notFound();
+  }
+
+  const avatarUrl =
+    author.avatar ||
+    `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(author.displayName)}`;
+
+  const roleTitle = author.user?.role
+    ? author.user.role.replace(/_/g, " ").toUpperCase()
+    : "AUTHOR";
 
   return (
-    <div className="py-10">
+    <div className="tc-author-page">
       <div className="container">
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-[var(--color-text-muted)] mb-6">
-          <Link href="/" className="hover:text-[var(--color-text-secondary)]">Home</Link>
+        <nav aria-label="Breadcrumb" className="tc-author-breadcrumb">
+          <Link href="/">Home</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[var(--color-text-secondary)]">Authors</span>
+          <span>Authors</span>
           <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[var(--color-text-secondary)]">{MOCK_AUTHOR.name}</span>
+          <span>{author.displayName}</span>
         </nav>
 
         {/* Author Bio Card */}
-        <div className="card p-8 mb-10 bg-gradient-to-br from-[var(--color-surface-1)] via-[var(--color-surface-2)] to-[var(--color-surface-1)]">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
-            <div className="relative w-28 h-28 flex-shrink-0">
-              <Image src={MOCK_AUTHOR.avatar} alt={MOCK_AUTHOR.name} fill className="rounded-full object-cover ring-4 ring-[var(--color-surface-border)]" />
-              {MOCK_AUTHOR.isVerified && (
-                <CheckCircle className="absolute bottom-0 right-0 w-7 h-7 text-[var(--color-brand-400)] bg-[var(--color-surface-0)] rounded-full" />
+        <div className="tc-author-card">
+          <div className="tc-author-card__header">
+            <div className="tc-author-card__avatar-wrap">
+              <Image
+                src={avatarUrl}
+                alt={author.displayName}
+                fill
+                className="tc-author-card__avatar-img"
+              />
+              {author.isVerified && (
+                <div className="tc-author-card__verified-badge" title="Verified Author">
+                  <CheckCircle className="w-4 h-4 text-[#2D7FF9]" />
+                </div>
               )}
             </div>
-            <div className="flex-1 space-y-3">
+            <div className="tc-author-card__info">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-outfit)" }}>
-                  {MOCK_AUTHOR.name}
+                <h1 className="tc-author-card__name">
+                  {author.displayName}
                 </h1>
-                <p className="text-sm text-[var(--color-brand-400)] font-semibold mt-0.5">{MOCK_AUTHOR.role}</p>
+                <p className="tc-author-card__role">
+                  {roleTitle}
+                </p>
               </div>
-              <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed max-w-2xl">{MOCK_AUTHOR.bio}</p>
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 pt-2 text-xs text-[var(--color-text-muted)]">
-                <span>{MOCK_AUTHOR.articleCount} Articles Published</span>
-                <span>•</span>
-                <span>{MOCK_AUTHOR.totalViews} Total Readers</span>
+
+              {author.bio ? (
+                <p className="tc-author-card__bio">
+                  {author.bio}
+                </p>
+              ) : (
+                <p className="tc-author-card__bio italic text-muted-foreground">
+                  Official author profile at TechCrest.
+                </p>
+              )}
+
+              <div className="tc-author-card__stats">
+                <span className="tc-author-card__stat-item">
+                  {author.articleCount} {author.articleCount === 1 ? "Article Published" : "Articles Published"}
+                </span>
+                {author.websiteUrl && (
+                  <>
+                    <span>•</span>
+                    <a
+                      href={author.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-[#2D7FF9] inline-flex items-center gap-1"
+                    >
+                      <Globe className="w-3.5 h-3.5" /> Website
+                    </a>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -100,14 +114,21 @@ export default async function AuthorProfilePage({ params }: AuthorPageProps) {
 
         {/* Author's Articles Feed */}
         <div>
-          <h2 className="text-2xl font-bold text-[var(--color-text-primary)] mb-6" style={{ fontFamily: "var(--font-outfit)" }}>
-            Articles by {MOCK_AUTHOR.name}
+          <h2 className="tc-author-articles__heading">
+            Articles by {author.displayName}
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MOCK_AUTHOR.articles.map((article) => (
-              <ArticleCard key={article.id} article={article} />
-            ))}
-          </div>
+
+          {author.articles.length === 0 ? (
+            <div className="tc-author-empty-card">
+              <p>No articles published by {author.displayName} yet.</p>
+            </div>
+          ) : (
+            <div className="tc-author-articles__grid">
+              {author.articles.map((article: any) => (
+                <ArticleCard key={article.id} article={article} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

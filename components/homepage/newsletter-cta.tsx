@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Sparkles, CheckCircle, ShieldCheck, Zap, ArrowRight } from "lucide-react";
@@ -51,7 +51,7 @@ export function NewsletterCTA() {
 
         {status === "success" ? (
           <div className="premium-cta__success">
-            <CheckCircle className="w-5 h-5 text-emerald-400" />
+            <CheckCircle className="tc-cta-icon--success" />
             <span className="premium-cta__success-text">
               Welcome to TechCrest Premium! Check your inbox to activate your 14-day pass.
             </span>
@@ -71,7 +71,7 @@ export function NewsletterCTA() {
               disabled={status === "loading"}
               className="btn premium-cta__btn"
             >
-              {status === "loading" ? "Subscribing..." : <>Join Free <ArrowRight className="w-4 h-4" /></>}
+              {status === "loading" ? "Subscribing..." : <>Join Free <ArrowRight className="tc-btn-icon" /></>}
             </button>
           </form>
         )}

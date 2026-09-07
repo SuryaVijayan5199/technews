@@ -1,74 +1,82 @@
 import React from "react";
 import Link from "next/link";
-import { TechCrestIcon } from "./techcrest-icon";
+import Image from "next/image";
 
-export type TechCrestBrandVariant =
-  | "full"
-  | "full-light"
-  | "full-dark"
-  | "compact"
-  | "mobile"
-  | "icon-only";
+export type TechCrestBrandSize = "sm" | "md" | "lg";
+export type TechCrestBrandTheme = "auto" | "light" | "dark";
 
-interface TechCrestBrandProps {
-  variant?: TechCrestBrandVariant;
-  href?: string;
+export interface TechCrestBrandProps {
+  /** Standard size preset: sm (44px), md (68px - default prominent), lg (84px) */
+  size?: TechCrestBrandSize;
+  /** Theme override if needed */
+  theme?: TechCrestBrandTheme;
+  /** Link target URL. Set to empty string or null to render non-interactive container */
+  href?: string | null;
+  /** Custom additional CSS classes */
   className?: string;
+  /** Explicit pixel height override */
   iconSize?: number;
+  /** Legacy prop kept for compatibility */
   showTagline?: boolean;
 }
 
+const HEIGHT_MAP: Record<TechCrestBrandSize, number> = {
+  sm: 52,
+  md: 78,
+  lg: 104,
+};
+
 export function TechCrestBrand({
-  variant = "full",
+  size = "md",
+  theme = "auto",
   href = "/",
   className = "",
   iconSize,
-  showTagline,
 }: TechCrestBrandProps) {
-  // Determine variant defaults
-  const isMobile = variant === "mobile";
-  const isCompact = variant === "compact";
-  const isIconOnly = variant === "icon-only";
+  const computedHeight = iconSize ?? HEIGHT_MAP[size] ?? 72;
+  // Aspect ratio of the official TechCrest logo image lockup (width: 900, height: 260) => ratio ~3.46
+  const computedWidth = Math.round(computedHeight * 3.46);
 
-  // Show tagline for all brand variants unless icon-only
-  const shouldShowTagline =
-    showTagline !== undefined ? showTagline : !isIconOnly;
-
-  // Sizing defaults
-  const computedIconSize =
-    iconSize ?? (isMobile ? 60 : isCompact ? 70 : 78);
+  const themeClass =
+    theme === "light"
+      ? "tc-brand--light"
+      : theme === "dark"
+      ? "tc-brand--dark"
+      : "";
 
   const content = (
-    <div className={`tc-brand tc-brand--${variant} ${className}`}>
-      {/* Icon */}
-      <TechCrestIcon
-        size={computedIconSize}
-        color="#2D7FF9"
-        className="tc-brand__icon"
+    <div
+      className={`tc-brand tc-brand--image-lockup tc-brand--${size} ${themeClass} ${className}`.trim()}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        lineHeight: 1,
+      }}
+    >
+      <Image
+        src="/brand/techcrest-logo.png"
+        alt="TechCrest — News • Insights • Impact"
+        width={computedWidth}
+        height={computedHeight}
+        priority
+        className="tc-brand__image-file"
+        style={{
+          height: `${computedHeight}px`,
+          width: "auto",
+          objectFit: "contain",
+          display: "block",
+        }}
       />
-
-      {!isIconOnly && (
-        <div className="tc-brand__text">
-          {/* Wordmark */}
-          <span className="tc-brand__wordmark">
-            <span className="tc-brand__tech">Tech</span>
-            <span className="tc-brand__crest">Crest</span>
-          </span>
-
-          {/* Tagline */}
-          {shouldShowTagline && (
-            <span className="tc-brand__tagline">
-              NEWS &bull; INSIGHTS &bull; IMPACT
-            </span>
-          )}
-        </div>
-      )}
     </div>
   );
 
   if (href) {
     return (
-      <Link href={href} aria-label="TechCrest — News, Insights, Impact" className="tc-brand__link">
+      <Link
+        href={href}
+        aria-label="TechCrest — News, Insights, Impact"
+        className="tc-brand__link"
+      >
         {content}
       </Link>
     );

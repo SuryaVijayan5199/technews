@@ -8,6 +8,7 @@ import {
   FileText,
   BarChart3,
   Users,
+  UserCheck,
   Settings,
   PlusCircle,
   LayoutDashboard,
@@ -20,16 +21,19 @@ import {
   LogOut,
   User,
   Bell,
+  Mail,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
-import { canAccessRoute } from "@/lib/permissions";
+import { canAccessRoute, isStaff } from "@/lib/permissions";
 import { RoleGate } from "@/components/shared/role-gate";
 import { TechCrestBrand } from "@/components/shared/techcrest-brand";
 
 const sidebarNav = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Articles", href: "/dashboard/articles", icon: FileText },
+  { label: "Authors", href: "/dashboard/authors", icon: UserCheck },
+  { label: "Subscribers", href: "/dashboard/subscribers", icon: Mail },
   { label: "Categories", href: "/dashboard/categories", icon: Layers },
   { label: "Comments", href: "/dashboard/comments", icon: MessageSquare },
   { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
@@ -45,6 +49,12 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: session, status } = useSession();
+
+  if (status === "unauthenticated") {
+    // redirect is not available in client components
+    // we rely on middleware, but add visual guard
+    return null;
+  }
 
   // Redirect handled by middleware, but provide client-side fallback
   const userRole = session?.user?.role ?? null;
@@ -68,7 +78,7 @@ export default function DashboardLayout({
       <aside className={`dashboard-sidebar ${mobileOpen ? "dashboard-sidebar--open" : ""}`}>
         <div className="dashboard-sidebar__header flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <TechCrestBrand variant="compact" href="/dashboard" />
+            <TechCrestBrand size="sm" href="/dashboard" />
             <span className="dashboard-sidebar__badge">CMS</span>
           </div>
           <button
@@ -81,7 +91,7 @@ export default function DashboardLayout({
         </div>
 
         <div className="dashboard-sidebar__action">
-          <RoleGate action="publish_article">
+          {isStaff(userRole) && (
             <Link
               href="/dashboard/articles/new"
               className="btn btn-primary dashboard-sidebar__action-btn"
@@ -89,7 +99,7 @@ export default function DashboardLayout({
             >
               <PlusCircle className="w-4 h-4" /> New Article
             </Link>
-          </RoleGate>
+          )}
         </div>
 
         <nav className="dashboard-nav">
@@ -131,7 +141,7 @@ export default function DashboardLayout({
           </Link>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors flex-shrink-0"
+            className="dashboard-sidebar-signout-btn"
             title="Sign Out / Logout"
             aria-label="Logout"
           >
@@ -162,20 +172,28 @@ export default function DashboardLayout({
             </div>
           </div>
 
-          <div className="dashboard-topbar__right">
+          <div className="dashboard-topbar__right flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
 
-            <button className="dashboard-topbar__btn" aria-label="Notifications">
-              <Bell className="w-4.5 h-4.5" />
+            <button
+              className="relative flex items-center justify-center w-9 h-9 rounded-full bg-[var(--color-surface-2)] border border-[var(--color-surface-border)] hover:border-[#2D7FF9]/50 hover:text-[#2D7FF9] transition-all"
+              aria-label="Notifications"
+            >
+              <Bell className="w-4 h-4 text-[var(--color-text-secondary)]" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#2D7FF9] animate-pulse" />
             </button>
 
-            <Link href="/" className="dashboard-topbar__site-link">
-              <span>View Site</span> <ExternalLink className="w-3.5 h-3.5" />
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#2D7FF9] bg-[#2D7FF9]/10 border border-[#2D7FF9]/30 hover:bg-[#2D7FF9] hover:text-white transition-all shadow-xs"
+            >
+              <span>View Site</span>
+              <ExternalLink className="w-3.5 h-3.5" />
             </Link>
 
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/50 transition-colors"
+              className="dashboard-signout-btn"
               title="Sign Out / Logout"
             >
               <LogOut className="w-3.5 h-3.5" />

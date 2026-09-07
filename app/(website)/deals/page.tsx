@@ -49,56 +49,56 @@ const DEALS = [
 
 export default function DealsPage() {
   return (
-    <div className="container py-10">
+    <div className="container tc-page-section">
       <div className="mb-10">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-[var(--color-text-muted)] mb-4">
-          <Link href="/" className="hover:text-[var(--color-text-secondary)]">Home</Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[var(--color-text-secondary)]">Deals</span>
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 mb-4 tc-breadcrumb">
+          <Link href="/" className="tc-breadcrumb__link">Home</Link>
+          <ChevronRight className="tc-icon-xs" />
+          <span className="tc-text-muted">Deals</span>
         </nav>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-accent-orange)]/15 text-[var(--color-accent-orange)] text-xs font-bold uppercase tracking-wider mb-3">
-          <Tag className="w-3.5 h-3.5" /> Hot Deals
+        <div className="tc-deals-badge">
+          <Tag className="tc-icon-xs" /> Hot Deals
         </div>
-        <h1 className="text-3xl sm:text-5xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-outfit)" }}>
+        <h1 className="tc-page-title" style={{ fontFamily: "var(--font-outfit)" }}>
           Today&apos;s Best Tech Deals
         </h1>
-        <p className="text-[var(--color-text-secondary)] text-base sm:text-lg mt-2 max-w-3xl">
+        <p className="tc-page-subtitle">
           Hand-verified price drops on top-rated tech products. Updated multiple times daily.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="tc-deals-grid">
         {DEALS.map((deal) => (
-          <div key={deal.id} className="card overflow-hidden flex flex-col justify-between">
+          <div key={deal.id} className="card overflow-hidden flex flex-col tc-deal-card">
             <div>
-              <div className="relative aspect-[16/10] overflow-hidden">
+              <div className="tc-deal-card__media">
                 <Image src={deal.image} alt={deal.title} fill className="object-cover" />
-                <div className="absolute top-3 right-3">
-                  <span className="px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-red-600 text-white shadow-lg">
+                <div className="tc-deal-card__badge-pos">
+                  <span className="tc-deal-card__discount">
                     {deal.discount}
                   </span>
                 </div>
               </div>
               <div className="p-5">
-                <div className="flex items-center justify-between text-xs text-[var(--color-text-muted)] mb-2">
+                <div className="flex items-center justify-between mb-2 tc-text-meta">
                   <span>At {deal.retailer}</span>
-                  <span className="flex items-center gap-1 text-[var(--color-accent-orange)] font-medium">
-                    <Clock className="w-3 h-3" /> {deal.expiresIn}
+                  <span className="tc-deal-card__rating">
+                    <Clock className="tc-icon-xs" /> {deal.expiresIn}
                   </span>
                 </div>
-                <h2 className="font-bold text-[var(--color-text-primary)] text-lg line-clamp-2 mb-3" style={{ fontFamily: "var(--font-outfit)" }}>
+                <h2 className="tc-deal-card__title" style={{ fontFamily: "var(--font-outfit)" }}>
                   {deal.title}
                 </h2>
                 <div className="flex items-baseline gap-3 mb-1">
-                  <span className="text-2xl font-extrabold text-[var(--color-brand-400)]">{deal.salePrice}</span>
-                  <span className="text-sm text-[var(--color-text-muted)] line-through">{deal.originalPrice}</span>
+                  <span className="tc-deal-card__price">{deal.salePrice}</span>
+                  <span className="tc-deal-card__old-price">{deal.originalPrice}</span>
                 </div>
-                <p className="text-xs font-semibold text-[var(--color-accent-green)]">{deal.savings}</p>
+                <p className="tc-deal-card__saving">{deal.savings}</p>
               </div>
             </div>
-            <div className="p-5 pt-0">
-              <a href={deal.url} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full justify-center text-sm py-2.5">
-                <ShoppingCart className="w-4 h-4" /> Get Deal
+            <div className="tc-deal-card__footer">
+              <a href={deal.url} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full justify-center">
+                <ShoppingCart className="tc-btn-icon" /> Get Deal
               </a>
             </div>
           </div>

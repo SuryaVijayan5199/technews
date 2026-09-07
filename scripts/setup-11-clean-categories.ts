@@ -1,4 +1,4 @@
-﻿import { config } from "dotenv";
+import { config } from "dotenv";
 config({ path: ".env.local" });
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
@@ -16,7 +16,7 @@ const STANDARD_CATEGORIES = [
   { name: "Robotic",     slug: "robotics",    description: "Robotics, automation, and AI hardware",        icon: "Bot",       color: "#6366f1", sortOrder: 4 },
   { name: "Fitness",     slug: "fitness",     description: "Wearables, health tech, and fitness gadgets",   icon: "Activity",  color: "#10b981", sortOrder: 5 },
   { name: "Security",    slug: "security",    description: "Cybersecurity, privacy, and data protection",    icon: "Shield",    color: "#f59e0b", sortOrder: 6 },
-  { name: "Newsletters", slug: "newsletters", description: "Curated briefings delivered to your inbox",    icon: "Mail",      color: "#ec4899", sortOrder: 7 },
+  { name: "Gaming",      slug: "gaming",      description: "Video games, consoles, PC gaming, hardware, and esports", icon: "Gamepad2", color: "#ef4444", sortOrder: 7 },
   { name: "AI",          slug: "ai",          description: "Artificial intelligence, LLMs, and machine learning", icon: "Brain", color: "#a855f7", sortOrder: 8 },
   { name: "Home",        slug: "smart-home",  description: "Smart home devices, hubs, and automation",    icon: "Home",      color: "#14b8a6", sortOrder: 9 },
   { name: "EVs",         slug: "evs",         description: "Electric vehicles, charging, and future mobility", icon: "Zap",    color: "#22c55e", sortOrder: 10 },
