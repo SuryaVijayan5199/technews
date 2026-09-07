@@ -8,7 +8,10 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  "kv_namespaces": [
-    // OpenNext cache binding (optional for edge revalidation cache)
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "6643a136261243be8f20665ecc7eda8c"
+    }
   ]
 }
