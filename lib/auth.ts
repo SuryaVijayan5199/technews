@@ -47,7 +47,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // ── Google OAuth (Primary Social Login for all roles) ──────
     Google({
       clientId: (process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID || "330344440313-pdscq9g5fv7vdss0ac264gmo2un1fdmj.apps.googleusercontent.com").trim(),
-      clientSecret: (process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET || "").trim(),
+      clientSecret: (process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET || "GOCSPX-placeholder-secret").trim(),
       allowDangerousEmailAccountLinking: true,
     }),
   ],
