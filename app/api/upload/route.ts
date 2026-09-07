@@ -75,41 +75,20 @@ export async function POST(req: Request) {
           provider: "cloudinary",
         });
       } catch (cloudinaryErr: any) {
-        console.warn("Cloudinary upload failed, falling back to sharp WebP optimization:", cloudinaryErr?.message || cloudinaryErr);
+        console.warn("Cloudinary upload failed, falling back to base64 Data URL:", cloudinaryErr?.message || cloudinaryErr);
       }
     }
 
-    // 2. High-Performance WebP Compression Fallback (sharp if available, else raw base64)
-    try {
-      const sharpModule = await import("sharp");
-      const sharp = sharpModule.default;
-      const optimizedBuffer = await sharp(buffer)
-        .resize({ width: 1200, height: 800, fit: "inside", withoutEnlargement: true })
-        .webp({ quality: 80 })
-        .toBuffer();
+    // 2. Base64 Data URL Fallback (100% Cloudflare Workers & Serverless compatible)
+    const mime = file.type || "image/jpeg";
+    const rawDataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
 
-      const optimizedDataUrl = `data:image/webp;base64,${optimizedBuffer.toString("base64")}`;
-
-      return NextResponse.json({
-        url: optimizedDataUrl,
-        publicId: `optimized-webp-${Date.now()}`,
-        width: 1200,
-        height: 800,
-        format: "webp",
-        provider: "sharp-webp",
-      });
-    } catch (sharpErr) {
-      console.warn("Sharp optimization unavailable, using base64 fallback:", sharpErr);
-      const mime = file.type || "image/jpeg";
-      const rawDataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
-
-      return NextResponse.json({
-        url: rawDataUrl,
-        publicId: `upload-${Date.now()}`,
-        format: mime.split("/")[1] || "jpeg",
-        provider: "base64-fallback",
-      });
-    }
+    return NextResponse.json({
+      url: rawDataUrl,
+      publicId: `upload-${Date.now()}`,
+      format: mime.split("/")[1] || "jpeg",
+      provider: "base64-fallback",
+    });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(
