@@ -2,17 +2,30 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, LogIn, RefreshCw, Zap } from "lucide-react";
+import { AlertTriangle, ArrowLeft, LogIn, RefreshCw } from "lucide-react";
 import { signIn } from "next-auth/react";
+import { TechCrestBrand } from "@/components/shared/techcrest-brand";
 
 const ERROR_MESSAGES: Record<string, { title: string; detail: string }> = {
+  Configuration: {
+    title: "OAuth Configuration Issue",
+    detail: "There is a problem with the server authentication parameters (AUTH_SECRET, AUTH_GOOGLE_ID, or AUTH_GOOGLE_SECRET). Please verify that environment variables are saved in Cloudflare Pages dashboard.",
+  },
+  AccessDenied: {
+    title: "Access Denied",
+    detail: "You do not have permission to sign in with this account.",
+  },
+  Verification: {
+    title: "Verification Token Expired",
+    detail: "The authentication link has expired or has already been used.",
+  },
   OAuthSignin: {
     title: "OAuth Sign-In Error",
-    detail: "Could not construct an OAuth sign-in URL. Please check your connection or try signing in with credentials.",
+    detail: "Could not construct an OAuth sign-in URL. Please check your network connection or retry signing in.",
   },
   OAuthCallbackError: {
     title: "Google Callback Error",
-    detail: "An error occurred while completing authentication with Google. This often happens if the request timed out or host headers mismatch.",
+    detail: "An error occurred while completing authentication with Google. Please verify that your Cloudflare domain is added to Authorized Redirect URIs in Google Cloud Console.",
   },
   OAuthCreateAccount: {
     title: "Account Creation Failed",
@@ -55,20 +68,31 @@ export function AuthErrorCard() {
 
   return (
     <>
-      <div className="login-card-v2__header">
-        <Link href="/" className="login-card-v2__logo-link">
-          <div className="login-card-v2__logo-icon" style={{ backgroundColor: "#ef4444" }}>
-            <AlertTriangle className="tc-auth-error-icon" />
-          </div>
-          <span className="login-card-v2__logo-text">
-            Tech<span style={{ color: "hsl(var(--color-brand-500))" }}>.io</span>
-          </span>
-        </Link>
+      <div className="login-card-v2__header" style={{ textAlign: "center" }}>
+        <div className="tc-login-logo-wrap" style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+          <TechCrestBrand size="md" href="/" />
+        </div>
 
-        <h1 className="login-card-v2__title" style={{ color: "#ef4444", fontSize: "1.5rem" }}>
+        <div
+          style={{
+            width: "48px",
+            height: "48px",
+            borderRadius: "50%",
+            backgroundColor: "rgba(239, 68, 68, 0.12)",
+            color: "#ef4444",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "1rem",
+          }}
+        >
+          <AlertTriangle className="tc-auth-error-icon" style={{ width: "24px", height: "24px" }} />
+        </div>
+
+        <h1 className="login-card-v2__title" style={{ color: "#ef4444", fontSize: "1.5rem", marginBottom: "0.5rem" }}>
           {errorInfo.title}
         </h1>
-        <p className="login-card-v2__subtitle" style={{ fontSize: "0.9375rem", lineHeight: 1.5 }}>
+        <p className="login-card-v2__subtitle" style={{ fontSize: "0.9375rem", lineHeight: 1.5, color: "hsl(var(--color-text-muted))" }}>
           {errorInfo.detail}
         </p>
       </div>
@@ -78,7 +102,7 @@ export function AuthErrorCard() {
           type="button"
           onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
           className="btn-primary-v2"
-          style={{ width: "100%", justifyContent: "center" }}
+          style={{ width: "100%", justifyContent: "center", display: "flex", alignItems: "center", gap: "0.5rem" }}
         >
           <RefreshCw style={{ width: "18px", height: "18px" }} />
           Retry Google Sign In
@@ -87,7 +111,7 @@ export function AuthErrorCard() {
         <Link
           href="/login"
           className="oauth-btn-v2"
-          style={{ width: "100%", justifyContent: "center", textDecoration: "none" }}
+          style={{ width: "100%", justifyContent: "center", display: "flex", alignItems: "center", gap: "0.5rem", textDecoration: "none" }}
         >
           <LogIn style={{ width: "18px", height: "18px" }} />
           Sign in with Email / Password
