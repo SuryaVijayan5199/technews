@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { auth } from "@/lib/auth";
 import { isStaff } from "@/lib/permissions";
-import sharp from "sharp";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB limit for input files
 
@@ -80,23 +79,37 @@ export async function POST(req: Request) {
       }
     }
 
-    // 2. High-Performance WebP Compression Fallback (sharp)
-    // Compresses any uploaded photo into a tiny ~80-120 KB WebP data string so the EXACT user photo is preserved!
-    const optimizedBuffer = await sharp(buffer)
-      .resize({ width: 1200, height: 800, fit: "inside", withoutEnlargement: true })
-      .webp({ quality: 80 })
-      .toBuffer();
+    // 2. High-Performance WebP Compression Fallback (sharp if available, else raw base64)
+    try {
+      const sharpModule = await import("sharp");
+      const sharp = sharpModule.default;
+      const optimizedBuffer = await sharp(buffer)
+        .resize({ width: 1200, height: 800, fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer();
 
-    const optimizedDataUrl = `data:image/webp;base64,${optimizedBuffer.toString("base64")}`;
+      const optimizedDataUrl = `data:image/webp;base64,${optimizedBuffer.toString("base64")}`;
 
-    return NextResponse.json({
-      url: optimizedDataUrl,
-      publicId: `optimized-webp-${Date.now()}`,
-      width: 1200,
-      height: 800,
-      format: "webp",
-      provider: "sharp-webp",
-    });
+      return NextResponse.json({
+        url: optimizedDataUrl,
+        publicId: `optimized-webp-${Date.now()}`,
+        width: 1200,
+        height: 800,
+        format: "webp",
+        provider: "sharp-webp",
+      });
+    } catch (sharpErr) {
+      console.warn("Sharp optimization unavailable, using base64 fallback:", sharpErr);
+      const mime = file.type || "image/jpeg";
+      const rawDataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
+
+      return NextResponse.json({
+        url: rawDataUrl,
+        publicId: `upload-${Date.now()}`,
+        format: mime.split("/")[1] || "jpeg",
+        provider: "base64-fallback",
+      });
+    }
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(
