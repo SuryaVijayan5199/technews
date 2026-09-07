@@ -4,11 +4,7 @@ import { neon } from "@neondatabase/serverless";
 import postgres from "postgres";
 import * as schema from "./schema";
 
-const connectionString = process.env.DATABASE_URL!;
-
-if (!connectionString) {
-  throw new Error("DATABASE_URL environment variable is not set");
-}
+const connectionString = process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder";
 
 const isNeon = connectionString.includes("neon.tech");
 
