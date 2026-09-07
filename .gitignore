@@ -35,6 +35,7 @@ yarn-error.log*
 
 # vercel
 .vercel
+.wrangler/
 /.open-next/
 scratch-*.js
 lighthouse-report.json
