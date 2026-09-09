@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 
-export const revalidate = 3600;
-
 export const metadata: Metadata = { title: "Affiliate Disclosure — TechCrest", description: "TechCrest affiliate and monetization disclosure." };
 export default function AffiliateDisclosurePage() {
   return (

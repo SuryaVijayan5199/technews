@@ -3,8 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Zap, ShieldCheck, Award, Users, ChevronRight } from "lucide-react";
 
-export const revalidate = 3600;
-
 export const metadata: Metadata = {
   title: "About Us — TechCrest",
   description: "Learn about TechCrest's mission, editorial standards, and the expert team behind our independent tech journalism.",

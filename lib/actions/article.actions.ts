@@ -5,8 +5,10 @@ import { db } from "@/lib/db";
 import { articles, authors, categories } from "@/lib/db/schema";
 import { eq, or, ilike, and, desc, isNotNull, inArray, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { invalidateArticleCache } from "@/lib/cache/revalidate";
 import { auth } from "@/lib/auth";
 import { cleanAuthorName } from "@/lib/utils";
+import { ARTICLE_CARD_COLUMNS } from "@/lib/constants";
 
 // ─────────────────────────────────────────────
 // GET ALL CATEGORIES (for editor dropdown)
@@ -25,32 +27,6 @@ export async function getAllCategories() {
     return [];
   }
 }
-
-const ARTICLE_CARD_COLUMNS = {
-  id: true,
-  title: true,
-  slug: true,
-  excerpt: true,
-  heroImage: true,
-  heroImageAlt: true,
-  heroImageCaption: true,
-  status: true,
-  isFeatured: true,
-  isEditorsPick: true,
-  isBreaking: true,
-  isTrending: true,
-  isLatest: true,
-  isBriefing: true,
-  isGlobalBriefing: true,
-  publishedAt: true,
-  readingTimeMinutes: true,
-  viewCount: true,
-  categoryId: true,
-  secondaryCategoryIds: true,
-  authorId: true,
-  createdAt: true,
-  updatedAt: true,
-};
 
 // ─────────────────────────────────────────────
 // GET ARTICLES BY CATEGORY SLUG
@@ -86,44 +62,93 @@ export async function getArticlesByCategory(categorySlug: string, limit = 30) {
   }
 }
 
+export async function getArticlesByCategoryPaginated(
+  categorySlug: string,
+  page = 1,
+  pageSize = 7
+) {
+  try {
+    const categoryObj = await db.query.categories.findFirst({
+      where: eq(categories.slug, categorySlug),
+    });
+
+    if (!categoryObj) {
+      return { category: null, articles: [], totalArticles: 0, totalPages: 0, currentPage: 1 };
+    }
+
+    const whereClause = and(
+      eq(articles.status, "published"),
+      isNotNull(articles.publishedAt),
+      or(
+        eq(articles.categoryId, categoryObj.id),
+        sql`${categoryObj.id} = ANY(${articles.secondaryCategoryIds})`
+      )
+    );
+
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(articles)
+      .where(whereClause);
+
+    const totalArticles = Number(count || 0);
+    const totalPages = Math.max(1, Math.ceil(totalArticles / pageSize));
+    const currentPage = Math.min(Math.max(1, page), totalPages);
+    const offset = (currentPage - 1) * pageSize;
+
+    const result = await db.query.articles.findMany({
+      where: whereClause,
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit: pageSize,
+      offset,
+    });
+
+    return {
+      category: categoryObj,
+      articles: result as any[],
+      totalArticles,
+      totalPages,
+      currentPage,
+    };
+  } catch (error) {
+    console.error("Error fetching paginated articles by category:", error);
+    return { category: null, articles: [], totalArticles: 0, totalPages: 0, currentPage: 1 };
+  }
+}
+
 // ─────────────────────────────────────────────
 // GET LATEST 3 ARTICLES FOR ALL ACTIVE TOPICS (DYNAMIC)
 // ─────────────────────────────────────────────
 export async function getArticlesGroupedByTopics() {
   try {
-    const [allCategories, allPublishedArticles] = await Promise.all([
-      db.query.categories.findMany({
-        where: eq(categories.isActive, true),
-        orderBy: [categories.sortOrder],
-      }),
-      db.query.articles.findMany({
-        where: and(
-          eq(articles.status, "published"),
-          isNotNull(articles.publishedAt)
-        ),
-        columns: ARTICLE_CARD_COLUMNS,
-        with: { author: true, category: true },
-        orderBy: [desc(articles.publishedAt)],
-        limit: 100,
-      }),
-    ]);
-
-    const result = allCategories.map((catObj: any) => {
-      const catArticles = allPublishedArticles
-        .filter(
-          (art: any) =>
-            art.categoryId === catObj.id ||
-            (art.secondaryCategoryIds && (art.secondaryCategoryIds as number[]).includes(catObj.id))
-        )
-        .slice(0, 3);
-
-      return {
-        category: catObj,
-        articles: catArticles as any,
-      };
+    const activeCategories = await db.query.categories.findMany({
+      where: eq(categories.isActive, true),
+      orderBy: [categories.sortOrder],
     });
 
-    return result.filter((item: any) => item.articles.length > 0);
+    const categoryTopicResults = await Promise.all(
+      activeCategories.map(async (catObj: any) => {
+        const catArticles = await db.query.articles.findMany({
+          where: and(
+            eq(articles.status, "published"),
+            isNotNull(articles.publishedAt),
+            eq(articles.categoryId, catObj.id)
+          ),
+          columns: ARTICLE_CARD_COLUMNS,
+          with: { author: true, category: true },
+          orderBy: [desc(articles.publishedAt)],
+          limit: 3,
+        });
+
+        return {
+          category: catObj,
+          articles: catArticles,
+        };
+      })
+    );
+
+    return categoryTopicResults.filter((item: any) => item.articles.length > 0);
   } catch (error) {
     console.error("Error fetching articles grouped by topics:", error);
     return [];
@@ -162,8 +187,8 @@ async function sanitizeHeroImage(image?: string | null): Promise<string | null> 
       if (cloudName) {
         cloudinary.config({
           cloud_name: cloudName,
-          api_key: (process.env.CLOUDINARY_API_KEY || "984383337327624").trim(),
-          api_secret: (process.env.CLOUDINARY_API_SECRET || "xN3fNkM01NYiUZ2q8t1J7HAohjE").trim(),
+          api_key: (process.env.CLOUDINARY_API_KEY || "").trim(),
+          api_secret: (process.env.CLOUDINARY_API_SECRET || "").trim(),
         });
         const res = await cloudinary.uploader.upload(image, {
           folder: "technews_articles",
@@ -331,17 +356,30 @@ export async function createArticle(data: {
       })
       .returning();
 
-    revalidatePath("/");
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/articles");
-    revalidatePath("/dashboard/analytics");
-    revalidatePath(`/${data.categorySlug}`);
+    let parentCatSlug: string | undefined = undefined;
     if (category?.parentId) {
       const parentCat = await db.query.categories.findFirst({
         where: eq(categories.id, category.parentId),
       });
-      if (parentCat) revalidatePath(`/${parentCat.slug}`);
+      if (parentCat) parentCatSlug = parentCat.slug;
     }
+
+    let secSlugs: string[] = [];
+    if (data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0) {
+      const secCats = await db.query.categories.findMany({
+        where: inArray(categories.id, data.secondaryCategoryIds),
+      });
+      secSlugs = secCats.map((sc) => sc.slug);
+    }
+
+    await invalidateArticleCache({
+      articleId: article.id,
+      articleSlug: article.slug,
+      categorySlug: data.categorySlug,
+      oldCategorySlug: parentCatSlug,
+      authorId: authorIdToAssign,
+      secondaryCategorySlugs: secSlugs,
+    });
 
     return { success: true, article };
   } catch (error) {
@@ -362,11 +400,16 @@ export async function deleteArticleAction(id: number) {
   }
 
   try {
+    const existing = await db.query.articles.findFirst({ where: eq(articles.id, id), with: { category: true } });
     await db.delete(articles).where(eq(articles.id, id));
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/articles");
-    revalidatePath("/dashboard/analytics");
-    revalidatePath("/");
+    if (existing) {
+      await invalidateArticleCache({
+        articleId: id,
+        articleSlug: existing.slug,
+        categorySlug: existing.category?.slug,
+        authorId: existing.authorId ?? undefined,
+      });
+    }
     return { success: true };
   } catch (error) {
     console.error("Error deleting article:", error);
@@ -384,6 +427,7 @@ export async function searchPublicArticles(query: string, limit = 5) {
         isNotNull(articles.publishedAt),
         or(ilike(articles.title, q), ilike(articles.excerpt, q))
       ),
+      columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
       limit,
@@ -421,6 +465,7 @@ export async function getArticles(search: string = "", tab: string = "all") {
 
     const results = await db.query.articles.findMany({
       where: whereClause,
+      columns: ARTICLE_CARD_COLUMNS,
       with: {
         author: { with: { user: true } },
         category: true,
@@ -448,9 +493,9 @@ export async function toggleFeaturedArticleAction(id: number, isFeatured: boolea
       .set({ isFeatured, updatedAt: new Date() })
       .where(eq(articles.id, id));
 
-    revalidatePath("/dashboard/articles");
-    revalidatePath("/dashboard");
-    revalidatePath("/");
+    await invalidateArticleCache({
+      articleId: id,
+    });
 
     return { success: true };
   } catch (error: any) {
@@ -801,14 +846,6 @@ export const getArticleBySlug = cache(async (slug: string) => {
       },
     });
 
-    if (article) {
-      // Increment view count asynchronously
-      db.update(articles)
-        .set({ viewCount: sql`${articles.viewCount} + 1` })
-        .where(eq(articles.id, article.id))
-        .catch(() => {});
-    }
-
     return article;
   } catch (error) {
     console.error("Error fetching article by slug:", error);
@@ -892,9 +929,12 @@ export async function updateArticleAction(
       return { success: false, error: "Article not found" };
     }
 
+    const wasPublished = existingArticle.status === "published";
     const isNowPublished = data.status === "published";
     const publishedAt = data.publishedAt
       ? new Date(data.publishedAt)
+      : isNowPublished && !wasPublished
+      ? new Date()
       : isNowPublished
       ? existingArticle.publishedAt ?? new Date()
       : existingArticle.publishedAt; // PRESERVE existing publishedAt when archiving/drafting
@@ -945,37 +985,62 @@ export async function updateArticleAction(
       .where(eq(articles.id, id))
       .returning();
 
-    revalidatePath("/");
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/articles");
-    revalidatePath("/dashboard/analytics");
-    revalidatePath(`/${data.categorySlug}`);
+    const oldCategory = await db.query.categories.findFirst({ where: eq(categories.id, existingArticle.categoryId ?? 0) });
+    let secSlugs: string[] = [];
     if (data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0) {
       const secCats = await db.query.categories.findMany({
         where: inArray(categories.id, data.secondaryCategoryIds),
       });
-      for (const sc of secCats) {
-        revalidatePath(`/${sc.slug}`);
-      }
+      secSlugs = secCats.map((sc) => sc.slug);
     }
-    // Revalidate new slug path if it changed
-    if (updated.slug !== existingArticle.slug) {
-      revalidatePath(`/${data.categorySlug}/${updated.slug}`);
-    }
-    // Revalidate old category path if category changed
-    const oldCategory = await db.query.categories.findFirst({ where: eq(categories.id, existingArticle.categoryId ?? 0) });
-    if (oldCategory && oldCategory.slug !== data.categorySlug) {
-      revalidatePath(`/${oldCategory.slug}`);
-      revalidatePath(`/${oldCategory.slug}/${existingArticle.slug}`);
-    }
-    if (existingArticle.slug) {
-      revalidatePath(`/${data.categorySlug}/${existingArticle.slug}`);
-    }
+
+    await invalidateArticleCache({
+      articleId: updated.id,
+      articleSlug: updated.slug,
+      categorySlug: data.categorySlug,
+      oldCategorySlug: oldCategory?.slug,
+      authorId: updated.authorId ?? undefined,
+      secondaryCategorySlugs: secSlugs,
+    });
 
     return { success: true, article: updated };
   } catch (error) {
     console.error("Error updating article:", error);
     return { success: false, error: "Failed to update article" };
+  }
+}
+
+export async function bumpArticlePublishDateAction(id: number) {
+  const session = await auth();
+  const { isStaff } = await import("@/lib/permissions");
+  if (!session?.user || !isStaff(session.user.role)) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const existing = await db.query.articles.findFirst({
+      where: eq(articles.id, id),
+      with: { category: true },
+    });
+    if (!existing) return { success: false, error: "Article not found" };
+
+    const now = new Date();
+    await db
+      .update(articles)
+      .set({ publishedAt: now, updatedAt: now, status: "published" })
+      .where(eq(articles.id, id));
+
+    await invalidateArticleCache({
+      articleId: id,
+      articleSlug: existing.slug,
+      categorySlug: existing.category?.slug,
+      authorId: existing.authorId ?? undefined,
+    });
+
+    return { success: true, publishedAt: now };
+  } catch (error: any) {
+    console.error("Error bumping article publish date:", error);
+    return { success: false, error: error.message || "Failed to bump publish date" };
   }
 }
 

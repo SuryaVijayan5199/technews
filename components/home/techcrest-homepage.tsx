@@ -18,15 +18,15 @@ import {
   Gamepad2,
 } from "lucide-react";
 import {
-  getFeaturedArticles,
-  getLatestArticles,
-  getTrendingArticles,
-  getEditorsPicks,
-  getBriefingArticles,
-  getGlobalBriefingArticles,
-  getBreakingArticle,
-  getArticlesGroupedByTopics,
-} from "@/lib/actions/article.actions";
+  getCachedFeaturedArticles,
+  getCachedLatestArticles,
+  getCachedTrendingArticles,
+  getCachedEditorsPicks,
+  getCachedBriefingArticles,
+  getCachedGlobalBriefingArticles,
+  getCachedBreakingArticle,
+  getCachedArticlesGroupedByTopics,
+} from "@/lib/cache/cached-queries";
 import { HeroSectionCarousel } from "@/components/shared/hero-carousel";
 import { NewsletterCta } from "@/components/shared/newsletter-cta";
 import { AudioBriefingPlayer } from "@/components/shared/audio-briefing-player";
@@ -45,8 +45,6 @@ function kViews(n: number): string {
   if (n >= 1000) return `${(n / 1000).toFixed(1)}K views`;
   return `${n} views`;
 }
-
-const DEFAULT_HERO_IMAGE = "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80";
 
 const TOPICS = [
   { label: "Phone", sub: "Smartphones • iOS • Android", href: "/phone", icon: Smartphone, color: "#0ea5e9" },
@@ -81,6 +79,9 @@ const DEFAULT_BRIEF_ITEMS = [
   { title: "Venture capital shifts focus toward compute efficiency & silicon innovation", category: "Startups & VC", meta: "Updated 1h ago • 6 min read" },
   { title: "Next-gen battery chemistry accelerates commercial EV adoption", category: "Mobility & EVs", meta: "Updated 2h ago • 5 min read" },
   { title: "Consumer hardware makers double down on local neural processing units", category: "Hardware & Devices", meta: "Updated 3h ago • 4 min read" },
+  { title: "Quantum key distribution field tests demonstrate satellite-ground encryption", category: "Quantum Computing", meta: "Updated 4h ago • 5 min read" },
+  { title: "Hyperscale data centers adopt direct-to-chip liquid cooling systems", category: "Cloud Infrastructure", meta: "Updated 5h ago • 4 min read" },
+  { title: "Open-source foundation models close benchmark gaps on complex reasoning", category: "Open Source AI", meta: "Updated 6h ago • 5 min read" },
 ];
 
 function getCategoryIcon(iconName?: string | null, categoryName?: string | null) {
@@ -109,14 +110,14 @@ export async function TechCrestHomepage() {
     breakingArticle,
     groupedTopics,
   ] = await Promise.all([
-    getFeaturedArticles(5),
-    getLatestArticles(8),
-    getTrendingArticles(10),
-    getEditorsPicks(6),
-    getBriefingArticles(5),
-    getGlobalBriefingArticles(3),
-    getBreakingArticle(),
-    getArticlesGroupedByTopics(),
+    getCachedFeaturedArticles(5),
+    getCachedLatestArticles(8),
+    getCachedTrendingArticles(10),
+    getCachedEditorsPicks(6),
+    getCachedBriefingArticles(8),
+    getCachedGlobalBriefingArticles(3),
+    getCachedBreakingArticle(),
+    getCachedArticlesGroupedByTopics(),
   ]);
 
   const activeExploreTopics = groupedTopics.length > 0
@@ -132,20 +133,24 @@ export async function TechCrestHomepage() {
       })
     : TOPICS;
 
-  // Deduplicate topStories by unique article ID so story 1 and story 5 are guaranteed unique
-  const rawTopStories = [...editorsPicks, ...latestArticles];
+  // Combine latestArticles and editorsPicks, sorted by publishedAt DESC so newly published articles rank at top
+  const rawTopStories = [...latestArticles, ...editorsPicks].sort((a, b) => {
+    const da = a?.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+    const db = b?.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+    return db - da;
+  });
   const seenTopStoryIds = new Set<number>();
   const topStories: typeof editorsPicks = [];
   for (const art of rawTopStories) {
     if (art && art.id && !seenTopStoryIds.has(art.id)) {
       seenTopStoryIds.add(art.id);
       topStories.push(art);
-      if (topStories.length === 5) break;
+      if (topStories.length === 6) break;
     }
   }
   const latestStories = latestArticles.slice(0, 5);
   const mostRead = trendingArticles.slice(0, 10);
-  const briefItems = briefingArticles.slice(0, 5);
+  const briefItems = briefingArticles.slice(0, 8);
 
   const filteredTopicShowcase = groupedTopics.filter(
     ({ category }: any) => category.slug !== "news" && category.name.toLowerCase() !== "news"
@@ -156,7 +161,7 @@ export async function TechCrestHomepage() {
       {/* HERO SECTION CAROUSEL */}
       <HeroSectionCarousel articles={featuredArticles} />
 
-      {/* TOP STORIES (5 Articles) */}
+      {/* TOP STORIES (6 Articles Total) */}
       <section className="tc-section">
         <div className="tc-wrap">
           <div className="tc-section-head">
@@ -165,9 +170,9 @@ export async function TechCrestHomepage() {
           </div>
           <div className="tc-top-grid">
             {topStories[0] ? (
-              <article className="tc-story tc-story--lead">
+              <article className="tc-story tc-story--lead tc-story-slot-0">
                 <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-story__art tc-story__art--dark block">
-                  <Image src={topStories[0].heroImage || DEFAULT_HERO_IMAGE} alt={topStories[0].title} fill unoptimized className="tc-story__art-img" priority />
+                  {topStories[0].heroImage && <Image src={topStories[0].heroImage} alt={topStories[0].title} fill className="tc-story__art-img" priority />}
                 </Link>
                 <div className="tc-story__body">
                   <div>
@@ -190,7 +195,7 @@ export async function TechCrestHomepage() {
                 </div>
               </article>
             ) : (
-              <article className="tc-story tc-story--lead">
+              <article className="tc-story tc-story--lead tc-story-slot-0">
                 <div className="tc-story__art tc-story__art--dark" />
                 <div className="tc-story__body">
                   <div>
@@ -205,11 +210,11 @@ export async function TechCrestHomepage() {
                 </div>
               </article>
             )}
-            {[topStories[1], topStories[2], topStories[3], topStories[4]].map((story, i) =>
+            {[topStories[1], topStories[2], topStories[3], topStories[4], topStories[5]].map((story, i) =>
               story ? (
-                <article key={story.id} className="tc-story">
+                <article key={story.id} className={`tc-story tc-story-slot-${i + 1}`}>
                   <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-story__art tc-story__art--small block">
-                    <Image src={story.heroImage || DEFAULT_HERO_IMAGE} alt={story.title} fill unoptimized className="tc-story__art-img" />
+                    {story.heroImage && <Image src={story.heroImage} alt={story.title} fill className="tc-story__art-img" />}
                   </Link>
                   <div className="tc-story__body">
                     <div>
@@ -217,19 +222,29 @@ export async function TechCrestHomepage() {
                       <h3><Link href={`/${story.category?.slug ?? "news"}/${story.slug}`}>{story.title}</Link></h3>
                       <p>{story.excerpt ?? "Key developments, industry context, and strategic analysis."}</p>
                     </div>
-                    <div className="tc-meta">{story.readingTimeMinutes ?? 5} min read &bull; {timeAgo(story.publishedAt)}</div>
+                    <div className="tc-meta-row">
+                      <div className="tc-meta">{story.readingTimeMinutes ?? 5} min read &bull; {timeAgo(story.publishedAt)}</div>
+                      <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-read-btn">
+                        Read Story <ArrowRight className="tc-inline-icon inline ml-1" />
+                      </Link>
+                    </div>
                   </div>
                 </article>
               ) : (
-                <article key={`fb-${i}`} className="tc-story">
+                <article key={`fb-${i}`} className={`tc-story tc-story-slot-${i + 1}`}>
                   <div className="tc-story__art tc-story__art--small" />
                   <div className="tc-story__body">
                     <div>
-                      <span className="tc-tag">{["Cybersecurity", "Startups", "Hardware", "Mobility"][i] ?? "Tech"}</span>
-                      <h3>{["Security teams are redesigning around identity controls", "Inside the infrastructure startups scaling globally", "Next-gen processors push power efficiency boundaries", "EV infrastructure transitions to unified standards"][i]}</h3>
-                      <p>{["Access, context and continuous verification are becoming central.", "New platforms are reducing complexity for engineering teams.", "Silicon innovation is driving higher performance per watt.", "Charging networks are aligning on interoperable protocols."][i]}</p>
+                      <span className="tc-tag">{["Cybersecurity", "Startups", "Hardware", "Mobility", "AI"][i] ?? "Tech"}</span>
+                      <h3>{["Security teams are redesigning around identity controls", "Inside the infrastructure startups scaling globally", "Next-gen processors push power efficiency boundaries", "EV infrastructure transitions to unified standards", "Neural processing units transform consumer hardware"][i]}</h3>
+                      <p>{["Access, context and continuous verification are becoming central.", "New platforms are reducing complexity for engineering teams.", "Silicon innovation is driving higher performance per watt.", "Charging networks are aligning on interoperable protocols.", "Edge AI models enable private on-device intelligence."][i]}</p>
                     </div>
-                    <div className="tc-meta">{5 + i} min read</div>
+                    <div className="tc-meta-row">
+                      <div className="tc-meta">{5 + i} min read</div>
+                      <Link href="/news" className="tc-read-btn">
+                        Read Story <ArrowRight className="tc-inline-icon inline ml-1" />
+                      </Link>
+                    </div>
                   </div>
                 </article>
               )
@@ -250,7 +265,7 @@ export async function TechCrestHomepage() {
               {(latestStories.length > 0 ? latestStories : []).map((article: any, i: number) => (
                 <article key={article.id ?? i} className="tc-latest-row">
                   <div className="tc-thumb">
-                    <Image src={article.heroImage || DEFAULT_HERO_IMAGE} alt={article.title} fill unoptimized className="object-cover" style={{ borderRadius: "8px" }} />
+                    {article.heroImage ? <Image src={article.heroImage} alt={article.title} fill className="object-cover" style={{ borderRadius: "8px" }} /> : null}
                   </div>
                   <div>
                     <span className="tc-tag">{article.category?.name ?? "Technology"}</span>
@@ -381,14 +396,15 @@ export async function TechCrestHomepage() {
                     {articles.map((art: any) => (
                       <article key={art.id} className="tc-topic-art-card">
                         <Link href={`/${category.slug}/${art.slug}`} className="tc-topic-art-card__thumb">
-                          <Image
-                            src={art.heroImage || DEFAULT_HERO_IMAGE}
-                            alt={art.title}
-                            fill
-                            unoptimized
-                            className="object-cover"
-                            style={{ borderRadius: "6px" }}
-                          />
+                          {art.heroImage && (
+                            <Image
+                              src={art.heroImage}
+                              alt={art.title}
+                              fill
+                              className="object-cover"
+                              style={{ borderRadius: "6px" }}
+                            />
+                          )}
                         </Link>
                         <div className="tc-topic-art-card__body">
                           <h4 className="tc-topic-art-card__title">

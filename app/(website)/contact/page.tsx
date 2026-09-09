@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Mail, MapPin, Phone, Send, ChevronRight } from "lucide-react";
 
-export const revalidate = 3600;
-
 export const metadata: Metadata = {
   title: "Contact Us — TechCrest",
   description: "Get in touch with the TechCrest editorial team, send press inquiries, or report news tips.",

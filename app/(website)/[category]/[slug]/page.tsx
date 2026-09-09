@@ -10,16 +10,26 @@ import { ReadingProgress } from "@/components/article/reading-progress";
 import { TableOfContents } from "@/components/article/table-of-contents";
 import { ShareButtons } from "@/components/article/share-buttons";
 import { BookmarkButton } from "@/components/shared/bookmark-button";
-import { getArticleBySlug, getRelatedArticles } from "@/lib/actions/article.actions";
-import { getArticleComments } from "@/lib/actions/comment.actions";
+import {
+  getCachedArticleBySlug,
+  getCachedRelatedArticles,
+  getCachedArticleComments,
+} from "@/lib/cache/cached-queries";
 import { CommentsSection } from "@/components/article/comments-section";
 import { auth } from "@/lib/auth";
 import { isStaff } from "@/lib/permissions";
+import { siteConfig } from "@/config/site";
 
+// Force dynamic rendering: articles are served from in-memory RAM cache on-demand.
+// This eliminates ISR Writes and Fast Origin Transfer from static page pre-generation.
 export const dynamic = "force-dynamic";
 
 interface ArticlePageProps {
   params: Promise<{ category: string; slug: string }>;
+}
+
+export async function generateStaticParams() {
+  return [];
 }
 
 function extractHeadings(html: string) {
@@ -69,12 +79,12 @@ export async function generateMetadata({
   params,
 }: ArticlePageProps): Promise<Metadata> {
   const { category, slug } = await params;
-  const dbArticle = await getArticleBySlug(slug);
+  const dbArticle = await getCachedArticleBySlug(slug);
   if (!dbArticle) return {};
 
   const seoTitle = dbArticle.seoTitle || dbArticle.title;
   const metaDescription = dbArticle.seoDescription || dbArticle.excerpt || "";
-  const canonicalUrl = dbArticle.canonicalUrl || `https://technews-lyart.vercel.app/${category}/${dbArticle.slug}`;
+  const canonicalUrl = dbArticle.canonicalUrl || `${siteConfig.url}/${category}/${dbArticle.slug}`;
 
   return {
     title: `${seoTitle} — TechCrest`,
@@ -109,7 +119,7 @@ async function RelatedArticlesSection({
   articleId: number;
   categorySlug: string;
 }) {
-  const relatedDbArticles = await getRelatedArticles(articleId, categorySlug, 3);
+  const relatedDbArticles = await getCachedRelatedArticles(articleId, categorySlug, 3);
   if (relatedDbArticles.length === 0) return null;
 
   const relatedArticles = relatedDbArticles.map((a: any) => ({
@@ -157,7 +167,7 @@ function RelatedArticlesSkeleton() {
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { category, slug } = await params;
-  const dbArticle = await getArticleBySlug(slug);
+  const dbArticle = await getCachedArticleBySlug(slug);
 
   const session = await auth();
   const userIsStaff = isStaff(session?.user?.role);
@@ -165,7 +175,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   if (!dbArticle) notFound();
   if (dbArticle.status !== "published" && !userIsStaff) notFound();
 
-  const initialComments = await getArticleComments(dbArticle.id);
+  const initialComments = await getCachedArticleComments(dbArticle.id);
 
   const authorUser = dbArticle.author?.user;
   const authorBio =
@@ -175,7 +185,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const categoryName = dbArticle.category?.name || category.toUpperCase();
   const categorySlug = dbArticle.category?.slug || category;
-  const canonicalUrl = dbArticle.canonicalUrl || `https://technews-lyart.vercel.app/${categorySlug}/${dbArticle.slug}`;
+  const canonicalUrl = dbArticle.canonicalUrl || `${siteConfig.url}/${categorySlug}/${dbArticle.slug}`;
 
   const headings = extractHeadings(dbArticle.contentHtml || "");
 

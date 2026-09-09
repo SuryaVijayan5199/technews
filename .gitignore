@@ -35,13 +35,11 @@ yarn-error.log*
 
 # vercel
 .vercel
-.wrangler/
-/.open-next/
-scratch-*.js
-lighthouse-report.json
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
 .vercel
+scratch*
+lighthouse-report.json

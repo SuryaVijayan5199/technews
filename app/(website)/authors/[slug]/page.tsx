@@ -4,15 +4,25 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle, Globe, ChevronRight } from "lucide-react";
 import { ArticleCard } from "@/components/article/article-card";
-import { getAuthorBySlugWithArticles } from "@/lib/actions/author.actions";
+import { getCachedAuthorBySlugWithArticles } from "@/lib/cache/cached-queries";
+import { getAuthorsWithStats } from "@/lib/actions/author.actions";
 
 interface AuthorPageProps {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateStaticParams() {
+  try {
+    const authors = await getAuthorsWithStats();
+    return authors.map((a: any) => ({ slug: a.slug }));
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: AuthorPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const author = await getAuthorBySlugWithArticles(slug);
+  const author = await getCachedAuthorBySlugWithArticles(slug);
 
   if (!author) {
     return {
@@ -28,7 +38,7 @@ export async function generateMetadata({ params }: AuthorPageProps): Promise<Met
 
 export default async function AuthorProfilePage({ params }: AuthorPageProps) {
   const { slug } = await params;
-  const author = await getAuthorBySlugWithArticles(slug);
+  const author = await getCachedAuthorBySlugWithArticles(slug);
 
   if (!author) {
     notFound();

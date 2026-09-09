@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { comments, articles, users } from "@/lib/db/schema";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { invalidateCommentCache } from "@/lib/cache/revalidate";
 import { auth } from "@/lib/auth";
 
 export interface CommentItem {
@@ -109,6 +110,8 @@ export async function postCommentAction(data: {
       authorName = "TechCrest Reader";
     }
 
+    const status = userId ? "approved" : "pending";
+
     const [newComment] = await db
       .insert(comments)
       .values({
@@ -116,24 +119,24 @@ export async function postCommentAction(data: {
         authorId: userId,
         parentId: data.parentId ?? null,
         content: data.content.trim(),
-        status: "approved", // Auto-approved for immediate engagement
+        status,
         guestName: userId ? null : authorName,
         guestEmail: userId ? null : data.guestEmail ?? null,
         likes: 0,
       })
       .returning();
 
-    // Increment article commentCount
-    await db
-      .update(articles)
-      .set({
-        commentCount: sql`${articles.commentCount} + 1`,
-      })
-      .where(eq(articles.id, data.articleId));
-
-    if (data.path) {
-      revalidatePath(data.path);
+    // Increment article commentCount for approved comments
+    if (status === "approved") {
+      await db
+        .update(articles)
+        .set({
+          commentCount: sql`${articles.commentCount} + 1`,
+        })
+        .where(eq(articles.id, data.articleId));
     }
+
+    await invalidateCommentCache(data.articleId);
 
     return {
       success: true,
@@ -193,9 +196,7 @@ export async function deleteCommentAction(commentId: number, path?: string) {
       })
       .where(eq(articles.id, comment.articleId));
 
-    if (path) {
-      revalidatePath(path);
-    }
+    await invalidateCommentCache(comment.articleId);
 
     return { success: true };
   } catch (error) {

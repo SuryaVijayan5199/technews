@@ -6,15 +6,22 @@ const { auth } = NextAuth(authConfig);
 
 export async function proxy(req: any) {
   const host = req.headers.get("host") || "";
-  
-  // Automatically redirect any old temporary Vercel preview URLs to canonical production domain
+
+  // Canonical production domain from env — works across any Vercel account/domain
+  const canonicalUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const canonicalHost = canonicalUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+  // Redirect any temporary Vercel preview/deploy URLs to the canonical production domain.
+  // Only fires if NEXT_PUBLIC_SITE_URL is set and the current host is a different Vercel subdomain.
   if (
-    host.includes("surya-vijayans-projects.vercel.app") ||
-    (host.startsWith("technews-") && !host.includes("technews-lyart"))
+    !req.nextUrl.pathname.startsWith("/api") &&
+    canonicalHost &&
+    host !== canonicalHost &&
+    (host.endsWith(".vercel.app") || host.includes("vercel.app"))
   ) {
     const targetUrl = new URL(
       req.nextUrl.pathname + req.nextUrl.search,
-      "https://technews-lyart.vercel.app"
+      canonicalUrl
     );
     return NextResponse.redirect(targetUrl, 301);
   }

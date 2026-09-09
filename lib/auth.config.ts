@@ -26,8 +26,7 @@ function getPostLoginDestination(role: string | undefined): string {
 }
 
 export const authConfig: NextAuthConfig = {
-  trustHost: true,
-  secret: (process.env.AUTH_SECRET || "9f8a4b2c1d3e5f7a9b0c2d4e6f8a1b3c5d7e9f0a2b4c6d8e0f1a3b5c7d9e1f2a").trim(),
+  secret: (process.env.AUTH_SECRET || "").trim(),
   pages: {
     signIn: "/login",
     error: "/auth/error",

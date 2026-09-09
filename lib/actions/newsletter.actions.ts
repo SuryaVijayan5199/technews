@@ -28,7 +28,7 @@ export async function subscribeToNewsletterAction(email: string) {
       if (existing[0].unsubscribedAt) {
         await db.update(newsletterSubscribers)
           .set({ unsubscribedAt: null } as any)
-          .where(eq(newsletterSubscribers.email, email));
+          .where(eq(newsletterSubscribers.email, cleanEmail));
         return { success: true, alreadySubscribed: false };
       }
       return {
@@ -46,7 +46,6 @@ export async function subscribeToNewsletterAction(email: string) {
       createdAt: new Date(),
     });
 
-    revalidatePath("/dashboard/subscribers");
     return {
       success: true,
       message: "Thank you for subscribing! Check your inbox for your first TechCrest briefing.",

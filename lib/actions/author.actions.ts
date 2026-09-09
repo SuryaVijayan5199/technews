@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { authors, users, articles } from "@/lib/db/schema";
 import { eq, desc, sql as drizzleSql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { invalidateAuthorCache } from "@/lib/cache/revalidate";
 import { auth } from "@/lib/auth";
 import { isSuperAdminEmail } from "@/config/site";
 
@@ -57,6 +58,8 @@ export async function getAuthorsWithStats() {
   }
 }
 
+import { ARTICLE_CARD_COLUMNS } from "@/lib/constants";
+
 // ─────────────────────────────────────────────
 // GET AUTHOR BY SLUG WITH ARTICLES (Public Page)
 // ─────────────────────────────────────────────
@@ -75,6 +78,7 @@ export async function getAuthorBySlugWithArticles(slug: string) {
 
     const authorArticles = await db.query.articles.findMany({
       where: (table: any, { and, eq }: any) => and(eq(table.authorId, author.id), eq(table.status, "published")),
+      columns: ARTICLE_CARD_COLUMNS,
       with: {
         category: true,
       },
@@ -225,10 +229,7 @@ export async function updateAuthorProfile(
       .where(eq(authors.id, authorId))
       .returning();
 
-    revalidatePath("/dashboard/authors");
-    revalidatePath("/dashboard/articles/new");
-    revalidatePath("/dashboard/articles/[id]/edit");
-    revalidatePath(`/authors/${slug}`);
+    await invalidateAuthorCache(authorId, slug);
     return { success: true, author: updated };
   } catch (error) {
     console.error("Error updating author profile:", error);
@@ -246,9 +247,9 @@ export async function deleteAuthorProfile(authorId: number) {
   }
 
   try {
+    const existing = await db.query.authors.findFirst({ where: eq(authors.id, authorId) });
     await db.delete(authors).where(eq(authors.id, authorId));
-    revalidatePath("/dashboard/authors");
-    revalidatePath("/dashboard/articles/new");
+    await invalidateAuthorCache(authorId, existing?.slug);
     return { success: true };
   } catch (error) {
     console.error("Error deleting author profile:", error);

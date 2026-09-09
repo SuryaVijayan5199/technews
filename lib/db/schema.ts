@@ -264,6 +264,9 @@ export const articles = pgTable(
     index("articles_published_at_idx").on(t.publishedAt),
     index("articles_author_idx").on(t.authorId),
     index("articles_category_idx").on(t.categoryId),
+    index("articles_status_published_at_idx").on(t.status, t.publishedAt),
+    index("articles_cat_status_pub_idx").on(t.categoryId, t.status, t.publishedAt),
+    index("articles_author_status_pub_idx").on(t.authorId, t.status, t.publishedAt),
     uniqueIndex("articles_slug_idx").on(t.slug),
   ]
 );
@@ -366,7 +369,10 @@ export const comments = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (t) => [index("comments_article_idx").on(t.articleId)]
+  (t) => [
+    index("comments_article_idx").on(t.articleId),
+    index("comments_article_status_created_idx").on(t.articleId, t.status, t.createdAt),
+  ]
 );
 
 // ─────────────────────────────────────────────

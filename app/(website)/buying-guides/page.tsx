@@ -3,8 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { CheckCircle2, ChevronRight, Award } from "lucide-react";
 
-export const revalidate = 300;
-
 export const metadata: Metadata = {
   title: "Tech Buying Guides 2026 — Expert Recommendations",
   description: "Curated tech buying guides to help you make informed decisions on laptops, smartphones, gaming PCs, headphones, and more.",

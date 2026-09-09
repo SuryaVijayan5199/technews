@@ -2,21 +2,36 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getArticlesByCategory } from "@/lib/actions/article.actions";
+import { getCachedArticlesByCategoryPaginated } from "@/lib/cache/cached-queries";
+import { getAllCategories } from "@/lib/actions/article.actions";
 import { cleanAuthorName } from "@/lib/utils";
-
-export const dynamic = "force-dynamic";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+export async function generateStaticParams() {
+  try {
+    const cats = await getAllCategories();
+    return cats.map((c) => ({ category: c.slug }));
+  } catch {
+    return [];
+  }
+}
+
+export async function generateMetadata({ params, searchParams }: CategoryPageProps): Promise<Metadata> {
   const { category } = await params;
-  const { category: cat } = await getArticlesByCategory(category, 1);
+  const { page: pageStr } = await searchParams;
+  const rawPage = parseInt(pageStr || "1", 10);
+  const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+
+  const { category: cat } = await getCachedArticlesByCategoryPaginated(category, page, 7);
   if (!cat) return { title: "Category Not Found" };
+
+  const pageSuffix = page > 1 ? ` (Page ${page})` : "";
   return {
-    title: `${cat.name} — TechCrest`,
+    title: `${cat.name}${pageSuffix} — TechCrest`,
     description: cat.description ?? `Latest ${cat.name} news, reviews and insights on TechCrest.`,
   };
 }
@@ -31,28 +46,35 @@ function timeAgo(date: Date | string | null | undefined): string {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
+export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { category: slug } = await params;
-  const { category, articles } = await getArticlesByCategory(slug);
+  const { page: pageStr } = await searchParams;
+  const rawPage = parseInt(pageStr || "1", 10);
+  const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+
+  const PAGE_SIZE = 7;
+  const { category, articles, totalArticles, totalPages, currentPage } =
+    await getCachedArticlesByCategoryPaginated(slug, page, PAGE_SIZE);
 
   if (!category) notFound();
 
-  const lead = articles[0] ?? null;
-  const rest = articles.slice(1);
+  const isFirstPage = currentPage === 1;
+  const lead = isFirstPage && articles.length > 0 ? articles[0] : null;
+  const gridArticles = isFirstPage ? articles.slice(1) : articles;
+  const themeColor = category.color ?? "#2D7FF9";
 
   return (
     <div className="cat-page">
-      <div className="cat-header" style={{ borderColor: category.color ?? "#2D7FF9" }}>
+      <div className="cat-header" style={{ borderColor: themeColor }}>
         <div className="tc-wrap">
           <div className="cat-header__inner">
-            <span className="tc-eyebrow" style={{ color: category.color ?? "#2D7FF9" }}>
+            <span className="tc-eyebrow" style={{ color: themeColor }}>
               TechCrest / {category.name}
             </span>
             <h1 className="cat-header__title">{category.name}</h1>
             {category.description && (
               <p className="cat-header__desc">{category.description}</p>
             )}
-
           </div>
         </div>
       </div>
@@ -72,12 +94,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             <Link href={`/${lead.category?.slug ?? slug}/${lead.slug}`} className="cat-lead__art-wrap">
               <div className="cat-lead__art">
                 {lead.heroImage && (
-                  <Image src={lead.heroImage} alt={lead.title} fill className="cat-lead__img" />
+                  <Image src={lead.heroImage} alt={lead.title} fill className="cat-lead__img" priority />
                 )}
               </div>
             </Link>
             <div className="cat-lead__body">
-              <span className="tc-tag" style={{ color: category.color ?? "#2D7FF9" }}>
+              <span className="tc-tag" style={{ color: themeColor }}>
                 {lead.category?.name ?? category.name} &bull; FEATURED
               </span>
               <h2>
@@ -94,9 +116,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </article>
         )}
 
-        {rest.length > 0 && (
+        {gridArticles.length > 0 && (
           <div className="cat-grid">
-            {rest.map((article: any) => (
+            {gridArticles.map((article: any) => (
               <article key={article.id} className="cat-card">
                 <Link href={`/${article.category?.slug ?? slug}/${article.slug}`} className="cat-card__art-wrap">
                   <div className="cat-card__art">
@@ -106,7 +128,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   </div>
                 </Link>
                 <div className="cat-card__body">
-                  <span className="tc-tag" style={{ color: category.color ?? "#2D7FF9" }}>
+                  <span className="tc-tag" style={{ color: themeColor }}>
                     {article.category?.name ?? category.name}
                   </span>
                   <h3>
@@ -122,6 +144,61 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 </div>
               </article>
             ))}
+          </div>
+        )}
+
+        {/* PAGINATION CONTROL BAR */}
+        {totalPages > 1 && (
+          <div className="cat-pagination">
+            <div className="cat-pagination__info">
+              Page {currentPage} of {totalPages} &bull; {totalArticles} Articles in {category.name}
+            </div>
+            <div className="cat-pagination__controls">
+              {/* Previous Button */}
+              {currentPage > 1 ? (
+                <Link
+                  href={`/${slug}?page=${currentPage - 1}`}
+                  className="cat-pagination__btn"
+                >
+                  &larr; Previous
+                </Link>
+              ) : (
+                <span className="cat-pagination__btn is-disabled">&larr; Previous</span>
+              )}
+
+              {/* Page Number Pills */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) =>
+                p === currentPage ? (
+                  <span
+                    key={p}
+                    className="cat-pagination__num is-active"
+                    style={{ backgroundColor: themeColor, borderColor: themeColor }}
+                  >
+                    {p}
+                  </span>
+                ) : (
+                  <Link
+                    key={p}
+                    href={`/${slug}?page=${p}`}
+                    className="cat-pagination__num"
+                  >
+                    {p}
+                  </Link>
+                )
+              )}
+
+              {/* Next Button */}
+              {currentPage < totalPages ? (
+                <Link
+                  href={`/${slug}?page=${currentPage + 1}`}
+                  className="cat-pagination__btn"
+                >
+                  Next &rarr;
+                </Link>
+              ) : (
+                <span className="cat-pagination__btn is-disabled">Next &rarr;</span>
+              )}
+            </div>
           </div>
         )}
       </div>

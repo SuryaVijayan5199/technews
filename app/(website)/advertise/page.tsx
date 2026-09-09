@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-export const revalidate = 3600;
-
 export const metadata: Metadata = { title: "Advertise — TechCrest", description: "Reach our tech-savvy audience." };
 export default function AdvertisePage() {
   return (

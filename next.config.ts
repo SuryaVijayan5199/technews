@@ -25,8 +25,6 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-    formats: ["image/avif", "image/webp"],
-    qualities: [50, 75, 90, 100],
   },
 
   // React Compiler (stable in Next.js 16)

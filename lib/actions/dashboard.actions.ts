@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { categories, articles, comments, users, authors } from "@/lib/db/schema";
 import { eq, desc, asc, sql, count, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { invalidateCategoryCache, invalidateCommentCache } from "@/lib/cache/revalidate";
 import { auth } from "@/lib/auth";
 import { isStaff, canPerformAction } from "@/lib/permissions";
 
@@ -135,14 +136,15 @@ export async function createCategory(data: {
     return { success: false, error: "Forbidden" };
   }
   try {
+    const slug = data.slug.trim().toLowerCase().replace(/\s+/g, "-");
     await db.insert(categories).values({
       name: data.name.trim(),
-      slug: data.slug.trim().toLowerCase().replace(/\s+/g, "-"),
+      slug,
       description: data.description?.trim() || null,
       color: data.color || null,
       icon: data.icon || null,
     });
-    revalidatePath("/dashboard/categories");
+    await invalidateCategoryCache(slug);
     return { success: true };
   } catch (err: any) {
     if (err?.message?.includes("unique")) return { success: false, error: "A category with this slug already exists." };
@@ -163,15 +165,17 @@ export async function updateCategory(id: number, data: {
     if (!session?.user || !isStaff(session.user.role)) {
       return { success: false, error: "Forbidden" };
     }
-    await db.update(categories).set({
+    const [updated] = await db.update(categories).set({
       name: data.name.trim(),
       description: data.description?.trim() || null,
       color: data.color || null,
       icon: data.icon || null,
       isActive: data.isActive,
       updatedAt: new Date(),
-    }).where(eq(categories.id, id));
-    revalidatePath("/dashboard/categories");
+    }).where(eq(categories.id, id)).returning();
+    if (updated) {
+      await invalidateCategoryCache(updated.slug);
+    }
     return { success: true };
   } catch (err) {
     console.error("[updateCategory]", err);
@@ -190,8 +194,11 @@ export async function deleteCategory(id: number) {
     if ((articleCount[0]?.count ?? 0) > 0) {
       return { success: false, error: "Cannot delete: category has articles. Reassign them first." };
     }
+    const cat = await db.query.categories.findFirst({ where: eq(categories.id, id) });
     await db.delete(categories).where(eq(categories.id, id));
-    revalidatePath("/dashboard/categories");
+    if (cat) {
+      await invalidateCategoryCache(cat.slug);
+    }
     return { success: true };
   } catch (err) {
     console.error("[deleteCategory]", err);
@@ -244,8 +251,10 @@ export async function moderateComment(id: number, status: "approved" | "rejected
     if (!session?.user || !canPerformAction(session.user.role, "moderate_comments")) {
       return { success: false, error: "Forbidden" };
     }
-    await db.update(comments).set({ status, updatedAt: new Date() }).where(eq(comments.id, id));
-    revalidatePath("/dashboard/comments");
+    const [updated] = await db.update(comments).set({ status, updatedAt: new Date() }).where(eq(comments.id, id)).returning();
+    if (updated) {
+      await invalidateCommentCache(updated.articleId);
+    }
     return { success: true };
   } catch (err) {
     console.error("[moderateComment]", err);
@@ -259,10 +268,13 @@ export async function deleteComment(id: number) {
     if (!session?.user || !canPerformAction(session.user.role, "moderate_comments")) {
       return { success: false, error: "Forbidden" };
     }
+    const cmt = await db.query.comments.findFirst({ where: eq(comments.id, id) });
     // Delete child replies first to avoid FK constraint
     await db.delete(comments).where(eq(comments.parentId, id));
     await db.delete(comments).where(eq(comments.id, id));
-    revalidatePath("/dashboard/comments");
+    if (cmt) {
+      await invalidateCommentCache(cmt.articleId);
+    }
     return { success: true };
   } catch (err) {
     console.error("[deleteComment]", err);
