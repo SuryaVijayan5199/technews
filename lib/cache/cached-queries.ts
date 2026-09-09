@@ -19,9 +19,9 @@ import { getArticleComments } from "@/lib/actions/comment.actions";
 // Completely eliminates Vercel Data Cache HTTP calls, ISR Writes, & Fast Origin Transfer charges ($0 Vercel Cost)
 const memoryCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
-// Default TTL: 5 minutes for homepage/category listing data
-// Reduces Neon compute CU-hrs by batching DB hits across many visitors
-const DEFAULT_TTL_MS = 5 * 60 * 1000;
+// Short TTL: 5 seconds for homepage/category listing data
+// Ensures newly published articles appear on the homepage almost instantly for all visitors worldwide
+const LISTING_TTL_MS = 5 * 1000;
 // Short TTL for article content pages (1 min) to reflect edits quickly
 const ARTICLE_TTL_MS = 60 * 1000;
 
@@ -33,7 +33,7 @@ export function getMemoryCache<T>(key: string): T | null {
   return null;
 }
 
-export function setMemoryCache<T>(key: string, data: T, ttl = DEFAULT_TTL_MS): T {
+export function setMemoryCache<T>(key: string, data: T, ttl = LISTING_TTL_MS): T {
   memoryCache.set(key, { data, timestamp: Date.now(), ttl });
   return data;
 }
@@ -50,13 +50,13 @@ export function clearMemoryCache(pattern?: string) {
   }
 }
 
-// Homepage Caches
+// Homepage Caches — 5-second TTL for instant live publishing updates
 export const getCachedFeaturedArticles = async (limit = 5) => {
   const key = `featured-articles-${limit}`;
   const cached = getMemoryCache<any[]>(key);
   if (cached) return cached;
   const data = await getFeaturedArticles(limit);
-  return setMemoryCache(key, data);
+  return setMemoryCache(key, data, LISTING_TTL_MS);
 };
 
 export const getCachedLatestArticles = async (limit = 8) => {
@@ -64,7 +64,7 @@ export const getCachedLatestArticles = async (limit = 8) => {
   const cached = getMemoryCache<any[]>(key);
   if (cached) return cached;
   const data = await getLatestArticles(limit);
-  return setMemoryCache(key, data);
+  return setMemoryCache(key, data, LISTING_TTL_MS);
 };
 
 export const getCachedTrendingArticles = async (limit = 10) => {
@@ -72,7 +72,7 @@ export const getCachedTrendingArticles = async (limit = 10) => {
   const cached = getMemoryCache<any[]>(key);
   if (cached) return cached;
   const data = await getTrendingArticles(limit);
-  return setMemoryCache(key, data);
+  return setMemoryCache(key, data, LISTING_TTL_MS);
 };
 
 export const getCachedEditorsPicks = async (limit = 6) => {
@@ -80,7 +80,7 @@ export const getCachedEditorsPicks = async (limit = 6) => {
   const cached = getMemoryCache<any[]>(key);
   if (cached) return cached;
   const data = await getEditorsPicks(limit);
-  return setMemoryCache(key, data);
+  return setMemoryCache(key, data, LISTING_TTL_MS);
 };
 
 export const getCachedBriefingArticles = async (limit = 8) => {
@@ -88,7 +88,7 @@ export const getCachedBriefingArticles = async (limit = 8) => {
   const cached = getMemoryCache<any[]>(key);
   if (cached) return cached;
   const data = await getBriefingArticles(limit);
-  return setMemoryCache(key, data);
+  return setMemoryCache(key, data, LISTING_TTL_MS);
 };
 
 export const getCachedGlobalBriefingArticles = async (limit = 3) => {
@@ -96,7 +96,7 @@ export const getCachedGlobalBriefingArticles = async (limit = 3) => {
   const cached = getMemoryCache<any[]>(key);
   if (cached) return cached;
   const data = await getGlobalBriefingArticles(limit);
-  return setMemoryCache(key, data);
+  return setMemoryCache(key, data, LISTING_TTL_MS);
 };
 
 export const getCachedBreakingArticle = async () => {
@@ -104,7 +104,7 @@ export const getCachedBreakingArticle = async () => {
   const cached = getMemoryCache<any>(key);
   if (cached) return cached;
   const data = await getBreakingArticle();
-  return setMemoryCache(key, data);
+  return setMemoryCache(key, data, LISTING_TTL_MS);
 };
 
 export const getCachedArticlesGroupedByTopics = async () => {
@@ -112,7 +112,7 @@ export const getCachedArticlesGroupedByTopics = async () => {
   const cached = getMemoryCache<any[]>(key);
   if (cached) return cached;
   const data = await getArticlesGroupedByTopics();
-  return setMemoryCache(key, data);
+  return setMemoryCache(key, data, LISTING_TTL_MS);
 };
 
 // Article Page Cache — 1-minute TTL so content edits reflect quickly
