@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useTransition, useEffect } from "react";
 import { Layers, Plus, Edit2, Trash2, Search, CheckCircle, AlertCircle, X, Loader2, RefreshCw, ToggleLeft, ToggleRight } from "lucide-react";
 import {

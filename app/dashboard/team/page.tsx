@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useTransition, useEffect } from "react";
 import {
   Users, UserPlus, ShieldCheck, Search, CheckCircle,

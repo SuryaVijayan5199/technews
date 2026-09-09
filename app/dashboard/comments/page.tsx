@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { MessageSquare, Check, ShieldAlert, Trash2, Search, CheckCircle, AlertCircle, Loader2, RefreshCw, X } from "lucide-react";

@@ -1,0 +1,17 @@
+# Dependencies
+node_modules
+.next
+out
+
+# Mobile & Large Assets
+android
+TechCrest.apk
+local_test_backup.xlsx
+TechCrest logos
+lighthouse-report.json
+
+# Local scripts & temp
+scratch*
+.git
+.env*
+!.env.production

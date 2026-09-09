@@ -5,7 +5,7 @@ import { MetadataRoute } from "next";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://technews-lyart.vercel.app";
 
-// No revalidate export — sitemap is served dynamically on-demand (no ISR write cost)
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static routes

@@ -27,11 +27,6 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Skip ESLint and TypeScript during build to speed up deployment times
-  // These should be checked locally or in a separate CI step
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },

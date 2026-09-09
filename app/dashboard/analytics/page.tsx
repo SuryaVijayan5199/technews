@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { TrendingUp, Eye, FileText, MessageSquare, BarChart3, RefreshCw, ExternalLink, Loader2, FolderOpen } from "lucide-react";

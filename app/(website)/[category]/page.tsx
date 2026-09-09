@@ -11,13 +11,10 @@ interface CategoryPageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
+export const dynamic = "force-dynamic";
+
 export async function generateStaticParams() {
-  try {
-    const cats = await getAllCategories();
-    return cats.map((c) => ({ category: c.slug }));
-  } catch {
-    return [];
-  }
+  return [];
 }
 
 export async function generateMetadata({ params, searchParams }: CategoryPageProps): Promise<Metadata> {
