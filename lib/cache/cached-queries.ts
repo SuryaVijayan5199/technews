@@ -26,10 +26,7 @@ const LISTING_TTL_MS = 5 * 1000;
 const ARTICLE_TTL_MS = 60 * 1000;
 
 export function getMemoryCache<T>(key: string): T | null {
-  const cached = memoryCache.get(key);
-  if (cached && Date.now() - cached.timestamp < cached.ttl) {
-    return cached.data as T;
-  }
+  // Bypass memory cache to ensure dynamic data is immediately reflected
   return null;
 }
 
