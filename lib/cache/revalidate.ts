@@ -1,4 +1,5 @@
 import { clearMemoryCache } from "./cached-queries";
+import { revalidatePath } from "next/cache";
 
 export interface ArticleInvalidationParams {
   articleId: number;
@@ -12,14 +13,24 @@ export interface ArticleInvalidationParams {
 
 /**
  * Targeted cache invalidation when an article is created, updated, published, or deleted.
- * Uses only in-memory RAM cache invalidation — zero Vercel Data Cache writes → $0 ISR Write cost.
+ * Clears Node.js RAM cache and triggers revalidatePath for instant UI updates — $0 ISR Write cost.
  */
 export async function invalidateArticleCache(params: ArticleInvalidationParams) {
-  // Full RAM cache clear — instant, free, and effective.
-  // revalidateTag() has been intentionally removed: it writes to Vercel Data Cache
-  // and costs ISR Write credits even without unstable_cache wrappers.
   clearMemoryCache();
+  try {
+    revalidatePath("/");
+    revalidatePath("/(website)", "layout");
+    if (params.categorySlug) {
+      revalidatePath(`/${params.categorySlug}`);
+    }
+    if (params.articleSlug && params.categorySlug) {
+      revalidatePath(`/${params.categorySlug}/${params.articleSlug}`);
+    }
+  } catch (err) {
+    // Ignore outside server action context
+  }
 }
+
 
 /**
  * Invalidate category cache when category metadata changes.

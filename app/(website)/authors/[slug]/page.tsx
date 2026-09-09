@@ -7,17 +7,14 @@ import { ArticleCard } from "@/components/article/article-card";
 import { getCachedAuthorBySlugWithArticles } from "@/lib/cache/cached-queries";
 import { getAuthorsWithStats } from "@/lib/actions/author.actions";
 
+export const dynamic = "force-dynamic";
+
 interface AuthorPageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  try {
-    const authors = await getAuthorsWithStats();
-    return authors.map((a: any) => ({ slug: a.slug }));
-  } catch {
-    return [];
-  }
+  return [];
 }
 
 export async function generateMetadata({ params }: AuthorPageProps): Promise<Metadata> {
