@@ -65,24 +65,7 @@ const PRINCIPLES = [
   { title: "IMPACT", desc: "The real-world consequences behind technology." },
 ];
 
-const GLOBAL_FALLBACK = [
-  { label: "01 / SIGNAL", title: "AI adoption is moving toward measurable outcomes", desc: "The next phase is about useful systems integrated directly into real enterprise workflows, moving beyond trial chatbots." },
-  { label: "02 / SECURITY", title: "Identity is becoming an operating security layer", desc: "Security architecture is increasingly built around context, continuous verification, and zero-trust credentials." },
-  { label: "03 / FUTURE", title: "Compute & energy are strategic growth resources", desc: "Hardware efficiency, next-gen silicon, and localized clean power are central to the next technology infrastructure cycle." },
-];
-
 const BRIEF_LABELS = ["01 / SIGNAL", "02 / SECURITY", "03 / FUTURE"];
-
-const DEFAULT_BRIEF_ITEMS = [
-  { title: "Autonomous AI agents transition to core product infrastructure", category: "Artificial Intelligence", meta: "Updated 10m ago • 4 min read" },
-  { title: "Enterprise security leaders prioritize zero-trust identity controls", category: "Cybersecurity", meta: "Updated 35m ago • 5 min read" },
-  { title: "Venture capital shifts focus toward compute efficiency & silicon innovation", category: "Startups & VC", meta: "Updated 1h ago • 6 min read" },
-  { title: "Next-gen battery chemistry accelerates commercial EV adoption", category: "Mobility & EVs", meta: "Updated 2h ago • 5 min read" },
-  { title: "Consumer hardware makers double down on local neural processing units", category: "Hardware & Devices", meta: "Updated 3h ago • 4 min read" },
-  { title: "Quantum key distribution field tests demonstrate satellite-ground encryption", category: "Quantum Computing", meta: "Updated 4h ago • 5 min read" },
-  { title: "Hyperscale data centers adopt direct-to-chip liquid cooling systems", category: "Cloud Infrastructure", meta: "Updated 5h ago • 4 min read" },
-  { title: "Open-source foundation models close benchmark gaps on complex reasoning", category: "Open Source AI", meta: "Updated 6h ago • 5 min read" },
-];
 
 function getCategoryIcon(iconName?: string | null, categoryName?: string | null) {
   const key = (iconName || categoryName || "").toLowerCase();
@@ -224,16 +207,20 @@ export async function TechCrestHomepage() {
               </article>
             ) : (
               <article className="tc-story tc-story--lead tc-story-slot-0">
-                <div className="tc-story__art tc-story__art--dark" />
+                <div className="tc-story__art tc-story__art--dark flex items-center justify-center bg-slate-900/80">
+                  <Sparkles className="w-10 h-10 text-sky-400 opacity-60" />
+                </div>
                 <div className="tc-story__body">
                   <div>
-                    <span className="tc-tag">AI &bull; COVER STORY</span>
-                    <h3>The Next Computing Shift Is Already Underway</h3>
-                    <p>AI is moving from a feature inside products to a new foundational computing layer redefining software architecture globally.</p>
+                    <span className="tc-tag">FRESH CONTENT &bull; NEWSROOM</span>
+                    <h3>No Published Stories Yet</h3>
+                    <p>Articles published from your Admin Dashboard will appear here as top cover stories.</p>
                   </div>
                   <div className="tc-meta-row">
-                    <div className="tc-meta">TechCrest Editorial &bull; 10 min read</div>
-                    <Link href="/ai" className="tc-read-btn">Read Story &rarr;</Link>
+                    <div className="tc-meta">TechCrest Editorial</div>
+                    <Link href="/dashboard/articles/new" className="tc-read-btn">
+                      Publish Article <ArrowRight className="tc-inline-icon inline ml-1" />
+                    </Link>
                   </div>
                 </div>
               </article>
@@ -313,7 +300,7 @@ export async function TechCrestHomepage() {
             {/* Left Panel: Executive Audio & 5 Daily Briefing Signals */}
             <div className="tc-brief-panel">
               {/* Audio Briefing Bar (Interactive Web Speech Audio Player) */}
-              <AudioBriefingPlayer items={briefItems.length > 0 ? briefItems : DEFAULT_BRIEF_ITEMS} />
+              <AudioBriefingPlayer items={briefItems} />
 
               {/* Briefing Items (5 Items) */}
               <div className="tc-brief-items">
@@ -329,15 +316,15 @@ export async function TechCrestHomepage() {
                         </div>
                       </div>
                     ))
-                  : DEFAULT_BRIEF_ITEMS.map((item, i) => (
-                      <div key={i} className="tc-brief-item">
-                        <b>{item.title}</b>
+                  : (
+                      <div className="tc-brief-item">
+                        <b>Executive briefing will update dynamically with your latest published stories.</b>
                         <div className="tc-brief-item-meta">
-                          <span className="tc-brief-tag">{item.category}</span>
-                          <span className="tc-brief-time">{item.meta}</span>
+                          <span className="tc-brief-tag">TechCrest Briefing</span>
+                          <span className="tc-brief-time">Awaiting published content</span>
                         </div>
                       </div>
-                    ))}
+                    )}
               </div>
 
               {/* Editorial Quote Footer */}
@@ -359,13 +346,6 @@ export async function TechCrestHomepage() {
                     <i>{BRIEF_LABELS[idx] ?? `0${idx + 1} / INSIGHT`}</i>
                     <h3><Link href={`/${item.category?.slug ?? "news"}/${item.slug}`}>{item.title}</Link></h3>
                     <p>{item.excerpt ?? "Strategic evaluation of technological capability, enterprise readiness, and systemic market shifts."}</p>
-                  </article>
-                ))}
-                {globalBriefings.length === 0 && GLOBAL_FALLBACK.map((item) => (
-                  <article key={item.label} className="tc-dark-card">
-                    <i>{item.label}</i>
-                    <h3>{item.title}</h3>
-                    <p>{item.desc}</p>
                   </article>
                 ))}
               </div>
