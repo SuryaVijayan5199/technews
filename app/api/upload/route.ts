@@ -3,7 +3,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { auth } from "@/lib/auth";
 import { isStaff } from "@/lib/permissions";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB limit for input files
+const MAX_FILE_SIZE = 500 * 1024; // 500 KB limit for input files
 
 const cloudName = (process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "").trim();
 const apiKey = (process.env.CLOUDINARY_API_KEY || "").trim();
@@ -42,11 +42,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // 10 MB size limit check
+    // 500 KB size limit check
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         {
-          error: `File too large. Maximum allowed size is 10 MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)} MB.`,
+          error: `File too large. Maximum allowed size is 500 KB. Your file is ${(file.size / 1024).toFixed(1)} KB.`,
         },
         { status: 400 }
       );

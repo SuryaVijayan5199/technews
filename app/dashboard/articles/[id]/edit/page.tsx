@@ -23,7 +23,7 @@ import { getCategories } from "@/lib/actions/dashboard.actions";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+const MAX_SIZE = 500 * 1024; // 500 KB
 
 type ToastType = "success" | "error" | "info";
 
@@ -174,7 +174,7 @@ export default function EditArticlePage({
 
     if (file.size > MAX_SIZE) {
       setImageError(
-        `Image too large (${(file.size / 1024 / 1024).toFixed(2)} MB). Maximum size is 2 MB.`
+        `Image too large (${(file.size / 1024).toFixed(1)} KB). Maximum size is 500 KB.`
       );
       return;
     }

@@ -48,8 +48,8 @@ export function EnhancedImageUploader({
       setError("Please select a valid image file (JPG, PNG, WebP).");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Image file size exceeds 5 MB limit.");
+    if (file.size > 500 * 1024) {
+      setError("Image file size exceeds 500 KB limit. Please compress your image.");
       return;
     }
 
@@ -278,7 +278,7 @@ export function EnhancedImageUploader({
                   {isUploading ? "Processing image upload..." : "Drag & drop cover image here, or click to browse"}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Supports High-Res JPG, PNG, WebP (Max file size 5 MB)
+                  Supports High-Res JPG, PNG, WebP (Max file size 500 KB)
                 </p>
               </label>
             </div>

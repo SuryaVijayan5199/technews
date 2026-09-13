@@ -10,8 +10,21 @@ export const dynamic = "force-dynamic";
 
 function safeCellString(val: unknown, maxLen = 30000): string {
   if (val === null || val === undefined) return "";
+  if (typeof val === "object") {
+    try {
+      const jsonStr = JSON.stringify(val);
+      return jsonStr.length > maxLen ? jsonStr.slice(0, maxLen) + "... [Truncated]" : jsonStr;
+    } catch {
+      return "";
+    }
+  }
   const str = String(val);
   return str.length > maxLen ? str.slice(0, maxLen) + "... [Truncated]" : str;
+}
+
+function stripHtmlTags(html: string): string {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
 export async function GET() {
@@ -56,7 +69,9 @@ export async function GET() {
       "Is Global Briefing": art.isGlobalBriefing ? "YES" : "NO",
       "Is Breaking": art.isBreaking ? "YES" : "NO",
       Excerpt: safeCellString(art.excerpt ?? ""),
-      "Content Body": safeCellString(art.content ?? ""),
+      "Content Body (HTML)": safeCellString(art.contentHtml ?? ""),
+      "Content Body (Plain Text)": safeCellString(stripHtmlTags(art.contentHtml ?? "")),
+      "Content Structure (JSON)": safeCellString(art.content ?? ""),
       "Hero Image URL": safeCellString(art.heroImage ?? ""),
       "SEO Title": safeCellString(art.seoTitle ?? ""),
       "SEO Description": safeCellString(art.seoDescription ?? ""),
