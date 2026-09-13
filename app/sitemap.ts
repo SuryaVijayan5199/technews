@@ -1,11 +1,12 @@
 import { db } from "@/lib/db";
 import { categories, articles, authors } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
-import { MetadataRoute } from "next";
+import { siteConfig } from "@/config/site";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://technews-lyart.vercel.app";
+const BASE_URL = siteConfig.url;
 
-export const dynamic = "force-dynamic";
+// Revalidate sitemap every hour — avoids full DB scan on every search crawler hit
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static routes

@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { articles } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
 import * as XLSX from "xlsx";
+import { auth } from "@/lib/auth";
+import { isStaff } from "@/lib/permissions";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +15,15 @@ function safeCellString(val: unknown, maxLen = 30000): string {
 }
 
 export async function GET() {
+  // Require authenticated staff session — no public access
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!isStaff(session.user.role)) {
+    return NextResponse.json({ error: "Staff access required" }, { status: 403 });
+  }
+
   try {
     const allArticles = await db.query.articles.findMany({
       orderBy: [desc(articles.id)],
@@ -93,4 +104,3 @@ export async function GET() {
     );
   }
 }
-

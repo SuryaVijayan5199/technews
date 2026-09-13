@@ -177,18 +177,17 @@ function estimateReadingTime(html: string): number {
 async function sanitizeHeroImage(image?: string | null): Promise<string | null> {
   if (!image) return null;
   if (image.startsWith("data:image/")) {
-    // If image is an optimized WebP data URL under 400 KB, preserve it directly!
-    if (image.length < 400000) {
-      return image;
-    }
     try {
       const { v2: cloudinary } = await import("cloudinary");
       const cloudName = (process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "").trim();
-      if (cloudName) {
+      const apiKey = (process.env.CLOUDINARY_API_KEY || "").trim();
+      const apiSecret = (process.env.CLOUDINARY_API_SECRET || "").trim();
+
+      if (cloudName && apiKey && apiSecret) {
         cloudinary.config({
           cloud_name: cloudName,
-          api_key: (process.env.CLOUDINARY_API_KEY || "").trim(),
-          api_secret: (process.env.CLOUDINARY_API_SECRET || "").trim(),
+          api_key: apiKey,
+          api_secret: apiSecret,
         });
         const res = await cloudinary.uploader.upload(image, {
           folder: "technews_articles",
@@ -200,9 +199,63 @@ async function sanitizeHeroImage(image?: string | null): Promise<string | null> 
     } catch (err) {
       console.error("Failed to auto-upload base64 hero image to Cloudinary:", err);
     }
-    return image;
   }
   return image;
+}
+
+async function sanitizeContentHtml(html?: string | null): Promise<string | null> {
+  if (!html) return null;
+  const base64Regex = /src=["'](data:image\/[^"']+)["']/gi;
+  let match;
+  let sanitizedHtml = html;
+
+  const base64Images: string[] = [];
+  while ((match = base64Regex.exec(html)) !== null) {
+    if (match[1]) {
+      base64Images.push(match[1]);
+    }
+  }
+
+  if (base64Images.length === 0) return html;
+
+  try {
+    const { v2: cloudinary } = await import("cloudinary");
+    const cloudName = (process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "").trim();
+    const apiKey = (process.env.CLOUDINARY_API_KEY || "").trim();
+    const apiSecret = (process.env.CLOUDINARY_API_SECRET || "").trim();
+
+    if (cloudName && apiKey && apiSecret) {
+      cloudinary.config({
+        cloud_name: cloudName,
+        api_key: apiKey,
+        api_secret: apiSecret,
+      });
+
+      for (const imgBase64 of base64Images) {
+        try {
+          const res = await cloudinary.uploader.upload(imgBase64, {
+            folder: "technews_articles",
+            resource_type: "image",
+            transformation: [{ quality: "auto", fetch_format: "auto" }],
+          });
+          sanitizedHtml = sanitizedHtml.replaceAll(imgBase64, res.secure_url);
+        } catch (uploadErr) {
+          console.error("Failed to upload inline content image to Cloudinary:", uploadErr);
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error setting up Cloudinary for content HTML images:", err);
+  }
+
+  return sanitizedHtml;
+}
+
+// NOTE: Local Excel backup is disabled in production (Vercel filesystem is read-only).
+// Use the authenticated /api/backup/export endpoint for on-demand backups.
+async function updateExcelBackupFile() {
+  // No-op: removed to prevent EROFS crashes on Vercel and full-table scan overhead.
+  // Backups are available via the authenticated GET /api/backup/export route.
 }
 
 export async function getAuthorsList() {
@@ -333,7 +386,7 @@ export async function createArticle(data: {
         title: data.title,
         slug,
         excerpt: data.excerpt || null,
-        contentHtml: data.contentHtml || null,
+        contentHtml: await sanitizeContentHtml(data.contentHtml),
         heroImage: await sanitizeHeroImage(data.heroImage),
         heroImageAlt: data.heroImageAlt || null,
         heroImageCaption: data.heroImageCaption || null,
@@ -344,13 +397,13 @@ export async function createArticle(data: {
         categoryId: category?.id ?? null,
         secondaryCategoryIds: data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0 ? data.secondaryCategoryIds : null,
         status: data.status as any,
-        isFeatured: data.isFeatured ?? false,
-        isEditorsPick: data.isEditorsPick ?? false,
-        isBreaking: data.isBreaking ?? false,
-        isTrending: data.isTrending ?? false,
-        isLatest: data.isLatest ?? true,
-        isBriefing: data.isBriefing ?? false,
-        isGlobalBriefing: data.isGlobalBriefing ?? false,
+        isFeatured: !!data.isFeatured,
+        isEditorsPick: !!data.isEditorsPick,
+        isBreaking: !!data.isBreaking,
+        isTrending: !!data.isTrending,
+        isLatest: data.isLatest ? true : !(data.isFeatured || data.isEditorsPick || data.isBreaking || data.isTrending || data.isBriefing || data.isGlobalBriefing),
+        isBriefing: !!data.isBriefing,
+        isGlobalBriefing: !!data.isGlobalBriefing,
         publishedAt: publishedAt ?? null,
         readingTimeMinutes: estimateReadingTime(data.contentHtml ?? ""),
       })
@@ -381,6 +434,7 @@ export async function createArticle(data: {
       secondaryCategorySlugs: secSlugs,
     });
 
+    await updateExcelBackupFile();
     return { success: true, article };
   } catch (error) {
     console.error("Error creating article:", error);
@@ -410,6 +464,7 @@ export async function deleteArticleAction(id: number) {
         authorId: existing.authorId ?? undefined,
       });
     }
+    await updateExcelBackupFile();
     return { success: true };
   } catch (error) {
     console.error("Error deleting article:", error);
@@ -571,12 +626,11 @@ export async function getFeaturedArticles(limit = 5): Promise<any[]> {
     const flagged = await db.query.articles.findMany({
       where: and(
         eq(articles.status, "published"),
-        eq(articles.isFeatured, true),
-        isNotNull(articles.publishedAt)
+        eq(articles.isFeatured, true)
       ),
       columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
-      orderBy: [desc(articles.publishedAt)],
+      orderBy: [desc(articles.publishedAt), desc(articles.createdAt)],
       limit,
     });
 
@@ -585,13 +639,10 @@ export async function getFeaturedArticles(limit = 5): Promise<any[]> {
     // Fill remaining slots with latest published articles
     const existingIds = new Set((flagged as any[]).map((a: any) => a.id));
     const latest = await db.query.articles.findMany({
-      where: and(
-        eq(articles.status, "published"),
-        isNotNull(articles.publishedAt)
-      ),
+      where: eq(articles.status, "published"),
       columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
-      orderBy: [desc(articles.publishedAt)],
+      orderBy: [desc(articles.publishedAt), desc(articles.createdAt)],
       limit: limit * 2,
     });
 
@@ -619,7 +670,7 @@ export async function getEditorsPicks(limit = 4): Promise<any[]> {
 
     if (flagged.length >= limit) return flagged as any;
 
-    // Fallback if not enough flagged
+    // Fallback if not enough flagged: fetch published articles sorted by publishedAt
     const latest = await db.query.articles.findMany({
       where: and(
         eq(articles.status, "published"),
@@ -698,24 +749,45 @@ export async function getRelatedArticles(
 
 export async function getLatestArticles(limit = 6, categorySlug?: string): Promise<any[]> {
   try {
-    const conditions: any[] = [
-      eq(articles.status, "published"),
-      isNotNull(articles.publishedAt),
-    ];
-
-    const results = await db.query.articles.findMany({
-      where: and(...conditions),
+    // 1. Fetch articles explicitly flagged as isLatest
+    const flagged = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        eq(articles.isLatest, true),
+        isNotNull(articles.publishedAt)
+      ),
       columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
       orderBy: [desc(articles.publishedAt)],
       limit,
     });
 
-    if (categorySlug) {
-      return (results as any[]).filter((a: any) => a.category?.slug === categorySlug) as any;
+    if (flagged.length >= limit) {
+      if (categorySlug) return (flagged as any[]).filter((a: any) => a.category?.slug === categorySlug) as any;
+      return flagged as any;
     }
 
-    return results as any;
+    // 2. Fallback: published articles sorted by publishedAt DESC
+    const fallback = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        isNotNull(articles.publishedAt)
+      ),
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit: limit * 2,
+    });
+
+    const existingIds = new Set((flagged as any[]).map((a: any) => a.id));
+    const extra = (fallback as any[]).filter((a: any) => !existingIds.has(a.id));
+    const combined = [...flagged, ...extra].slice(0, limit);
+
+    if (categorySlug) {
+      return (combined as any[]).filter((a: any) => a.category?.slug === categorySlug) as any;
+    }
+
+    return combined as any;
   } catch (error) {
     console.error("Error fetching latest articles:", error);
     return [];
@@ -953,7 +1025,7 @@ export async function updateArticleAction(
       title: data.title,
       slug: newSlug,
       excerpt: data.excerpt || null,
-      contentHtml: data.contentHtml || null,
+      contentHtml: await sanitizeContentHtml(data.contentHtml),
       heroImage: await sanitizeHeroImage(data.heroImage),
       heroImageAlt: data.heroImageAlt || null,
       heroImageCaption: data.heroImageCaption || null,
@@ -963,13 +1035,13 @@ export async function updateArticleAction(
       categoryId: category?.id ?? null,
       secondaryCategoryIds: data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0 ? data.secondaryCategoryIds : null,
       status: data.status as any,
-      isFeatured: data.isFeatured ?? false,
-      isEditorsPick: data.isEditorsPick ?? false,
-      isBreaking: data.isBreaking ?? false,
-      isTrending: data.isTrending ?? false,
-      isLatest: data.isLatest ?? true,
-      isBriefing: data.isBriefing ?? false,
-      isGlobalBriefing: data.isGlobalBriefing ?? false,
+      isFeatured: !!data.isFeatured,
+      isEditorsPick: !!data.isEditorsPick,
+      isBreaking: !!data.isBreaking,
+      isTrending: !!data.isTrending,
+      isLatest: data.isLatest ? true : !(data.isFeatured || data.isEditorsPick || data.isBreaking || data.isTrending || data.isBriefing || data.isGlobalBriefing),
+      isBriefing: !!data.isBriefing,
+      isGlobalBriefing: !!data.isGlobalBriefing,
       publishedAt,
       readingTimeMinutes: estimateReadingTime(data.contentHtml ?? ""),
       updatedAt: new Date(),
@@ -1003,6 +1075,7 @@ export async function updateArticleAction(
       secondaryCategorySlugs: secSlugs,
     });
 
+    await updateExcelBackupFile();
     return { success: true, article: updated };
   } catch (error) {
     console.error("Error updating article:", error);
@@ -1037,6 +1110,7 @@ export async function bumpArticlePublishDateAction(id: number) {
       authorId: existing.authorId ?? undefined,
     });
 
+    await updateExcelBackupFile();
     return { success: true, publishedAt: now };
   } catch (error: any) {
     console.error("Error bumping article publish date:", error);

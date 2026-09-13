@@ -4,6 +4,7 @@ import { getDashboardStats } from "@/lib/actions/dashboard.actions";
 import { getFeaturedArticles } from "@/lib/actions/article.actions";
 import { HeroCarousel } from "@/components/shared/hero-carousel";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Dashboard — TechCrest CMS" };
 
 function formatNumber(n: number): string {

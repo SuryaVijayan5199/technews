@@ -22,10 +22,11 @@ const SocialIcon = ({ label }: { label: string }) => {
 
 export function Footer() {
   return (
-    <footer className="tc-footer">
-      {/* ── Main Content ── */}
-      <div className="tc-footer__main">
-        <div className="container tc-footer__grid">
+    <>
+      <footer className="tc-footer">
+        {/* ── Main Content ── */}
+        <div className="tc-footer__main">
+          <div className="container tc-footer__grid">
 
           {/* Brand */}
           <div className="tc-footer__brand">
@@ -97,7 +98,7 @@ export function Footer() {
       </div>
 
       {/* ── Bottom Bar ── */}
-      <div className="tc-footer__bottom mb-14 md:mb-0">
+      <div className="tc-footer__bottom tc-footer__bottom--mobile-spaced">
         <div className="container tc-footer__bottom-inner">
           <p className="tc-footer__copy">
             © {new Date().getFullYear()} TechCrest. All rights reserved.
@@ -109,9 +110,10 @@ export function Footer() {
           </div>
         </div>
       </div>
-
-      {/* Mobile Bottom Navigation Bar (Fixed 5-item Nav) */}
-      <MobileBottomNav />
     </footer>
+
+    {/* Mobile Bottom Navigation — rendered outside footer for correct semantics */}
+    <MobileBottomNav />
+  </>
   );
 }

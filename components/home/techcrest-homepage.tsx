@@ -111,7 +111,7 @@ export async function TechCrestHomepage() {
     groupedTopics,
   ] = await Promise.all([
     getCachedFeaturedArticles(5),
-    getCachedLatestArticles(8),
+    getCachedLatestArticles(12),
     getCachedTrendingArticles(10),
     getCachedEditorsPicks(6),
     getCachedBriefingArticles(8),
@@ -133,22 +133,50 @@ export async function TechCrestHomepage() {
       })
     : TOPICS;
 
-  // Combine latestArticles and editorsPicks, sorted by publishedAt DESC so newly published articles rank at top
-  const rawTopStories = [...latestArticles, ...editorsPicks].sort((a, b) => {
-    const da = a?.publishedAt ? new Date(a.publishedAt).getTime() : 0;
-    const db = b?.publishedAt ? new Date(b.publishedAt).getTime() : 0;
-    return db - da;
-  });
-  const seenTopStoryIds = new Set<number>();
+  // Top Stories (Primary Cover Story & Top Stories Grid): 6 Articles total
   const topStories: typeof editorsPicks = [];
-  for (const art of rawTopStories) {
-    if (art && art.id && !seenTopStoryIds.has(art.id)) {
-      seenTopStoryIds.add(art.id);
+  const topStoryIds = new Set<number>();
+
+  for (const art of (editorsPicks || [])) {
+    if (art && art.id && !topStoryIds.has(art.id)) {
+      topStoryIds.add(art.id);
       topStories.push(art);
       if (topStories.length === 6) break;
     }
   }
-  const latestStories = latestArticles.slice(0, 5);
+
+  // If topStories has fewer than 6, fill with fallback from latestArticles
+  if (topStories.length < 6) {
+    for (const art of (latestArticles || [])) {
+      if (art && art.id && !topStoryIds.has(art.id)) {
+        topStoryIds.add(art.id);
+        topStories.push(art);
+        if (topStories.length === 6) break;
+      }
+    }
+  }
+
+  // Latest Stories: standard latest news feed flow (6 Articles total)
+  const latestStories: typeof latestArticles = [];
+  for (const art of (latestArticles || [])) {
+    if (art && art.id) {
+      if (!latestStories.some((a: any) => a.id === art.id)) {
+        latestStories.push(art);
+        if (latestStories.length === 6) break;
+      }
+    }
+  }
+  // Fallback: fill remaining slots from trending articles if latest < 6
+  if (latestStories.length < 6) {
+    for (const art of (trendingArticles || [])) {
+      if (art && art.id) {
+        if (!latestStories.some((a: any) => a.id === art.id)) {
+          latestStories.push(art);
+          if (latestStories.length === 6) break;
+        }
+      }
+    }
+  }
   const mostRead = trendingArticles.slice(0, 10);
   const briefItems = briefingArticles.slice(0, 8);
 
@@ -166,7 +194,7 @@ export async function TechCrestHomepage() {
         <div className="tc-wrap">
           <div className="tc-section-head">
             <h2>Top Stories</h2>
-            <Link href="/news">VIEW ALL &rarr;</Link>
+            <Link href="/ai">VIEW ALL &rarr;</Link>
           </div>
           <div className="tc-top-grid">
             {topStories[0] ? (
@@ -205,50 +233,31 @@ export async function TechCrestHomepage() {
                   </div>
                   <div className="tc-meta-row">
                     <div className="tc-meta">TechCrest Editorial &bull; 10 min read</div>
-                    <Link href="/news" className="tc-read-btn">Read Story &rarr;</Link>
+                    <Link href="/ai" className="tc-read-btn">Read Story &rarr;</Link>
                   </div>
                 </div>
               </article>
             )}
-            {[topStories[1], topStories[2], topStories[3], topStories[4], topStories[5]].map((story, i) =>
-              story ? (
-                <article key={story.id} className={`tc-story tc-story-slot-${i + 1}`}>
-                  <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-story__art tc-story__art--small block">
-                    {story.heroImage && <Image src={story.heroImage} alt={story.title} fill className="tc-story__art-img" />}
-                  </Link>
-                  <div className="tc-story__body">
-                    <div>
-                      <span className="tc-tag">{story.category?.name ?? "Technology"}</span>
-                      <h3><Link href={`/${story.category?.slug ?? "news"}/${story.slug}`}>{story.title}</Link></h3>
-                      <p>{story.excerpt ?? "Key developments, industry context, and strategic analysis."}</p>
-                    </div>
-                    <div className="tc-meta-row">
-                      <div className="tc-meta">{story.readingTimeMinutes ?? 5} min read &bull; {timeAgo(story.publishedAt)}</div>
-                      <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-read-btn">
-                        Read Story <ArrowRight className="tc-inline-icon inline ml-1" />
-                      </Link>
-                    </div>
+            {topStories.slice(1).map((story, i) => (
+              <article key={story.id} className={`tc-story tc-story-slot-${i + 1}`}>
+                <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-story__art tc-story__art--small block">
+                  {story.heroImage && <Image src={story.heroImage} alt={story.title} fill className="tc-story__art-img" />}
+                </Link>
+                <div className="tc-story__body">
+                  <div>
+                    <span className="tc-tag">{story.category?.name ?? "Technology"}</span>
+                    <h3><Link href={`/${story.category?.slug ?? "news"}/${story.slug}`}>{story.title}</Link></h3>
+                    <p>{story.excerpt ?? "Key developments, industry context, and strategic analysis."}</p>
                   </div>
-                </article>
-              ) : (
-                <article key={`fb-${i}`} className={`tc-story tc-story-slot-${i + 1}`}>
-                  <div className="tc-story__art tc-story__art--small" />
-                  <div className="tc-story__body">
-                    <div>
-                      <span className="tc-tag">{["Cybersecurity", "Startups", "Hardware", "Mobility", "AI"][i] ?? "Tech"}</span>
-                      <h3>{["Security teams are redesigning around identity controls", "Inside the infrastructure startups scaling globally", "Next-gen processors push power efficiency boundaries", "EV infrastructure transitions to unified standards", "Neural processing units transform consumer hardware"][i]}</h3>
-                      <p>{["Access, context and continuous verification are becoming central.", "New platforms are reducing complexity for engineering teams.", "Silicon innovation is driving higher performance per watt.", "Charging networks are aligning on interoperable protocols.", "Edge AI models enable private on-device intelligence."][i]}</p>
-                    </div>
-                    <div className="tc-meta-row">
-                      <div className="tc-meta">{5 + i} min read</div>
-                      <Link href="/news" className="tc-read-btn">
-                        Read Story <ArrowRight className="tc-inline-icon inline ml-1" />
-                      </Link>
-                    </div>
+                  <div className="tc-meta-row">
+                    <div className="tc-meta">{story.readingTimeMinutes ?? 5} min read &bull; {timeAgo(story.publishedAt)}</div>
+                    <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-read-btn">
+                      Read Story <ArrowRight className="tc-inline-icon inline ml-1" />
+                    </Link>
                   </div>
-                </article>
-              )
-            )}
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -258,7 +267,7 @@ export async function TechCrestHomepage() {
         <div className="tc-wrap">
           <div className="tc-section-head">
             <h2>Latest News</h2>
-            <Link href="/news">VIEW ALL &rarr;</Link>
+            <Link href="/phone">VIEW ALL &rarr;</Link>
           </div>
           <div className="tc-latest-grid">
             <div className="tc-latest-list">
@@ -430,7 +439,7 @@ export async function TechCrestHomepage() {
         <div className="tc-wrap">
           <div className="tc-section-head">
             <h2>Explore Topics</h2>
-            <Link href="/news" className="tc-section-head__link">DISCOVER ALL &rarr;</Link>
+            <Link href="/ai" className="tc-section-head__link">DISCOVER ALL &rarr;</Link>
           </div>
           <div className="tc-topics-grid">
             {activeExploreTopics.map((topic: any) => {

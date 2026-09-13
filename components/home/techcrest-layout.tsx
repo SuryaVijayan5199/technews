@@ -77,7 +77,7 @@ export async function TechCrestLayout() {
               <div className="home-section-divider">
                 <SectionHeader
                   title="Latest News Stream"
-                  href="/news"
+                  href="/phone"
                   icon={<Newspaper className="w-5 h-5 text-brand" />}
                 />
                 <LatestArticles articles={latest} />
@@ -93,7 +93,7 @@ export async function TechCrestLayout() {
                   <h3 className="sidebar-widget__title">Most Popular</h3>
                 </div>
                 <div className="popular-list">
-                  {latest
+                  {[...latest]
                     .sort((a: any, b: any) => (b.viewCount ?? 0) - (a.viewCount ?? 0))
                     .slice(0, 4)
                     .map((post: any, idx: number) => (

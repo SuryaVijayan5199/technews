@@ -13,9 +13,7 @@ interface CategoryPageProps {
 
 export const dynamic = "force-dynamic";
 
-export async function generateStaticParams() {
-  return [];
-}
+import { siteConfig } from "@/config/site";
 
 export async function generateMetadata({ params, searchParams }: CategoryPageProps): Promise<Metadata> {
   const { category } = await params;
@@ -27,9 +25,28 @@ export async function generateMetadata({ params, searchParams }: CategoryPagePro
   if (!cat) return { title: "Category Not Found" };
 
   const pageSuffix = page > 1 ? ` (Page ${page})` : "";
+  const title = `${cat.name}${pageSuffix} — News, Reviews & Analysis`;
+  const description = cat.description ?? `Latest ${cat.name} news, in-depth reviews, and expert analysis on TechCrest.`;
+  const canonicalUrl = `${siteConfig.url}/${cat.slug}${page > 1 ? `?page=${page}` : ""}`;
+
   return {
-    title: `${cat.name}${pageSuffix} — TechCrest`,
-    description: cat.description ?? `Latest ${cat.name} news, reviews and insights on TechCrest.`,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: canonicalUrl,
+      siteName: siteConfig.name,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 
@@ -60,8 +77,31 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const gridArticles = isFirstPage ? articles.slice(1) : articles;
   const themeColor = category.color ?? "#2D7FF9";
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteConfig.url,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: category.name,
+        item: `${siteConfig.url}/${category.slug}`,
+      },
+    ],
+  };
+
   return (
     <div className="cat-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <div className="cat-header" style={{ borderColor: themeColor }}>
         <div className="tc-wrap">
           <div className="cat-header__inner">

@@ -3,17 +3,30 @@
 import { useState } from "react";
 import { Sparkles, CheckCircle, ShieldCheck, Zap, ArrowRight } from "lucide-react";
 import { TechCrestIcon } from "@/components/shared/techcrest-icon";
+import { subscribeToNewsletterAction } from "@/lib/actions/newsletter.actions";
 
 export function NewsletterCTA() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setStatus("loading");
-    await new Promise((r) => setTimeout(r, 800));
-    setStatus("success");
+    setErrorMsg("");
+    try {
+      const result = await subscribeToNewsletterAction({ email });
+      if (result?.error) {
+        setErrorMsg(result.error);
+        setStatus("error");
+      } else {
+        setStatus("success");
+      }
+    } catch {
+      setErrorMsg("Something went wrong. Please try again.");
+      setStatus("error");
+    }
   };
 
   return (
@@ -53,7 +66,7 @@ export function NewsletterCTA() {
           <div className="premium-cta__success">
             <CheckCircle className="tc-cta-icon--success" />
             <span className="premium-cta__success-text">
-              Welcome to TechCrest Premium! Check your inbox to activate your 14-day pass.
+              You&apos;re in! Check your inbox to confirm your subscription.
             </span>
           </div>
         ) : (
@@ -73,11 +86,16 @@ export function NewsletterCTA() {
             >
               {status === "loading" ? "Subscribing..." : <>Join Free <ArrowRight className="tc-btn-icon" /></>}
             </button>
+            {status === "error" && errorMsg && (
+              <p style={{ color: "hsl(var(--color-error, 0 84% 60%))", fontSize: "0.8rem", marginTop: "0.5rem" }}>
+                {errorMsg}
+              </p>
+            )}
           </form>
         )}
 
         <p className="premium-cta__footer-note">
-          14-day free trial. Read our Privacy Policy.
+          Free newsletter. Unsubscribe anytime.
         </p>
       </div>
     </div>

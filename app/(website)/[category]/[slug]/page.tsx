@@ -28,9 +28,6 @@ interface ArticlePageProps {
   params: Promise<{ category: string; slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return [];
-}
 
 function extractHeadings(html: string) {
   const headingRegex = /<h2[^>]*id="([^"]+)"[^>]*>(.*?)<\/h2>|<h2[^>]*>(.*?)<\/h2>/gi;
@@ -55,15 +52,8 @@ function extractHeadings(html: string) {
     }
   }
 
-  // Fallback: If no h2 tags exist, generate structured content headings
-  if (headings.length === 0 && html) {
-    headings.push(
-      { id: "overview-section", text: "Overview & Key Developments", level: 2 },
-      { id: "analysis-section", text: "Technical Deep-Dive & Market Impact", level: 2 },
-      { id: "outlook-section", text: "Strategic Summary & Next Steps", level: 2 }
-    );
-  }
-
+  // If no h2 headings found, return empty array — sidebar will be hidden
+  // (Phantom fallback IDs were removed: they don't exist in the rendered HTML)
   return headings;
 }
 
@@ -169,7 +159,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const { category, slug } = await params;
   const dbArticle = await getCachedArticleBySlug(slug);
 
-  const session = await auth();
+  let session = null;
+  try {
+    session = await auth();
+  } catch (err) {
+    // ISR / Static rendering context — default to guest
+  }
   const userIsStaff = isStaff(session?.user?.role);
 
   if (!dbArticle) notFound();
@@ -192,22 +187,59 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
-    headline: dbArticle.title,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": canonicalUrl,
+    },
+    headline: dbArticle.seoTitle || dbArticle.title,
     description: dbArticle.seoDescription || dbArticle.excerpt,
-    image: dbArticle.heroImage,
+    image: dbArticle.heroImage ? [dbArticle.heroImage] : [`${siteConfig.url}/icons/techcrest-app-icon-gradient-512.png`],
     url: canonicalUrl,
     datePublished: dbArticle.publishedAt
       ? new Date(dbArticle.publishedAt).toISOString()
-      : undefined,
+      : new Date().toISOString(),
     dateModified: new Date(dbArticle.updatedAt).toISOString(),
+    articleSection: categoryName,
+    wordCount: dbArticle.contentHtml ? dbArticle.contentHtml.replace(/<[^>]*>/g, "").split(/\s+/).length : undefined,
     author: {
       "@type": "Person",
-      name: dbArticle.author?.displayName || "TechCrest Editor",
+      name: cleanAuthorName(dbArticle.author?.displayName),
+      url: dbArticle.author?.slug ? `${siteConfig.url}/authors/${dbArticle.author.slug}` : siteConfig.url,
     },
     publisher: {
       "@type": "Organization",
-      name: "TechCrest",
+      name: siteConfig.name,
+      url: siteConfig.url,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteConfig.url}/icons/techcrest-app-icon-gradient-512.png`,
+      },
     },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteConfig.url,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: categoryName,
+        item: `${siteConfig.url}/${categorySlug}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: dbArticle.title,
+        item: canonicalUrl,
+      },
+    ],
   };
 
   return (
@@ -215,6 +247,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <link rel="canonical" href={canonicalUrl} />
       <ReadingProgress />

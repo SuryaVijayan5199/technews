@@ -17,6 +17,9 @@ export async function generateStaticParams() {
   return [];
 }
 
+import { siteConfig } from "@/config/site";
+import { cleanAuthorName } from "@/lib/utils";
+
 export async function generateMetadata({ params }: AuthorPageProps): Promise<Metadata> {
   const { slug } = await params;
   const author = await getCachedAuthorBySlugWithArticles(slug);
@@ -27,9 +30,30 @@ export async function generateMetadata({ params }: AuthorPageProps): Promise<Met
     };
   }
 
+  const cleanName = cleanAuthorName(author.displayName);
+  const title = `${cleanName} — Author Profile & Articles`;
+  const description = author.bio || `${cleanName} is an official TechCrest editor & technology writer. Explore recent articles and analysis.`;
+  const canonicalUrl = `${siteConfig.url}/authors/${author.slug}`;
+
   return {
-    title: `${author.displayName} — Author Profile | TechCrest`,
-    description: author.bio || `${author.displayName} is an official TechCrest staff writer & contributor.`,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      type: "profile",
+      url: canonicalUrl,
+      images: author.avatar ? [{ url: author.avatar }] : [],
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+      images: author.avatar ? [author.avatar] : [],
+    },
   };
 }
 
@@ -41,6 +65,8 @@ export default async function AuthorProfilePage({ params }: AuthorPageProps) {
     notFound();
   }
 
+  const cleanName = cleanAuthorName(author.displayName);
+  const canonicalUrl = `${siteConfig.url}/authors/${author.slug}`;
   const avatarUrl =
     author.avatar ||
     `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(author.displayName)}`;
@@ -49,8 +75,28 @@ export default async function AuthorProfilePage({ params }: AuthorPageProps) {
     ? author.user.role.replace(/_/g, " ").toUpperCase()
     : "AUTHOR";
 
+  const profileJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    mainEntity: {
+      "@type": "Person",
+      name: cleanName,
+      description: author.bio || undefined,
+      image: avatarUrl,
+      worksFor: {
+        "@type": "Organization",
+        name: siteConfig.name,
+        url: siteConfig.url,
+      },
+    },
+  };
+
   return (
     <div className="tc-author-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(profileJsonLd) }}
+      />
       <div className="container">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="tc-author-breadcrumb">

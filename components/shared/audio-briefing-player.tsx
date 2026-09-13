@@ -25,7 +25,7 @@ export function AudioBriefingPlayer({ items }: AudioBriefingPlayerProps) {
 
   const handleTogglePlay = () => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      alert("Audio briefing is supported in your browser!");
+      alert("Audio briefing is not supported in your browser.");
       return;
     }
 

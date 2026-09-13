@@ -1,9 +1,9 @@
 import React from "react";
 import Link from "next/link";
-import { getBreakingArticles } from "@/lib/actions/article.actions";
+import { getCachedBreakingNewsArticles } from "@/lib/cache/cached-queries";
 
 export async function BreakingNewsBar() {
-  const dbArticles = await getBreakingArticles(5);
+  const dbArticles = await getCachedBreakingNewsArticles(5);
 
   if (!dbArticles || dbArticles.length === 0) {
     return null;

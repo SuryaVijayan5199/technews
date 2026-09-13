@@ -1,28 +1,19 @@
 import React from "react";
 import Link from "next/link";
-import { CloudSun, Calendar } from "lucide-react";
+import { CloudSun } from "lucide-react";
 import { getTrendingArticles } from "@/lib/actions/article.actions";
+import { RealTimeClock } from "@/components/shared/real-time-clock";
 
 export async function TopBar() {
   const trending = await getTrendingArticles(1);
   const hotArticle = trending.length > 0 ? trending[0] : null;
-
-  const currentDateStr = new Date().toLocaleDateString("en-IN", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 
   return (
     <div className="topbar">
       <div className="container topbar-container">
         {/* Left: Date & Weather */}
         <div className="topbar-left">
-          <div className="topbar-item topbar-date">
-            <Calendar className="topbar-icon" />
-            <span>{currentDateStr}</span>
-          </div>
+          <RealTimeClock />
 
           <div className="topbar-item topbar-weather">
             <CloudSun className="topbar-icon topbar-icon--sun" />

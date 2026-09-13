@@ -12,11 +12,13 @@ import { isStaff, canPerformAction } from "@/lib/permissions";
 // DASHBOARD STATS (home)
 // ─────────────────────────────────────────────
 export async function getDashboardStats() {
-  const session = await auth();
-  if (!session?.user || !isStaff(session.user.role)) {
-    throw new Error("Forbidden");
-  }
   try {
+    const session = await auth();
+    if (!session?.user || !isStaff(session.user.role)) {
+      console.warn("[getDashboardStats] Unauthorized attempt or session pending:", session?.user?.email);
+      return null;
+    }
+
     const [
       totalArticles,
       publishedArticles,
@@ -36,7 +38,7 @@ export async function getDashboardStats() {
       db.select({ count: count() }).from(comments),
       db.select({ count: count() }).from(comments).where(eq(comments.status, "pending")),
       db.select({ count: count() }).from(categories).where(eq(categories.isActive, true)),
-      db.select({ total: sql<number>`sum(${articles.viewCount})` }).from(articles),
+      db.select({ total: sql<number>`coalesce(sum(${articles.viewCount}), 0)` }).from(articles),
     ]);
 
     // Recent articles
@@ -70,20 +72,23 @@ export async function getDashboardStats() {
       .limit(5);
 
     return {
-      totalArticles: totalArticles[0]?.count ?? 0,
-      publishedArticles: publishedArticles[0]?.count ?? 0,
-      draftArticles: draftArticles[0]?.count ?? 0,
-      pendingArticles: pendingArticles[0]?.count ?? 0,
-      totalUsers: totalUsers[0]?.count ?? 0,
-      totalComments: totalComments[0]?.count ?? 0,
-      pendingComments: pendingComments[0]?.count ?? 0,
-      totalCategories: totalCategories[0]?.count ?? 0,
-      totalViews: totalViews[0]?.total ?? 0,
-      recentArticles,
-      recentComments,
+      totalArticles: Number(totalArticles[0]?.count ?? 0),
+      publishedArticles: Number(publishedArticles[0]?.count ?? 0),
+      draftArticles: Number(draftArticles[0]?.count ?? 0),
+      pendingArticles: Number(pendingArticles[0]?.count ?? 0),
+      totalUsers: Number(totalUsers[0]?.count ?? 0),
+      totalComments: Number(totalComments[0]?.count ?? 0),
+      pendingComments: Number(pendingComments[0]?.count ?? 0),
+      totalCategories: Number(totalCategories[0]?.count ?? 0),
+      totalViews: Number(totalViews[0]?.total ?? 0),
+      recentArticles: recentArticles ?? [],
+      recentComments: recentComments ?? [],
     };
-  } catch (err) {
-    console.error("[getDashboardStats]", err);
+  } catch (err: any) {
+    if (err?.digest === 'DYNAMIC_SERVER_USAGE' || err?.message?.includes('DYNAMIC_SERVER_USAGE')) {
+      throw err;
+    }
+    console.error("[getDashboardStats] Error fetching stats:", err);
     return null;
   }
 }

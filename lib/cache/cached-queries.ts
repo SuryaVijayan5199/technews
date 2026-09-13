@@ -19,15 +19,21 @@ import { getArticleComments } from "@/lib/actions/comment.actions";
 // Completely eliminates Vercel Data Cache HTTP calls, ISR Writes, & Fast Origin Transfer charges ($0 Vercel Cost)
 const memoryCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
-// Short TTL: 5 seconds for homepage/category listing data
-// Ensures newly published articles appear on the homepage almost instantly for all visitors worldwide
-const LISTING_TTL_MS = 5 * 1000;
-// Short TTL for article content pages (1 min) to reflect edits quickly
-const ARTICLE_TTL_MS = 60 * 1000;
+// Listing pages cache (5 minutes) — balances freshness vs DB load
+const LISTING_TTL_MS = 5 * 60 * 1000;
+// Article content cache (10 minutes)
+const ARTICLE_TTL_MS = 10 * 60 * 1000;
+// Breaking news bar cache (2 minutes) — kept short for news freshness
+const BREAKING_TTL_MS = 2 * 60 * 1000;
 
 export function getMemoryCache<T>(key: string): T | null {
-  // Bypass memory cache to ensure dynamic data is immediately reflected
-  return null;
+  const item = memoryCache.get(key);
+  if (!item) return null;
+  if (Date.now() - item.timestamp > item.ttl) {
+    memoryCache.delete(key);
+    return null;
+  }
+  return item.data as T;
 }
 
 export function setMemoryCache<T>(key: string, data: T, ttl = LISTING_TTL_MS): T {
@@ -101,7 +107,17 @@ export const getCachedBreakingArticle = async () => {
   const cached = getMemoryCache<any>(key);
   if (cached) return cached;
   const data = await getBreakingArticle();
-  return setMemoryCache(key, data, LISTING_TTL_MS);
+  return setMemoryCache(key, data, BREAKING_TTL_MS);
+};
+
+// Breaking News Bar — cached separately with 2-minute TTL
+export const getCachedBreakingNewsArticles = async (limit = 5) => {
+  const key = `breaking-news-bar-${limit}`;
+  const cached = getMemoryCache<any[]>(key);
+  if (cached) return cached;
+  const { getBreakingArticles } = await import("@/lib/actions/article.actions");
+  const data = await getBreakingArticles(limit);
+  return setMemoryCache(key, data || [], BREAKING_TTL_MS);
 };
 
 export const getCachedArticlesGroupedByTopics = async () => {

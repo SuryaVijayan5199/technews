@@ -12,6 +12,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
 body {
@@ -19,6 +20,14 @@ body {
   color: hsl(var(--color-text-primary));
   line-height: 1.6;
   min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Bottom padding on mobile so fixed bottom nav doesn't cover content */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* Layout Utilities */
@@ -428,7 +437,8 @@ body {
   gap: 2.5rem;
 }
 @media (min-width: 1024px) {
-  .article-layout {
+  /* Only apply 2-column when sidebar exists */
+  .article-layout:has(.article-layout__sidebar) {
     grid-template-columns: minmax(0, 1fr) 300px;
   }
 }

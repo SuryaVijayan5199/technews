@@ -1086,6 +1086,12 @@ html:not(.dark) .mobile-menu-panel__footer {
   border-top: 1px solid hsl(var(--color-surface-border));
   background: hsl(var(--color-surface-1));
 }
+/* Ensure footer bottom bar clears the fixed mobile bottom nav */
+@media (max-width: 767px) {
+  .tc-footer__bottom--mobile-spaced {
+    margin-bottom: 72px;
+  }
+}
 
 .tc-footer__bottom-inner {
   padding: 0.875rem 0;
@@ -6871,7 +6877,7 @@ html:not(.dark) .tc-story__art--small {
   .tc-latest-grid,
   .tc-brief-grid { grid-template-columns: 1fr; }
   .tc-lower-grid { grid-template-columns: 1fr 1fr; }
-  .tc-topics-grid { grid-template-columns: repeat(5, 1fr); }
+  .tc-topics-grid { grid-template-columns: repeat(3, 1fr); }
   .tc-manifesto__inner { grid-template-columns: 1fr; }
   .tc-principles { grid-template-columns: repeat(3, 1fr); }
 }
@@ -6882,7 +6888,7 @@ html:not(.dark) .tc-story__art--small {
 @media (max-width: 560px) {
   .tc-wrap { width: calc(100% - 22px); }
   .tc-hero { padding-top: 35px; }
-  .tc-hero__headline { font-size: 51px !important; }
+  .tc-hero__headline { font-size: clamp(24px, 7vw, 38px) !important; }
   .tc-hero__art { height: 250px; }
   .tc-top-grid { grid-template-columns: 1fr; }
   .tc-story--lead .tc-story__body h3 { font-size: 27px; }
@@ -10928,5 +10934,46 @@ header ul, header li {
     transform: translateY(0);
   }
 }
+/* ══════════════════════════════════════════════
+   READING PROGRESS BAR
+   ══════════════════════════════════════════════ */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2D7FF9, #8b5cf6);
+  z-index: 10000;
+  transition: width 0.1s ease-out;
+  pointer-events: none;
+}
 
+/* ══════════════════════════════════════════════
+   STAR RATING COLORS
+   ══════════════════════════════════════════════ */
+.star-fill {
+  color: #f59e0b;
+  fill: #f59e0b;
+}
+.star-empty {
+  color: hsl(var(--color-surface-border));
+  fill: none;
+  stroke: hsl(var(--color-surface-border));
+  stroke-width: 1.5;
+}
 
+/* ══════════════════════════════════════════════
+   TOC SCROLL MARGIN — prevents sticky header overlap
+   ══════════════════════════════════════════════ */
+.tc-article-body h2,
+.tc-article-body h3,
+.tc-article-body h4 {
+  scroll-margin-top: calc(var(--header-height, 64px) + 16px);
+}
+
+/* ══════════════════════════════════════════════
+   UTILITY CLASSES
+   ══════════════════════════════════════════════ */
+.space-y-3 > * + * { margin-top: 0.75rem; }
+.mb-14 { margin-bottom: 3.5rem; }
+@media (min-width: 768px) { .md\:mb-0 { margin-bottom: 0 !important; } }

@@ -66,7 +66,7 @@ export function FeaturedReviews() {
       {FEATURED_REVIEWS.map((review) => (
         <Link
           key={review.id}
-          href={`/gaming/${review.slug}`}
+          href={`/${review.categorySlug || "gaming"}/${review.slug}`}
           className="card block overflow-hidden"
         >
           <div className="relative">
@@ -84,7 +84,7 @@ export function FeaturedReviews() {
           <div className="p-5">
             <h3
               className="tc-review-card__title"
-              style={{ fontFamily: "var(--font-outfit)" }}
+              style={{ fontFamily: "var(--font-display)" }}
             >
               {review.title}
             </h3>

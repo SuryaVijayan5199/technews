@@ -218,9 +218,22 @@ export function CommentsSection({
 
   const handleCopyLink = (commentId: number) => {
     const url = `${window.location.origin}${articlePath}#comment-${commentId}`;
-    navigator.clipboard.writeText(url);
-    setCopiedCommentId(commentId);
-    setTimeout(() => setCopiedCommentId(null), 2500);
+    try {
+      if (navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(url);
+      } else {
+        const el = document.createElement("input");
+        el.value = url;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+      }
+      setCopiedCommentId(commentId);
+      setTimeout(() => setCopiedCommentId(null), 2500);
+    } catch {
+      // Silent fail — clipboard not available
+    }
   };
 
   // Sorting Logic

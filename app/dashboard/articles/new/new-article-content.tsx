@@ -50,7 +50,7 @@ export default function NewArticleEditorContent() {
   const [status, setStatus] = useState("draft");
   const [isFeatured, setIsFeatured] = useState(false);
   const [isEditorsPick, setIsEditorsPick] = useState(false);
-  const [isLatest, setIsLatest] = useState(true);
+  const [isLatest, setIsLatest] = useState(false);
   const [isTrending, setIsTrending] = useState(false);
   const [isBriefing, setIsBriefing] = useState(false);
   const [isGlobalBriefing, setIsGlobalBriefing] = useState(false);

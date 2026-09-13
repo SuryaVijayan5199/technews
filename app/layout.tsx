@@ -29,14 +29,20 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: siteConfig.name,
+    default: `${siteConfig.name} — ${siteConfig.tagline}`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
   keywords: siteConfig.keywords,
-  authors: [{ name: "TechCrest Editorial" }],
+  authors: siteConfig.authors,
   creator: siteConfig.name,
   publisher: siteConfig.name,
+  alternates: {
+    canonical: siteConfig.url,
+    types: {
+      "application/rss+xml": `${siteConfig.url}/feed.xml`,
+    },
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -44,7 +50,7 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     siteName: siteConfig.name,
-    images: [{ url: siteConfig.ogImage, width: 1200, height: 630 }],
+    images: [{ url: siteConfig.ogImage, width: 1200, height: 630, alt: "TechCrest Logo" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -57,7 +63,13 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
   icons: {
     icon: [
@@ -68,6 +80,37 @@ export const metadata: Metadata = {
     ],
     shortcut: "/favicon.png?v=5",
     apple: "/apple-touch-icon.png?v=5",
+  },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "NewsMediaOrganization",
+  name: siteConfig.name,
+  url: siteConfig.url,
+  logo: `${siteConfig.url}/icons/techcrest-app-icon-gradient-512.png`,
+  sameAs: [
+    siteConfig.socialLinks.twitter,
+    siteConfig.socialLinks.youtube,
+    siteConfig.socialLinks.facebook,
+    siteConfig.socialLinks.instagram,
+    siteConfig.socialLinks.linkedin,
+  ],
+  description: siteConfig.description,
+};
+
+const webSiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteConfig.name,
+  url: siteConfig.url,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${siteConfig.url}/search?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
   },
 };
 
@@ -83,6 +126,17 @@ export default function RootLayout({
       className={`${inter.variable} ${outfit.variable} ${poppins.variable}`}
       style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
     >
+      <head>
+        <link rel="alternate" type="application/rss+xml" title="TechCrest RSS Feed" href={`${siteConfig.url}/feed.xml`} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
+        />
+      </head>
       <body>
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>

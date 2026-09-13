@@ -150,16 +150,16 @@ export function MobileBottomNav() {
             {/* Topics Grid */}
             <div className="tc-mobile-sheet__body">
               <Link
-                href="/news"
+                href="/phone"
                 onClick={() => setTopicsSheetOpen(false)}
                 className="tc-topic-item tc-topic-item--featured"
               >
-                <div className="tc-topic-item__icon-box" style={{ backgroundColor: "#2D7FF9" }}>
-                  <Newspaper className="w-5 h-5 text-white" />
+                <div className="tc-topic-item__icon-box" style={{ backgroundColor: "#0ea5e9" }}>
+                  <Smartphone className="w-5 h-5 text-white" />
                 </div>
                 <div className="tc-topic-item__info">
-                  <span className="tc-topic-item__name">All News</span>
-                  <span className="tc-topic-item__desc">Complete timeline of technology stories</span>
+                  <span className="tc-topic-item__name">Phone & Mobile</span>
+                  <span className="tc-topic-item__desc">Smartphones, iOS, Android, and reviews</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted" />
               </Link>
@@ -325,7 +325,14 @@ export function MobileBottomNav() {
           <button
             type="button"
             onClick={handleOpenTopics}
-            className={`tc-bottom-nav__item${topicsSheetOpen || pathname?.startsWith("/phone") || pathname?.startsWith("/ai") || pathname?.startsWith("/gaming") ? " tc-bottom-nav__item--active" : ""}`}
+            className={`tc-bottom-nav__item${
+              topicsSheetOpen ||
+              ["/phone", "/ai", "/gaming", "/robotics", "/fitness", "/security", "/smart-home", "/evs", "/crypto", "/audio"].some(
+                (cat) => pathname?.startsWith(cat)
+              )
+                ? " tc-bottom-nav__item--active"
+                : ""
+            }`}
           >
             <span className={`tc-bottom-nav__bubble${topicsSheetOpen ? " tc-bottom-nav__bubble--visible" : ""}`} />
             <span className="tc-bottom-nav__icon-wrap">

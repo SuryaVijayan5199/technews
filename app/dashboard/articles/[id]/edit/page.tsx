@@ -59,7 +59,7 @@ export default function EditArticlePage({
   const [status, setStatus] = useState("draft");
   const [isFeatured, setIsFeatured] = useState(false);
   const [isEditorsPick, setIsEditorsPick] = useState(false);
-  const [isLatest, setIsLatest] = useState(true);
+  const [isLatest, setIsLatest] = useState(false);
   const [isTrending, setIsTrending] = useState(false);
   const [isBriefing, setIsBriefing] = useState(false);
   const [isGlobalBriefing, setIsGlobalBriefing] = useState(false);
@@ -122,7 +122,7 @@ export default function EditArticlePage({
           setStatus(article.status ?? "draft");
           setIsFeatured(article.isFeatured ?? false);
           setIsEditorsPick(article.isEditorsPick ?? false);
-          setIsLatest(article.isLatest ?? true);
+          setIsLatest(article.isLatest ?? false);
           setIsBreaking(article.isBreaking ?? false);
           setIsTrending(article.isTrending ?? false);
           setIsBriefing(article.isBriefing ?? false);

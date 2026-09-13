@@ -5,33 +5,43 @@ import { NextResponse } from "next/server";
 const { auth } = NextAuth(authConfig);
 
 export async function proxy(req: any) {
-  const host = req.headers.get("host") || "";
+  const rawHost = req.headers.get("host") || "";
+  // Normalize: strip port and lowercase to avoid false mismatch
+  const host = rawHost.split(":")[0].toLowerCase();
 
   // Canonical production domain from env — works across any Vercel account/domain
   const canonicalUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
-  const canonicalHost = canonicalUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const canonicalHost = canonicalUrl
+    .replace(/^https?:\/\//, "")
+    .replace(/\/$/, "")
+    .split(":")[0]
+    .toLowerCase();
 
-  // Redirect any temporary Vercel preview/deploy URLs to the canonical production domain.
-  // Only fires if NEXT_PUBLIC_SITE_URL is set and the current host is a different Vercel subdomain.
+  // Redirect Vercel preview/deploy URLs to canonical domain only when:
+  // 1. canonicalHost is set
+  // 2. Current host is a .vercel.app subdomain (preview URL)
+  // 3. Canonical domain is NOT itself a .vercel.app domain (avoid self-redirect)
+  // 4. Hosts actually differ
   if (
     !req.nextUrl.pathname.startsWith("/api") &&
     canonicalHost &&
+    !canonicalHost.endsWith(".vercel.app") &&
     host !== canonicalHost &&
-    (host.endsWith(".vercel.app") || host.includes("vercel.app"))
+    host.endsWith(".vercel.app")
   ) {
     const targetUrl = new URL(
       req.nextUrl.pathname + req.nextUrl.search,
       canonicalUrl
     );
-    return NextResponse.redirect(targetUrl, 301);
+    // Use 308 (Permanent Redirect, method-preserving) instead of 301
+    return NextResponse.redirect(targetUrl, 308);
   }
 
   const pathname = req.nextUrl.pathname;
   // Only invoke NextAuth session middleware on protected routes
   if (
     pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/profile") ||
-    pathname.startsWith("/saved")
+    pathname.startsWith("/profile")
   ) {
     return (auth as any)(req);
   }

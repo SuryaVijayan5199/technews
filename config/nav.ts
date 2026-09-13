@@ -44,7 +44,6 @@ export const footerNav = {
     { label: "Advertise", href: "/advertise" },
   ],
   content: [
-    { label: "News",        href: "/news" },
     { label: "Phone",       href: "/phone" },
     { label: "Audio",       href: "/audio" },
     { label: "Robotic",     href: "/robotics" },

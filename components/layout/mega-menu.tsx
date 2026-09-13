@@ -74,7 +74,7 @@ export function MegaMenu({ items }: { items: NavItem[] }) {
               { title: "OpenAI Sora 2.0 brings real-time physics engine to AI media", category: "AI", time: "25m ago" },
               { title: "Apple M4 Mac Studio teardown reveals modular RAM sockets", category: "Silicon", time: "1h ago" },
             ].map((item, i) => (
-              <Link key={i} href="/news" className="tc-mega__headline-item group">
+              <Link key={i} href="/phone" className="tc-mega__headline-item group">
                 <span className="tc-mega__headline-num">0{i + 1}</span>
                 <div>
                   <h5 className="tc-mega__headline-title">{item.title}</h5>
