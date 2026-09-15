@@ -12,7 +12,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -20,7 +20,7 @@ body {
   color: hsl(var(--color-text-primary));
   line-height: 1.6;
   min-height: 100dvh;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Bottom padding on mobile so fixed bottom nav doesn't cover content */
@@ -430,32 +430,34 @@ body {
   max-width: 20rem;
 }
 
-/* ARTICLE LAYOUT */
+/* ARTICLE LAYOUT - Desktop 2-Column Grid with Right Sidebar TOC */
 .article-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 2.5rem;
-}
-@media (min-width: 1024px) {
-  /* Only apply 2-column when sidebar exists */
-  .article-layout:has(.article-layout__sidebar) {
-    grid-template-columns: minmax(0, 1fr) 300px;
-  }
+  width: 100%;
 }
 
 .article-layout__sidebar {
   display: none;
 }
+
 .article-layout__mobile-toc {
   display: block;
   margin-bottom: 2rem;
 }
+
 @media (min-width: 1024px) {
-  .article-layout__sidebar {
-    display: block;
+  .article-layout {
+    grid-template-columns: minmax(0, 1fr) 300px;
   }
+
+  .article-layout__sidebar {
+    display: block !important;
+  }
+
   .article-layout__mobile-toc {
-    display: none;
+    display: none !important;
   }
 }
 

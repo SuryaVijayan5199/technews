@@ -8,7 +8,7 @@ import { revalidatePath } from "next/cache";
 import { invalidateArticleCache } from "@/lib/cache/revalidate";
 import { auth } from "@/lib/auth";
 import { cleanAuthorName } from "@/lib/utils";
-import { ARTICLE_CARD_COLUMNS } from "@/lib/constants";
+import { ARTICLE_CARD_COLUMNS, STATIC_FALLBACK_CATEGORIES } from "@/lib/constants";
 
 // ─────────────────────────────────────────────
 // GET ALL CATEGORIES (for editor dropdown)
@@ -24,7 +24,7 @@ export async function getAllCategories() {
     return all.filter((c: any) => c.parentId === null);
   } catch (error) {
     console.error("Error fetching categories:", error);
-    return [];
+    return Object.values(STATIC_FALLBACK_CATEGORIES);
   }
 }
 
@@ -33,13 +33,24 @@ export async function getAllCategories() {
 // Includes subcategories automatically
 // ─────────────────────────────────────────────
 export async function getArticlesByCategory(categorySlug: string, limit = 30) {
+  const normalizedSlug = categorySlug.toLowerCase().trim();
+  let categoryObj: any = null;
+
   try {
-    const categoryObj = await db.query.categories.findFirst({
-      where: eq(categories.slug, categorySlug),
+    categoryObj = await db.query.categories.findFirst({
+      where: ilike(categories.slug, normalizedSlug),
     });
+  } catch (dbErr) {
+    console.warn("Database query failed for category findFirst, using fallback:", dbErr);
+  }
 
-    if (!categoryObj) return { category: null, articles: [] };
+  if (!categoryObj && STATIC_FALLBACK_CATEGORIES[normalizedSlug]) {
+    categoryObj = STATIC_FALLBACK_CATEGORIES[normalizedSlug];
+  }
 
+  if (!categoryObj) return { category: null, articles: [] };
+
+  try {
     const result = await db.query.articles.findMany({
       where: and(
         eq(articles.status, "published"),
@@ -58,7 +69,7 @@ export async function getArticlesByCategory(categorySlug: string, limit = 30) {
     return { category: categoryObj, articles: result as any };
   } catch (error) {
     console.error("Error fetching articles by category:", error);
-    return { category: null, articles: [] };
+    return { category: categoryObj, articles: [] };
   }
 }
 
@@ -67,15 +78,26 @@ export async function getArticlesByCategoryPaginated(
   page = 1,
   pageSize = 7
 ) {
+  const normalizedSlug = categorySlug.toLowerCase().trim();
+  let categoryObj: any = null;
+
   try {
-    const categoryObj = await db.query.categories.findFirst({
-      where: eq(categories.slug, categorySlug),
+    categoryObj = await db.query.categories.findFirst({
+      where: ilike(categories.slug, normalizedSlug),
     });
+  } catch (dbErr) {
+    console.warn("Database query failed for category findFirst in paginated, using fallback:", dbErr);
+  }
 
-    if (!categoryObj) {
-      return { category: null, articles: [], totalArticles: 0, totalPages: 0, currentPage: 1 };
-    }
+  if (!categoryObj && STATIC_FALLBACK_CATEGORIES[normalizedSlug]) {
+    categoryObj = STATIC_FALLBACK_CATEGORIES[normalizedSlug];
+  }
 
+  if (!categoryObj) {
+    return { category: null, articles: [], totalArticles: 0, totalPages: 0, currentPage: 1 };
+  }
+
+  try {
     const whereClause = and(
       eq(articles.status, "published"),
       isNotNull(articles.publishedAt),
@@ -113,9 +135,16 @@ export async function getArticlesByCategoryPaginated(
     };
   } catch (error) {
     console.error("Error fetching paginated articles by category:", error);
-    return { category: null, articles: [], totalArticles: 0, totalPages: 0, currentPage: 1 };
+    return {
+      category: categoryObj,
+      articles: [],
+      totalArticles: 0,
+      totalPages: 1,
+      currentPage: 1,
+    };
   }
 }
+
 
 // ─────────────────────────────────────────────
 // GET LATEST 3 ARTICLES FOR ALL ACTIVE TOPICS (DYNAMIC)

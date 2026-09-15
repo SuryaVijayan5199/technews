@@ -147,7 +147,6 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                 {lead.author?.displayName && <span>{cleanAuthorName(lead.author.displayName)}</span>}
                 <span>{timeAgo(lead.publishedAt)}</span>
                 <span>{lead.readingTimeMinutes ?? 5} min read</span>
-                {(lead.viewCount ?? 0) > 0 && <span>{(lead.viewCount ?? 0).toLocaleString()} views</span>}
               </div>
             </div>
           </article>

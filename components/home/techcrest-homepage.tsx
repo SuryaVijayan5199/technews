@@ -197,7 +197,7 @@ export async function TechCrestHomepage() {
                   </div>
                   <div className="tc-meta-row">
                     <div className="tc-meta">
-                      TechCrest Editorial &bull; {topStories[0].readingTimeMinutes ?? 5} min read &bull; {kViews(topStories[0].viewCount ?? 0)}
+                      TechCrest Editorial &bull; {topStories[0].readingTimeMinutes ?? 5} min read
                     </div>
                     <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-read-btn">
                       Read Story <ArrowRight className="tc-inline-icon inline ml-1" />
@@ -279,7 +279,7 @@ export async function TechCrestHomepage() {
                   <span className="tc-rank__num">{String(idx + 1).padStart(2, "0")}</span>
                   <div>
                     <Link href={`/${article.category?.slug ?? "news"}/${article.slug}`}><b>{article.title}</b></Link>
-                    <small>{(article.viewCount ?? 0) > 0 ? kViews(article.viewCount ?? 0) : (article.category?.name ?? "Top Story")}</small>
+                    <small>{article.category?.name ?? "Top Story"}</small>
                   </div>
                 </div>
               ))}

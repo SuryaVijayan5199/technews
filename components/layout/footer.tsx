@@ -75,11 +75,6 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-            <h4 className="tc-footer__col-title" style={{ marginTop: "1.25rem" }}>Subscribe</h4>
-            <ul className="tc-footer__list">
-              <li><Link href="/feed.xml" className="tc-footer__link">RSS Feed</Link></li>
-              <li><Link href="/podcasts" className="tc-footer__link">Podcasts</Link></li>
-            </ul>
           </div>
 
           {/* Legal */}

@@ -39,7 +39,6 @@ export const categoryNav = [
 export const footerNav = {
   company: [
     { label: "About Us", href: "/about" },
-    { label: "Careers", href: "/careers" },
     { label: "Contact", href: "/contact" },
     { label: "Advertise", href: "/advertise" },
   ],
@@ -68,6 +67,5 @@ export const footerNav = {
     { label: "Facebook", href: "https://facebook.com/techio" },
     { label: "Instagram", href: "https://instagram.com/techio" },
     { label: "LinkedIn", href: "https://linkedin.com/company/techio" },
-    { label: "RSS Feed", href: "/feed.xml" },
   ],
 };

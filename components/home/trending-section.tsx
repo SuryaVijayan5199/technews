@@ -62,13 +62,6 @@ export function TrendingSection({ articles }: { articles: Article[] }) {
                 <h3 className="tc-trending-card__title">
                   {article.title}
                 </h3>
-                {(article.viewCount ?? 0) > 0 && (
-                  <p className="tc-trending-card__meta">
-                    {article.viewCount! >= 1000
-                      ? `${(article.viewCount! / 1000).toFixed(1)}k reads`
-                      : `${article.viewCount} reads`}
-                  </p>
-                )}
               </div>
             </Link>
           ))}

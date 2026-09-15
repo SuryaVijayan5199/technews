@@ -106,7 +106,7 @@ export default function PlatformSettingsContent() {
               <label htmlFor="settings-site-tagline" className="dashboard-settings-label">
                 Tagline
               </label>
-              <input id="settings-site-tagline" type="text" defaultValue="The Future of Technology Journalism" className="input dashboard-settings-input" />
+              <input id="settings-site-tagline" type="text" defaultValue="Technology News. Smarter Insights. Real Impact." className="input dashboard-settings-input" />
             </div>
             <div className="dashboard-settings-field">
               <label htmlFor="settings-site-description" className="dashboard-settings-label">

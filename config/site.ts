@@ -12,7 +12,7 @@ export const SUPER_ADMIN_EMAIL = SUPER_ADMIN_EMAILS[0];
 
 export const siteConfig = {
   name: "TechCrest",
-  tagline: "The Future of Technology Journalism",
+  tagline: "Technology News. Smarter Insights. Real Impact.",
   description:
     "TechCrest covers the latest technology news, in-depth reviews, buying guides, and analysis from industry experts. Your trusted source for AI, mobile, laptops, gaming, and more.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.techcrest.news",

@@ -29,40 +29,107 @@ interface ArticlePageProps {
 }
 
 
-function extractHeadings(html: string) {
-  const headingRegex = /<h2[^>]*id="([^"]+)"[^>]*>(.*?)<\/h2>|<h2[^>]*>(.*?)<\/h2>/gi;
-  const headings: { id: string; text: string; level: number }[] = [];
-  let match;
-  let index = 0;
-  while ((match = headingRegex.exec(html)) !== null) {
-    index++;
-    const id = match[1] || `heading-${index}`;
-    const rawText = match[2] || match[3] || "";
-    const text = rawText
-      .replace(/<[^>]+>/g, "")
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&nbsp;/g, " ")
-      .trim();
-    if (text) {
-      headings.push({ id, text, level: 2 });
+interface HeadingItem {
+  id: string;
+  text: string;
+  level: number;
+}
+
+function processArticleHtmlContent(rawHtml: string): { contentHtml: string; headings: HeadingItem[] } {
+  if (!rawHtml || !rawHtml.trim()) {
+    return { contentHtml: "", headings: [] };
+  }
+
+  let html = rawHtml;
+  const headings: HeadingItem[] = [];
+
+  // Check if explicit h2, h3, h4 tags exist
+  const hasExplicitHeadings = /<h[2-4][^>]*>/i.test(html);
+
+  if (hasExplicitHeadings) {
+    let counter = 0;
+    // Inject id attributes into <h2...>, <h3...>, <h4...> tags if not present
+    html = html.replace(/<h([2-4])((?![^>]*\bid=)[^>]*)>(.*?)<\/h\1>/gi, (match, levelStr, attrs, innerHtml) => {
+      counter++;
+      const id = `heading-${counter}`;
+      const level = parseInt(levelStr, 10);
+      const text = innerHtml
+        .replace(/<[^>]+>/g, "")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/g, " ")
+        .trim();
+      if (text) {
+        headings.push({ id, text, level });
+      }
+      return `<h${level} id="${id}"${attrs}>${innerHtml}</h${level}>`;
+    });
+
+    // Also pick up any existing <h2 id="..."> that already had an id
+    if (headings.length === 0) {
+      const existingRegex = /<h([2-4])[^>]*id="([^"]+)"[^>]*>(.*?)<\/h\1>/gi;
+      let exMatch;
+      while ((exMatch = existingRegex.exec(html)) !== null) {
+        const level = parseInt(exMatch[1], 10);
+        const id = exMatch[2];
+        const text = exMatch[3].replace(/<[^>]+>/g, "").trim();
+        if (text && !headings.some(h => h.id === id)) {
+          headings.push({ id, text, level });
+        }
+      }
+    }
+  } else {
+    // No explicit <h2>/<h3>/<h4> tags found in the HTML!
+    // Split paragraphs and inject structured section headers into the rendered HTML content
+    const paragraphRegex = /<p[^>]*>(.*?)<\/p>/gi;
+    const matches: { full: string; text: string }[] = [];
+    let pMatch;
+    while ((pMatch = paragraphRegex.exec(html)) !== null) {
+      matches.push({ full: pMatch[0], text: pMatch[1] });
+    }
+
+    if (matches.length > 0) {
+      const totalP = matches.length;
+      const sectionTitles = [
+        "Overview & Key Developments",
+        "Technical Deep-Dive & Market Context",
+        "Strategic Impact & Outlook",
+      ];
+
+      const p1Index = 0;
+      const p2Index = totalP >= 3 ? Math.floor(totalP / 3) : -1;
+      const p3Index = totalP >= 5 ? Math.floor((2 * totalP) / 3) : -1;
+
+      const headingMap = new Map<number, string>();
+      headingMap.set(p1Index, sectionTitles[0]);
+      if (p2Index > p1Index) headingMap.set(p2Index, sectionTitles[1]);
+      if (p3Index > p2Index) headingMap.set(p3Index, sectionTitles[2]);
+
+      let pCount = 0;
+      let newCounter = 0;
+      html = html.replace(/<p[^>]*>(.*?)<\/p>/gi, (match) => {
+        const titleForThisP = headingMap.get(pCount);
+        pCount++;
+        if (titleForThisP) {
+          newCounter++;
+          const id = `heading-${newCounter}`;
+          headings.push({ id, text: titleForThisP, level: 2 });
+          return `<h2 id="${id}">${titleForThisP}</h2>\n${match}`;
+        }
+        return match;
+      });
+    } else {
+      const fallbackTitle = "Overview & Background";
+      const id = "heading-1";
+      headings.push({ id, text: fallbackTitle, level: 2 });
+      html = `<h2 id="${id}">${fallbackTitle}</h2>\n${html}`;
     }
   }
 
-  // If no h2 headings found, return empty array — sidebar will be hidden
-  // (Phantom fallback IDs were removed: they don't exist in the rendered HTML)
-  return headings;
-}
-
-function injectHeadingIds(html: string): string {
-  let counter = 0;
-  return html.replace(/<h2((?![^>]*\bid=)[^>]*)>/gi, () => {
-    counter++;
-    return `<h2 id="heading-${counter}">`;
-  });
+  return { contentHtml: html, headings };
 }
 
 export async function generateMetadata({
@@ -181,8 +248,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const categoryName = dbArticle.category?.name || category.toUpperCase();
   const categorySlug = dbArticle.category?.slug || category;
   const canonicalUrl = dbArticle.canonicalUrl || `${siteConfig.url}/${categorySlug}/${dbArticle.slug}`;
-
-  const headings = extractHeadings(dbArticle.contentHtml || "");
+  const { contentHtml: processedContentHtml, headings } = processArticleHtmlContent(dbArticle.contentHtml || "");
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -329,10 +395,6 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                       <Clock className="tc-icon-xs tc-icon-brand" />
                       {dbArticle.readingTimeMinutes || 5} min read
                     </span>
-                    <span className="article-meta__stat-item flex items-center gap-1.5">
-                      <Eye className="tc-icon-xs tc-icon-brand" />
-                      {(dbArticle.viewCount || 0).toLocaleString()} views
-                    </span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -355,8 +417,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
               {/* Cover Image Positioned Immediately Below Heading & Header */}
               {dbArticle.heroImage && (
-                <figure className="article-hero-figure tc-article-figure">
-                  <div className="article-hero-figure__image-wrap overflow-hidden rounded-lg">
+                <figure className="article-hero-figure tc-article-figure mb-8">
+                  <div className="article-hero-figure__image-wrap overflow-hidden rounded-xl">
                     <img
                       src={dbArticle.heroImage}
                       alt={dbArticle.heroImageAlt || dbArticle.title}
@@ -376,16 +438,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   )}
                 </figure>
               )}
-              {/* Mobile Table of Contents */}
-              {headings.length > 0 && (
-                <div className="article-layout__mobile-toc">
-                  <TableOfContents headings={headings} />
-                </div>
-              )}
-
               <div
                 className="prose dark:prose-invert tc-article-body"
-                dangerouslySetInnerHTML={{ __html: injectHeadingIds(dbArticle.contentHtml || "") }}
+                dangerouslySetInnerHTML={{ __html: processedContentHtml }}
               />
 
               {/* Author Bio Box (Clean text only, no avatar initials) */}
@@ -417,7 +472,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               </Suspense>
             </div>
 
-            {/* Sidebar Table of Contents */}
+            {/* Desktop Right Sidebar Table of Contents */}
             {headings.length > 0 && (
               <aside className="article-layout__sidebar">
                 <TableOfContents headings={headings} />

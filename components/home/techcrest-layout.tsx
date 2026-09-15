@@ -105,16 +105,10 @@ export async function TechCrestLayout() {
                         <span className="popular-item__rank">
                           {String(idx + 1).padStart(2, "0")}
                         </span>
-                        <div className="popular-item__content">
                           <span className="popular-item__category">
                             {post.category?.name ?? "News"}
                           </span>
                           <h4 className="popular-item__title">{post.title}</h4>
-                          <span className="popular-item__views">
-                            {post.viewCount >= 1000
-                              ? `${(post.viewCount / 1000).toFixed(1)}k reads`
-                              : `${post.viewCount} reads`}
-                          </span>
                         </div>
                       </Link>
                     ))}

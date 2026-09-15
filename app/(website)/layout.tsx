@@ -12,8 +12,10 @@ export default function WebsiteLayout({
 }) {
   return (
     <>
-      <Header />
-      <BreakingNewsBar />
+      <div className="tc-sticky-header-stack">
+        <Header />
+        <BreakingNewsBar />
+      </div>
       <PageTransition>
         <main>{children}</main>
       </PageTransition>
