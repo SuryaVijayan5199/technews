@@ -27,9 +27,6 @@ export default function CookiesPage() {
           <h1 className="tc-policy-page__title">
             Cookie Policy
           </h1>
-          <p className="tc-policy-page__date">
-            Last Updated: September 15, 2026
-          </p>
         </div>
 
         {/* Policy Body */}
@@ -157,7 +154,7 @@ export default function CookiesPage() {
               We may update this Cookie Policy when our technology, services or legal obligations change.
             </p>
             <p>
-              The “Last Updated” date will indicate when the policy was most recently revised.
+              Revised policies will be posted directly to this page.
             </p>
           </section>
         </div>

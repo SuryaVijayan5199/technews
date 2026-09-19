@@ -7,14 +7,16 @@ import { Clock, Eye, MessageCircle, ChevronRight } from "lucide-react";
 import { formatDate, cleanAuthorName, getAuthorInitials } from "@/lib/utils";
 import { ArticleCard } from "@/components/article/article-card";
 import { ReadingProgress } from "@/components/article/reading-progress";
-import { TableOfContents } from "@/components/article/table-of-contents";
+import { TrendingSidebar } from "@/components/article/trending-sidebar";
 import { ShareButtons } from "@/components/article/share-buttons";
 import { BookmarkButton } from "@/components/shared/bookmark-button";
 import {
   getCachedArticleBySlug,
   getCachedRelatedArticles,
   getCachedArticleComments,
+  getCachedTrendingArticles,
 } from "@/lib/cache/cached-queries";
+import { incrementArticleViewCount } from "@/lib/actions/article.actions";
 import { CommentsSection } from "@/components/article/comments-section";
 import { auth } from "@/lib/auth";
 import { isStaff } from "@/lib/permissions";
@@ -29,107 +31,11 @@ interface ArticlePageProps {
 }
 
 
-interface HeadingItem {
-  id: string;
-  text: string;
-  level: number;
-}
-
-function processArticleHtmlContent(rawHtml: string): { contentHtml: string; headings: HeadingItem[] } {
+function processArticleHtmlContent(rawHtml: string): { contentHtml: string } {
   if (!rawHtml || !rawHtml.trim()) {
-    return { contentHtml: "", headings: [] };
+    return { contentHtml: "" };
   }
-
-  let html = rawHtml;
-  const headings: HeadingItem[] = [];
-
-  // Check if explicit h2, h3, h4 tags exist
-  const hasExplicitHeadings = /<h[2-4][^>]*>/i.test(html);
-
-  if (hasExplicitHeadings) {
-    let counter = 0;
-    // Inject id attributes into <h2...>, <h3...>, <h4...> tags if not present
-    html = html.replace(/<h([2-4])((?![^>]*\bid=)[^>]*)>(.*?)<\/h\1>/gi, (match, levelStr, attrs, innerHtml) => {
-      counter++;
-      const id = `heading-${counter}`;
-      const level = parseInt(levelStr, 10);
-      const text = innerHtml
-        .replace(/<[^>]+>/g, "")
-        .replace(/&amp;/g, "&")
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .replace(/&nbsp;/g, " ")
-        .trim();
-      if (text) {
-        headings.push({ id, text, level });
-      }
-      return `<h${level} id="${id}"${attrs}>${innerHtml}</h${level}>`;
-    });
-
-    // Also pick up any existing <h2 id="..."> that already had an id
-    if (headings.length === 0) {
-      const existingRegex = /<h([2-4])[^>]*id="([^"]+)"[^>]*>(.*?)<\/h\1>/gi;
-      let exMatch;
-      while ((exMatch = existingRegex.exec(html)) !== null) {
-        const level = parseInt(exMatch[1], 10);
-        const id = exMatch[2];
-        const text = exMatch[3].replace(/<[^>]+>/g, "").trim();
-        if (text && !headings.some(h => h.id === id)) {
-          headings.push({ id, text, level });
-        }
-      }
-    }
-  } else {
-    // No explicit <h2>/<h3>/<h4> tags found in the HTML!
-    // Split paragraphs and inject structured section headers into the rendered HTML content
-    const paragraphRegex = /<p[^>]*>(.*?)<\/p>/gi;
-    const matches: { full: string; text: string }[] = [];
-    let pMatch;
-    while ((pMatch = paragraphRegex.exec(html)) !== null) {
-      matches.push({ full: pMatch[0], text: pMatch[1] });
-    }
-
-    if (matches.length > 0) {
-      const totalP = matches.length;
-      const sectionTitles = [
-        "Overview & Key Developments",
-        "Technical Deep-Dive & Market Context",
-        "Strategic Impact & Outlook",
-      ];
-
-      const p1Index = 0;
-      const p2Index = totalP >= 3 ? Math.floor(totalP / 3) : -1;
-      const p3Index = totalP >= 5 ? Math.floor((2 * totalP) / 3) : -1;
-
-      const headingMap = new Map<number, string>();
-      headingMap.set(p1Index, sectionTitles[0]);
-      if (p2Index > p1Index) headingMap.set(p2Index, sectionTitles[1]);
-      if (p3Index > p2Index) headingMap.set(p3Index, sectionTitles[2]);
-
-      let pCount = 0;
-      let newCounter = 0;
-      html = html.replace(/<p[^>]*>(.*?)<\/p>/gi, (match) => {
-        const titleForThisP = headingMap.get(pCount);
-        pCount++;
-        if (titleForThisP) {
-          newCounter++;
-          const id = `heading-${newCounter}`;
-          headings.push({ id, text: titleForThisP, level: 2 });
-          return `<h2 id="${id}">${titleForThisP}</h2>\n${match}`;
-        }
-        return match;
-      });
-    } else {
-      const fallbackTitle = "Overview & Background";
-      const id = "heading-1";
-      headings.push({ id, text: fallbackTitle, level: 2 });
-      html = `<h2 id="${id}">${fallbackTitle}</h2>\n${html}`;
-    }
-  }
-
-  return { contentHtml: html, headings };
+  return { contentHtml: rawHtml };
 }
 
 export async function generateMetadata({
@@ -172,11 +78,13 @@ export async function generateMetadata({
 async function RelatedArticlesSection({
   articleId,
   categorySlug,
+  categoryName,
 }: {
   articleId: number;
   categorySlug: string;
+  categoryName: string;
 }) {
-  const relatedDbArticles = await getCachedRelatedArticles(articleId, categorySlug, 3);
+  const relatedDbArticles = await getCachedRelatedArticles(articleId, categorySlug, 6);
   if (relatedDbArticles.length === 0) return null;
 
   const relatedArticles = relatedDbArticles.map((a: any) => ({
@@ -190,16 +98,27 @@ async function RelatedArticlesSection({
       ? new Date(a.publishedAt).toISOString()
       : new Date().toISOString(),
     readingTimeMinutes: a.readingTimeMinutes || 5,
-    categorySlug: a.category?.slug || "news",
-    categoryName: a.category?.name || "NEWS",
-    authorName: a.author?.displayName || "Editor",
+    viewCount: a.viewCount || 0,
+    categorySlug: a.category?.slug || categorySlug,
+    categoryName: a.category?.name || categoryName,
+    authorName: a.author?.displayName || "TechCrest Editorial",
   }));
 
   return (
-    <section className="article-related tc-article-related mt-12 pt-8" aria-label="Related articles">
-      <h2 className="article-related__title tc-article-related__title mb-6">
-        Related Articles
-      </h2>
+    <section className="article-related tc-article-related mt-14 pt-10 border-t border-[var(--color-surface-border)]" aria-label="Related articles">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-3 h-7 rounded-full bg-gradient-to-b from-[#2D7FF9] to-[#8b5cf6]" />
+          <div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--color-text-primary)] tracking-tight m-0">
+              More Stories in {categoryName}
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5 m-0">
+              Handpicked recommendations to keep you informed & ahead
+            </p>
+          </div>
+        </div>
+      </div>
       <div className="article-related__grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {relatedArticles.map((a: any) => (
           <ArticleCard key={a.id} article={a} />
@@ -237,7 +156,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   if (!dbArticle) notFound();
   if (dbArticle.status !== "published" && !userIsStaff) notFound();
 
+  // Dynamically increment article view count in DB
+  incrementArticleViewCount(dbArticle.id).catch(() => {});
+
   const initialComments = await getCachedArticleComments(dbArticle.id);
+  const trendingArticles = await getCachedTrendingArticles(8, dbArticle.id);
 
   const authorUser = dbArticle.author?.user;
   const authorBio =
@@ -248,7 +171,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const categoryName = dbArticle.category?.name || category.toUpperCase();
   const categorySlug = dbArticle.category?.slug || category;
   const canonicalUrl = dbArticle.canonicalUrl || `${siteConfig.url}/${categorySlug}/${dbArticle.slug}`;
-  const { contentHtml: processedContentHtml, headings } = processArticleHtmlContent(dbArticle.contentHtml || "");
+  const { contentHtml: processedContentHtml } = processArticleHtmlContent(dbArticle.contentHtml || "");
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -354,11 +277,6 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                       {categoryName}
                     </span>
                   </Link>
-
-                  {/* Editorial Status */}
-                  <span className="tc-badge-green">
-                    STATUS: {dbArticle.status.toUpperCase()}
-                  </span>
                 </div>
 
                 {dbArticle.excerpt && (
@@ -415,9 +333,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 </div>
               </header>
 
-              {/* Cover Image Positioned Immediately Below Heading & Header */}
+              {/* Cover Image Positioned Immediately Below Heading & Header (Half Size) */}
               {dbArticle.heroImage && (
-                <figure className="article-hero-figure tc-article-figure mb-8">
+                <figure className="article-hero-figure tc-article-figure mb-8 w-full max-w-full">
                   <div className="article-hero-figure__image-wrap overflow-hidden rounded-xl">
                     <img
                       src={dbArticle.heroImage}
@@ -443,18 +361,6 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 dangerouslySetInnerHTML={{ __html: processedContentHtml }}
               />
 
-              {/* Author Bio Box (Clean text only, no avatar initials) */}
-              <div className="article-author-bio card p-4 sm:p-6 mt-8 rounded-xl bg-[var(--color-surface-1)] border">
-                <div>
-                  <span className="article-author-bio__name block font-bold text-sm sm:text-base">
-                    {cleanAuthorName(dbArticle.author?.displayName)}
-                  </span>
-                  <p className="article-author-bio__text text-muted-foreground tc-author-bio-text mt-1">
-                    {authorBio}
-                  </p>
-                </div>
-              </div>
-
               {/* Reader Discussion / Comments Section */}
               <CommentsSection
                 articleId={dbArticle.id}
@@ -468,16 +374,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 <RelatedArticlesSection
                   articleId={dbArticle.id}
                   categorySlug={categorySlug}
+                  categoryName={categoryName}
                 />
               </Suspense>
             </div>
 
-            {/* Desktop Right Sidebar Table of Contents */}
-            {headings.length > 0 && (
-              <aside className="article-layout__sidebar">
-                <TableOfContents headings={headings} />
-              </aside>
-            )}
+            {/* Desktop Right Sidebar Trending News */}
+            <TrendingSidebar articles={trendingArticles} currentArticleId={dbArticle.id} />
           </div>
         </div>
       </article>

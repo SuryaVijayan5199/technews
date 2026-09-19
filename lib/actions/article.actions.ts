@@ -823,6 +823,18 @@ export async function getLatestArticles(limit = 6, categorySlug?: string): Promi
   }
 }
 
+export async function incrementArticleViewCount(articleId: number): Promise<void> {
+  try {
+    if (!articleId) return;
+    await db
+      .update(articles)
+      .set({ viewCount: sql`${articles.viewCount} + 1` })
+      .where(eq(articles.id, articleId));
+  } catch (error) {
+    console.error("Error incrementing view count:", error);
+  }
+}
+
 export async function getTrendingArticles(limit = 4): Promise<any[]> {
   try {
     const flagged = await db.query.articles.findMany({
@@ -833,7 +845,7 @@ export async function getTrendingArticles(limit = 4): Promise<any[]> {
       ),
       columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
-      orderBy: [desc(articles.viewCount)],
+      orderBy: [desc(articles.viewCount), desc(articles.publishedAt)],
       limit,
     });
 
@@ -847,8 +859,8 @@ export async function getTrendingArticles(limit = 4): Promise<any[]> {
       ),
       columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
-      orderBy: [desc(articles.viewCount)],
-      limit: limit * 2,
+      orderBy: [desc(articles.viewCount), desc(articles.publishedAt)],
+      limit: limit * 3,
     });
 
     const existingIds = new Set((flagged as any[]).map((a: any) => a.id));

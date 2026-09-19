@@ -27,9 +27,6 @@ export default function TermsPage() {
           <h1 className="tc-policy-page__title">
             Terms of Service
           </h1>
-          <p className="tc-policy-page__date">
-            Last Updated: September 15, 2026
-          </p>
         </div>
 
         {/* Policy Body */}
@@ -196,7 +193,7 @@ export default function TermsPage() {
               Changes to These Terms
             </h2>
             <p>
-              We may update these Terms of Service from time to time. Updated terms will be posted on this page with a revised “Last Updated” date.
+              We may update these Terms of Service from time to time. Updated terms will be posted on this page.
             </p>
             <p>
               Your continued use of TechCrest following an update constitutes acceptance of the revised terms to the extent permitted by law.

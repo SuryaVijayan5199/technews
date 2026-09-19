@@ -18,12 +18,49 @@ export type HeroArticleItem = {
   author?: { displayName: string } | null;
 };
 
+const DEFAULT_SLIDES: HeroArticleItem[] = [
+  {
+    id: 9001,
+    title: "Best Smartwatches for Women: 5 Brands Combining Fitness, Health and Style",
+    slug: "best-smartwatches-for-women",
+    excerpt: "Smartwatches have moved beyond basic fitness tracking, with newer models bringing together health monitoring, workout features, smart notifications and stylish designs.",
+    heroImage: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=1200&h=700&fit=crop&q=80",
+    readingTimeMinutes: 5,
+    publishedAt: new Date().toISOString(),
+    category: { name: "FITNESS • FEATURED", slug: "fitness" },
+    author: { displayName: "TechCrest Editorial" },
+  },
+  {
+    id: 9002,
+    title: "Volkswagen's New EV Prototype Pushes Efficiency to New Limits",
+    slug: "volkswagen-new-ev-prototype",
+    excerpt: "Volkswagen has unveiled its Mission Efficiency prototype, a near-production electric vehicle designed to demonstrate how far EV efficiency can be pushed through aerodynamics.",
+    heroImage: "https://images.unsplash.com/photo-1563720223185-11003d516935?w=1200&h=700&fit=crop&q=80",
+    readingTimeMinutes: 4,
+    publishedAt: new Date().toISOString(),
+    category: { name: "EVS", slug: "evs" },
+    author: { displayName: "TechCrest News" },
+  },
+  {
+    id: 9003,
+    title: "Bitget Reports 122% Reserve Ratio in 45th Consecutive Proof-of-Reserves Report",
+    slug: "bitget-reports-122-percent-reserve-ratio",
+    excerpt: "Bitget has released its 45th consecutive monthly Proof-of-Reserves (PoR) report, reporting a 122% reserve ratio across crypto assets held on platform.",
+    heroImage: "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=1200&h=700&fit=crop&q=80",
+    readingTimeMinutes: 3,
+    publishedAt: new Date().toISOString(),
+    category: { name: "CRYPTO", slug: "crypto" },
+    author: { displayName: "TechCrest News" },
+  },
+];
+
 export function HeroSectionCarousel({ articles }: { articles: HeroArticleItem[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  const total = Math.min(5, articles.length);
-  const slides = articles.slice(0, 5);
+  const displayArticles = (articles && articles.length > 0) ? articles : DEFAULT_SLIDES;
+  const total = Math.min(5, displayArticles.length);
+  const slides = displayArticles.slice(0, 5);
 
   const nextSlide = useCallback(() => {
     if (total <= 1) return;

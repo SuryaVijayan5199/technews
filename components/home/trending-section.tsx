@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { TrendingUp, Flame } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
 type Article = {
   id: number;
@@ -19,9 +19,6 @@ export function TrendingSection({ articles }: { articles: Article[] }) {
         <div className="section-header__left">
           <TrendingUp className="tc-section-icon" />
           <h2 className="section-header__title">Trending Now</h2>
-          <span className="badge badge-breaking tc-badge-flex">
-            <Flame className="tc-icon-sm" /> Hot
-          </span>
         </div>
       </div>
 

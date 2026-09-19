@@ -27,9 +27,6 @@ export default function PrivacyPage() {
           <h1 className="tc-policy-page__title">
             Privacy Policy
           </h1>
-          <p className="tc-policy-page__date">
-            Last Updated: September 15, 2026
-          </p>
         </div>
 
         {/* Policy Body */}
@@ -253,7 +250,7 @@ export default function PrivacyPage() {
               We may update this Privacy Policy from time to time to reflect changes in our services, technology, legal requirements or business practices.
             </p>
             <p>
-              When we make material changes, we will update the “Last Updated” date and, where appropriate, provide additional notice.
+              When we make material changes, we will post the revised policy on this page and, where appropriate, provide additional notice.
             </p>
           </section>
         </div>

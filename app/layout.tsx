@@ -5,6 +5,7 @@ import { siteConfig } from "@/config/site";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AuthProvider } from "@/components/providers/session-provider";
 import { MobileAppProvider } from "@/components/shared/mobile-app-provider";
+import { FloatingHomeBtn } from "@/components/shared/floating-home-btn";
 import { Toaster } from "sonner";
 
 const inter = Inter({
@@ -73,12 +74,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/icons/techcrest-icon.svg", type: "image/svg+xml" },
       { url: "/icons/techcrest-app-icon-gradient-512.png?v=5", sizes: "512x512", type: "image/png" },
       { url: "/favicon-32x32.png?v=5", sizes: "32x32", type: "image/png" },
       { url: "/favicon.png?v=5", type: "image/png" },
       { url: "/favicon.ico?v=5" },
     ],
-    shortcut: "/favicon.png?v=5",
+    shortcut: "/icons/techcrest-icon.svg",
     apple: "/apple-touch-icon.png?v=5",
   },
 };
@@ -143,6 +145,7 @@ export default function RootLayout({
             <MobileAppProvider>
               {children}
             </MobileAppProvider>
+            <FloatingHomeBtn />
             <Toaster position="bottom-right" closeButton />
           </ThemeProvider>
         </AuthProvider>

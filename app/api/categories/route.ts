@@ -34,7 +34,7 @@ export async function GET() {
       name: cat.name,
       slug: cat.slug,
       href: `/${cat.slug}`,
-      icon: cat.icon || "Newspaper",
+      icon: cat.icon || "/icons/techcrest-icon.svg",
       color: cat.color || "#2D7FF9",
       description: cat.description || `${cat.name} news and updates`,
     }));
@@ -50,7 +50,7 @@ export async function GET() {
       name: cat.name,
       slug: cat.slug,
       href: `/${cat.slug}`,
-      icon: cat.icon || "Newspaper",
+      icon: cat.icon || "/icons/techcrest-icon.svg",
       color: cat.color || "#2D7FF9",
       description: cat.description || `${cat.name} news and updates`,
     }));

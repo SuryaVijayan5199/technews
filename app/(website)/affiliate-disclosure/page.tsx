@@ -27,9 +27,6 @@ export default function AffiliateDisclosurePage() {
           <h1 className="tc-policy-page__title">
             Affiliate Disclosure
           </h1>
-          <p className="tc-policy-page__date">
-            Last Updated: September 15, 2026
-          </p>
         </div>
 
         {/* Policy Body */}

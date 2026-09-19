@@ -180,64 +180,43 @@ export async function TechCrestHomepage() {
             <Link href="/ai">VIEW ALL &rarr;</Link>
           </div>
           <div className="tc-top-grid">
-            {topStories[0] ? (
-              <article className="tc-story tc-story--lead tc-story-slot-0">
-                <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-story__art tc-story__art--dark block">
-                  {topStories[0].heroImage && <Image src={topStories[0].heroImage} alt={topStories[0].title} fill className="tc-story__art-img" priority />}
+            {(topStories.length > 0 ? topStories.slice(0, 6) : []).map((story, i) => (
+              <article key={story.id ?? i} className="tc-story">
+                <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-story__art block">
+                  {story.heroImage ? (
+                    <Image
+                      src={story.heroImage}
+                      alt={story.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
+                      className="tc-story__art-img"
+                      priority={i < 3}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                      <Sparkles className="w-8 h-8 text-[#2D7FF9] opacity-40" />
+                    </div>
+                  )}
                 </Link>
                 <div className="tc-story__body">
-                  <div>
-                    <span className="tc-tag">{topStories[0].category?.name ?? "Technology"} &bull; COVER STORY</span>
+                  <div className="tc-story__content-top">
+                    <span className="tc-tag">
+                      {story.category?.name ?? "Technology"}
+                      {i === 0 ? " • COVER STORY" : ""}
+                    </span>
                     <h3>
-                      <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`}>
-                        {topStories[0].title}
+                      <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`}>
+                        {story.title}
                       </Link>
                     </h3>
-                    <p>{topStories[0].excerpt ?? "Deep-dive investigation on technology breakthroughs, market shifts, and real-world consequences."}</p>
+                    <p>
+                      {story.excerpt ?? "Key developments, industry context, and strategic analysis."}
+                    </p>
                   </div>
                   <div className="tc-meta-row">
                     <div className="tc-meta">
-                      TechCrest Editorial &bull; {topStories[0].readingTimeMinutes ?? 5} min read
+                      {story.readingTimeMinutes ?? 5} min read &bull; {timeAgo(story.publishedAt)}
                     </div>
-                    <Link href={`/${topStories[0].category?.slug ?? "news"}/${topStories[0].slug}`} className="tc-read-btn">
-                      Read Story <ArrowRight className="tc-inline-icon inline ml-1" />
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            ) : (
-              <article className="tc-story tc-story--lead tc-story-slot-0">
-                <div className="tc-story__art tc-story__art--dark flex items-center justify-center bg-slate-900/80">
-                  <Sparkles className="w-10 h-10 text-sky-400 opacity-60" />
-                </div>
-                <div className="tc-story__body">
-                  <div>
-                    <span className="tc-tag">FRESH CONTENT &bull; NEWSROOM</span>
-                    <h3>No Published Stories Yet</h3>
-                    <p>Articles published from your Admin Dashboard will appear here as top cover stories.</p>
-                  </div>
-                  <div className="tc-meta-row">
-                    <div className="tc-meta">TechCrest Editorial</div>
-                    <Link href="/dashboard/articles/new" className="tc-read-btn">
-                      Publish Article <ArrowRight className="tc-inline-icon inline ml-1" />
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            )}
-            {topStories.slice(1).map((story, i) => (
-              <article key={story.id} className={`tc-story tc-story-slot-${i + 1}`}>
-                <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-story__art tc-story__art--small block">
-                  {story.heroImage && <Image src={story.heroImage} alt={story.title} fill className="tc-story__art-img" />}
-                </Link>
-                <div className="tc-story__body">
-                  <div>
-                    <span className="tc-tag">{story.category?.name ?? "Technology"}</span>
-                    <h3><Link href={`/${story.category?.slug ?? "news"}/${story.slug}`}>{story.title}</Link></h3>
-                    <p>{story.excerpt ?? "Key developments, industry context, and strategic analysis."}</p>
-                  </div>
-                  <div className="tc-meta-row">
-                    <div className="tc-meta">{story.readingTimeMinutes ?? 5} min read &bull; {timeAgo(story.publishedAt)}</div>
                     <Link href={`/${story.category?.slug ?? "news"}/${story.slug}`} className="tc-read-btn">
                       Read Story <ArrowRight className="tc-inline-icon inline ml-1" />
                     </Link>

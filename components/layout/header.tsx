@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Menu, X, User, Mail, CheckCircle, ArrowRight } from "lucide-react";
+import { Menu, X, User, Mail, CheckCircle, ArrowRight, Home } from "lucide-react";
 import { mainNav } from "@/config/nav";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -105,6 +105,7 @@ export function Header() {
 
           {/* RIGHT: Actions */}
           <div className="tc-site-header__actions">
+
             {/* Newsletter CTA Button */}
             <button
               type="button"

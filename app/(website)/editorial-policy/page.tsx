@@ -27,9 +27,6 @@ export default function EditorialPolicyPage() {
           <h1 className="tc-policy-page__title">
             Editorial Policy
           </h1>
-          <p className="tc-policy-page__date">
-            Last Updated: September 15, 2026
-          </p>
         </div>
 
         {/* Policy Body */}

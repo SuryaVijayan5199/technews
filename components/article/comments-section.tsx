@@ -265,8 +265,8 @@ export function CommentsSection({
       {/* Discussion Header & Sorting Options */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#2D7FF9]/15 flex items-center justify-center border border-[#2D7FF9]/30">
-            <MessageSquare className="w-5 h-5 text-[#2D7FF9]" />
+          <div className="tc-comment-header-icon">
+            <MessageSquare className="w-5 h-5" />
           </div>
           <div>
             <h2 className="text-xl font-extrabold text-[var(--color-text-primary)] leading-none">
@@ -394,7 +394,7 @@ export function CommentsSection({
               <button
                 type="submit"
                 disabled={isPending || !newCommentText.trim()}
-                className="btn btn-primary text-xs sm:text-sm px-5 py-2 font-bold rounded-xl flex items-center gap-2"
+                className="tc-comment-submit-btn"
               >
                 {isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -410,8 +410,8 @@ export function CommentsSection({
 
       {/* Comment Feed */}
       {commentsList.length === 0 ? (
-        <div className="text-center py-12 px-4 rounded-2xl bg-[var(--color-surface-1)] border border-[var(--color-surface-border)]">
-          <div className="w-12 h-12 rounded-full bg-[#2D7FF9]/10 text-[#2D7FF9] mx-auto mb-3 flex items-center justify-center">
+        <div className="tc-comment-empty-box">
+          <div className="tc-comment-empty-icon">
             <Sparkles className="w-6 h-6" />
           </div>
           <h3 className="text-base font-bold text-[var(--color-text-primary)]">

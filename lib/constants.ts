@@ -25,16 +25,16 @@ export const ARTICLE_CARD_COLUMNS = {
 } as const;
 
 export const STATIC_FALLBACK_CATEGORIES: Record<string, { id: number; name: string; slug: string; description: string; icon: string; color: string; parentId: number | null; isActive: boolean }> = {
-  phone: { id: 2, name: "Phone", slug: "phone", description: "Smartphones, reviews, and mobile news", icon: "Smartphone", color: "#0ea5e9", parentId: null, isActive: true },
-  audio: { id: 3, name: "Audio", slug: "audio", description: "Headphones, speakers, and audio gear", icon: "Headphones", color: "#8b5cf6", parentId: null, isActive: true },
-  robotics: { id: 4, name: "Robotic", slug: "robotics", description: "Robotics, automation, and AI hardware", icon: "Bot", color: "#6366f1", parentId: null, isActive: true },
-  fitness: { id: 5, name: "Fitness", slug: "fitness", description: "Wearables, health tech, and fitness gadgets", icon: "Activity", color: "#10b981", parentId: null, isActive: true },
-  security: { id: 6, name: "Security", slug: "security", description: "Cybersecurity, privacy, and data protection", icon: "Shield", color: "#f59e0b", parentId: null, isActive: true },
-  ai: { id: 7, name: "AI", slug: "ai", description: "Artificial intelligence, LLMs, and machine learning", icon: "Brain", color: "#a855f7", parentId: null, isActive: true },
-  "smart-home": { id: 8, name: "Home", slug: "smart-home", description: "Smart home devices, hubs, and automation", icon: "Home", color: "#14b8a6", parentId: null, isActive: true },
-  evs: { id: 9, name: "EVs", slug: "evs", description: "Electric vehicles, charging, and future mobility", icon: "Zap", color: "#22c55e", parentId: null, isActive: true },
-  crypto: { id: 10, name: "Crypto", slug: "crypto", description: "Cryptocurrency, blockchain, and Web3", icon: "Bitcoin", color: "#f97316", parentId: null, isActive: true },
-  gaming: { id: 11, name: "Gaming", slug: "gaming", description: "Consoles, PC gaming, hardware, and video games", icon: "Gamepad2", color: "#ef4444", parentId: null, isActive: true },
-  deals: { id: 12, name: "Deals", slug: "deals", description: "Best tech deals, discounts, and offers", icon: "Tag", color: "#ec4899", parentId: null, isActive: true },
+  phone: { id: 2, name: "Phone", slug: "phone", description: "Smartphones, reviews, and mobile news", icon: "/icons/techcrest-icon.svg", color: "#0ea5e9", parentId: null, isActive: true },
+  audio: { id: 3, name: "Audio", slug: "audio", description: "Headphones, speakers, and audio gear", icon: "/icons/techcrest-icon.svg", color: "#8b5cf6", parentId: null, isActive: true },
+  robotics: { id: 4, name: "Robotic", slug: "robotics", description: "Robotics, automation, and AI hardware", icon: "/icons/techcrest-icon.svg", color: "#6366f1", parentId: null, isActive: true },
+  fitness: { id: 5, name: "Fitness", slug: "fitness", description: "Wearables, health tech, and fitness gadgets", icon: "/icons/techcrest-icon.svg", color: "#10b981", parentId: null, isActive: true },
+  security: { id: 6, name: "Security", slug: "security", description: "Cybersecurity, privacy, and data protection", icon: "/icons/techcrest-icon.svg", color: "#f59e0b", parentId: null, isActive: true },
+  ai: { id: 7, name: "AI", slug: "ai", description: "Artificial intelligence, LLMs, and machine learning", icon: "/icons/techcrest-icon.svg", color: "#a855f7", parentId: null, isActive: true },
+  "smart-home": { id: 8, name: "Home", slug: "smart-home", description: "Smart home devices, hubs, and automation", icon: "/icons/techcrest-icon.svg", color: "#14b8a6", parentId: null, isActive: true },
+  evs: { id: 9, name: "EVs", slug: "evs", description: "Electric vehicles, charging, and future mobility", icon: "/icons/techcrest-icon.svg", color: "#22c55e", parentId: null, isActive: true },
+  crypto: { id: 10, name: "Crypto", slug: "crypto", description: "Cryptocurrency, blockchain, and Web3", icon: "/icons/techcrest-icon.svg", color: "#f97316", parentId: null, isActive: true },
+  gaming: { id: 11, name: "Gaming", slug: "gaming", description: "Consoles, PC gaming, hardware, and video games", icon: "/icons/techcrest-icon.svg", color: "#ef4444", parentId: null, isActive: true },
+  deals: { id: 12, name: "Deals", slug: "deals", description: "Best tech deals, discounts, and offers", icon: "/icons/techcrest-icon.svg", color: "#ec4899", parentId: null, isActive: true },
 };
 

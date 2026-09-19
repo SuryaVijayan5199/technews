@@ -70,12 +70,18 @@ export const getCachedLatestArticles = async (limit = 8) => {
   return setMemoryCache(key, data, LISTING_TTL_MS);
 };
 
-export const getCachedTrendingArticles = async (limit = 10) => {
-  const key = `trending-articles-${limit}`;
-  const cached = getMemoryCache<any[]>(key);
-  if (cached) return cached;
-  const data = await getTrendingArticles(limit);
-  return setMemoryCache(key, data, LISTING_TTL_MS);
+export const getCachedTrendingArticles = async (limit = 10, excludeId?: number) => {
+  const fetchLimit = limit + 2;
+  const key = `trending-articles-${fetchLimit}`;
+  let data = getMemoryCache<any[]>(key);
+  if (!data) {
+    data = await getTrendingArticles(fetchLimit);
+    setMemoryCache(key, data, 60 * 1000);
+  }
+  if (excludeId && Array.isArray(data)) {
+    return data.filter((a: any) => a.id !== excludeId).slice(0, limit);
+  }
+  return (data || []).slice(0, limit);
 };
 
 export const getCachedEditorsPicks = async (limit = 6) => {
