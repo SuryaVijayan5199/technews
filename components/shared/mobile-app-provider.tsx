@@ -5,23 +5,35 @@ import { Capacitor } from "@capacitor/core";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { Network } from "@capacitor/network";
 import { App } from "@capacitor/app";
-import { WifiOff } from "lucide-react";
+import { WifiOff, RefreshCw } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export function MobileAppProvider({ children }: { children: React.ReactNode }) {
   const [isOffline, setIsOffline] = useState(false);
+  const { resolvedTheme } = useTheme();
 
+  // Dynamic native Status Bar theme synchronization
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
-    const initStatusBar = async () => {
+    const syncStatusBarTheme = async () => {
       try {
-        await StatusBar.setStyle({ style: Style.Dark });
-        await StatusBar.setBackgroundColor({ color: "#0f172a" });
+        const isDark = resolvedTheme === "dark";
+        await StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light });
+        await StatusBar.setBackgroundColor({
+          color: isDark ? "#0a0f1d" : "#ffffff",
+        });
       } catch (err) {
         console.warn("[MobileAppProvider] StatusBar error:", err);
       }
     };
-    initStatusBar();
+
+    syncStatusBarTheme();
+  }, [resolvedTheme]);
+
+  // Network & Back Button listeners
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
 
     const listenNetwork = async () => {
       try {
@@ -40,7 +52,15 @@ export function MobileAppProvider({ children }: { children: React.ReactNode }) {
     const listenBackButton = async () => {
       try {
         App.addListener("backButton", ({ canGoBack }) => {
-          if (canGoBack) {
+          // If any mobile drawer sheet is open, close it first
+          const openSheets = document.querySelectorAll(".tc-mobile-sheet-overlay");
+          if (openSheets.length > 0) {
+            window.dispatchEvent(new CustomEvent("tc_close_mobile_sheets"));
+            return;
+          }
+
+          // If inside a subpage and can go back, navigate back
+          if (canGoBack && typeof window !== "undefined" && window.location.pathname !== "/") {
             window.history.back();
           } else {
             App.minimizeApp();
@@ -53,13 +73,38 @@ export function MobileAppProvider({ children }: { children: React.ReactNode }) {
     listenBackButton();
   }, []);
 
+  const handleRetryConnection = async () => {
+    if (!Capacitor.isNativePlatform()) {
+      window.location.reload();
+      return;
+    }
+    try {
+      const status = await Network.getStatus();
+      setIsOffline(!status.connected);
+      if (status.connected) {
+        window.location.reload();
+      }
+    } catch {
+      window.location.reload();
+    }
+  };
+
   return (
     <>
       {children}
       {isOffline && (
-        <div className="tc-app-toast">
+        <div className="tc-app-toast" role="status" aria-live="polite">
           <WifiOff className="tc-app-toast__icon" />
-          <span>Offline - Showing cached content</span>
+          <span>Offline — Showing cached content</span>
+          <button
+            type="button"
+            onClick={handleRetryConnection}
+            className="tc-app-toast__retry"
+            aria-label="Retry connection"
+          >
+            <RefreshCw className="w-3 h-3" />
+            <span>Retry</span>
+          </button>
         </div>
       )}
     </>

@@ -105,6 +105,7 @@ export async function TechCrestLayout() {
                         <span className="popular-item__rank">
                           {String(idx + 1).padStart(2, "0")}
                         </span>
+                        <div className="popular-item__content">
                           <span className="popular-item__category">
                             {post.category?.name ?? "News"}
                           </span>

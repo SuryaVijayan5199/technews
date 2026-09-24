@@ -121,7 +121,7 @@ async function RelatedArticlesSection({
       </div>
       <div className="article-related__grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {relatedArticles.map((a: any) => (
-          <ArticleCard key={a.id} article={a} />
+          <ArticleCard key={a.id} article={a} showReadingTime={false} />
         ))}
       </div>
     </section>
@@ -159,8 +159,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   // Dynamically increment article view count in DB
   incrementArticleViewCount(dbArticle.id).catch(() => {});
 
+  const categoryName = dbArticle.category?.name || category.toUpperCase();
+  const categorySlug = dbArticle.category?.slug || category;
+
   const initialComments = await getCachedArticleComments(dbArticle.id);
   const trendingArticles = await getCachedTrendingArticles(8, dbArticle.id);
+  const heroRelatedArticles = await getCachedRelatedArticles(dbArticle.id, categorySlug, 3);
 
   const authorUser = dbArticle.author?.user;
   const authorBio =
@@ -168,8 +172,6 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     authorUser?.bio ||
     `Editor & Staff Writer at TechCrest covering ${dbArticle.category?.name || "technology"}.`;
 
-  const categoryName = dbArticle.category?.name || category.toUpperCase();
-  const categorySlug = dbArticle.category?.slug || category;
   const canonicalUrl = dbArticle.canonicalUrl || `${siteConfig.url}/${categorySlug}/${dbArticle.slug}`;
   const { contentHtml: processedContentHtml } = processArticleHtmlContent(dbArticle.contentHtml || "");
 
@@ -333,29 +335,82 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 </div>
               </header>
 
-              {/* Cover Image Positioned Immediately Below Heading & Header (Half Size) */}
-              {dbArticle.heroImage && (
-                <figure className="article-hero-figure tc-article-figure mb-8 w-full max-w-full">
-                  <div className="article-hero-figure__image-wrap overflow-hidden rounded-xl">
-                    <img
-                      src={dbArticle.heroImage}
-                      alt={dbArticle.heroImageAlt || dbArticle.title}
-                      className="article-hero-figure__image tc-article-hero-img"
-                    />
+              {/* 2-Column Split: Hero Image on one side (reduced width) + Story Highlights & Factsheet on the other */}
+              <div className="tc-article-hero-split mb-8">
+                {/* Side 1: Hero Image (Reduced Width) */}
+                {dbArticle.heroImage ? (
+                  <figure className="tc-article-hero-split__image-col">
+                    <div className="tc-article-hero-split__image-wrap">
+                      <img
+                        src={dbArticle.heroImage}
+                        alt={dbArticle.heroImageAlt || dbArticle.title}
+                        className="tc-article-hero-split__image"
+                      />
+                    </div>
+                    {(dbArticle.heroImageAlt || dbArticle.heroImageCaption) && (
+                      <figcaption className="tc-article-hero-split__caption">
+                        <p className="m-0 p-0 leading-normal">
+                          {dbArticle.heroImageAlt}
+                          {dbArticle.heroImageAlt && dbArticle.heroImageCaption && " — "}
+                          {dbArticle.heroImageCaption && (
+                            <span className="tc-caption-source font-semibold">Credit: {dbArticle.heroImageCaption}</span>
+                          )}
+                        </p>
+                      </figcaption>
+                    )}
+                  </figure>
+                ) : null}
+
+                {/* Side 2: Related Articles Card Alone */}
+                <div className={`tc-article-related-sidecard ${!dbArticle.heroImage ? "tc-article-hero-split__card--full" : ""}`}>
+                  <div className="tc-article-related-sidecard__header">
+                    <div className="tc-article-related-sidecard__title-box">
+                      <span className="tc-article-related-sidecard__dot" />
+                      <h3 className="tc-article-related-sidecard__title">Related Articles</h3>
+                    </div>
+                    <Link href={`/${categorySlug}`} className="tc-article-related-sidecard__more">
+                      More in {categoryName} →
+                    </Link>
                   </div>
-                  {(dbArticle.heroImageAlt || dbArticle.heroImageCaption) && (
-                    <figcaption className="article-hero-figure__caption text-muted-foreground tc-article-caption block mt-2 text-xs">
-                      <p className="m-0 p-0 leading-normal">
-                        {dbArticle.heroImageAlt}
-                        {dbArticle.heroImageAlt && dbArticle.heroImageCaption && " — "}
-                        {dbArticle.heroImageCaption && (
-                          <span className="tc-caption-source font-semibold">Credit: {dbArticle.heroImageCaption}</span>
-                        )}
-                      </p>
-                    </figcaption>
-                  )}
-                </figure>
-              )}
+
+                  <div className="tc-article-related-sidecard__list">
+                    {heroRelatedArticles && heroRelatedArticles.length > 0 ? (
+                      heroRelatedArticles.slice(0, 3).map((rel: any) => {
+                        const relCatSlug = rel.categorySlug || rel.category?.slug || categorySlug;
+                        const relCatName = rel.categoryName || rel.category?.name || categoryName;
+                        return (
+                          <Link
+                            key={rel.id}
+                            href={`/${relCatSlug}/${rel.slug}`}
+                            className="tc-article-related-sidecard__item"
+                          >
+                            <div className="tc-article-related-sidecard__thumb-wrap">
+                              <img
+                                src={
+                                  rel.heroImage ||
+                                  "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=200&h=150&fit=crop&q=80"
+                                }
+                                alt={rel.title}
+                                className="tc-article-related-sidecard__thumb"
+                              />
+                            </div>
+                            <div className="tc-article-related-sidecard__info">
+                              <span className="tc-article-related-sidecard__cat">
+                                {relCatName}
+                              </span>
+                              <h4 className="tc-article-related-sidecard__item-title">
+                                {rel.title}
+                              </h4>
+                            </div>
+                          </Link>
+                        );
+                      })
+                    ) : (
+                      <p className="tc-article-related-sidecard__empty">No related articles available.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
               <div
                 className="prose dark:prose-invert tc-article-body"
                 dangerouslySetInnerHTML={{ __html: processedContentHtml }}

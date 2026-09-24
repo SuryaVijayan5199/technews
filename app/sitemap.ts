@@ -1,3 +1,4 @@
+import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 import { categories, articles, authors } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";

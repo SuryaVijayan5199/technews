@@ -16,7 +16,7 @@ export function NewsletterCTA() {
     setStatus("loading");
     setErrorMsg("");
     try {
-      const result = await subscribeToNewsletterAction({ email });
+      const result = await subscribeToNewsletterAction(email);
       if (result?.error) {
         setErrorMsg(result.error);
         setStatus("error");

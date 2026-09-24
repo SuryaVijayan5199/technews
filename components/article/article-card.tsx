@@ -29,12 +29,14 @@ interface ArticleCardProps {
   article: ArticleCardData;
   variant?: "default" | "featured" | "compact" | "horizontal";
   className?: string;
+  showReadingTime?: boolean;
 }
 
 export function ArticleCard({
   article,
   variant = "default",
   className,
+  showReadingTime = true,
 }: ArticleCardProps) {
   const href = `/${article.categorySlug ?? "news"}/${article.slug}`;
 
@@ -107,7 +109,7 @@ export function ArticleCard({
             {article.publishedAt && (
               <span>{formatRelativeTime(article.publishedAt)}</span>
             )}
-            {article.readingTimeMinutes && (
+            {showReadingTime && article.readingTimeMinutes && (
               <span className="article-card__meta-item">
                 <Clock className="tc-icon-xs" />
                 {article.readingTimeMinutes} min read
@@ -225,7 +227,7 @@ export function ArticleCard({
           </div>
 
           <div className="article-card__stats">
-            {article.readingTimeMinutes && (
+            {showReadingTime && article.readingTimeMinutes && (
               <span className="article-card__meta-item tc-text-brand">
                 <Clock className="tc-icon-xs" />
                 {article.readingTimeMinutes} min

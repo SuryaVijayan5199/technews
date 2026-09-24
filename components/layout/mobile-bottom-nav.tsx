@@ -76,6 +76,16 @@ export function MobileBottomNav() {
     return () => window.removeEventListener("techcrest_bookmark_change", handleSync);
   }, []);
 
+  // Dismiss sheets on Android hardware back button
+  useEffect(() => {
+    const handleCloseSheets = () => {
+      setTopicsSheetOpen(false);
+      setSavedSheetOpen(false);
+    };
+    window.addEventListener("tc_close_mobile_sheets", handleCloseSheets);
+    return () => window.removeEventListener("tc_close_mobile_sheets", handleCloseSheets);
+  }, []);
+
   // Hide on CMS dashboard routes
   if (pathname?.startsWith("/dashboard")) return null;
 
@@ -102,9 +112,10 @@ export function MobileBottomNav() {
     setSavedSheetOpen((prev) => !prev);
   };
 
-  const handleRemoveSaved = (slug: string, e: React.MouseEvent) => {
+  const handleRemoveSaved = async (slug: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    await triggerHaptic();
     saveArticle({ slug, title: "", savedAt: 0 });
     setSavedArticles(getSavedArticles());
   };

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Mail, MapPin, Clock, ChevronRight, ShieldCheck, Newspaper, Award } from "lucide-react";
+import { Mail, ChevronRight } from "lucide-react";
 import { TechCrestIcon } from "@/components/shared/techcrest-icon";
 import { ContactForm } from "@/components/contact/contact-form";
 
@@ -36,39 +36,6 @@ export default function ContactPage() {
           </p>
         </div>
 
-        {/* Response Time SLA Features Bar */}
-        <div className="tc-contact-features">
-          <div className="tc-contact-feature-card">
-            <div className="tc-contact-feature-icon tc-contact-feature-icon--blue">
-              <Clock className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="tc-contact-feature-label">Newsdesk Response</p>
-              <p className="tc-contact-feature-value">Under 4 Hours</p>
-            </div>
-          </div>
-
-          <div className="tc-contact-feature-card">
-            <div className="tc-contact-feature-icon tc-contact-feature-icon--purple">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="tc-contact-feature-label">Anonymous Tips</p>
-              <p className="tc-contact-feature-value">End-to-End Encrypted</p>
-            </div>
-          </div>
-
-          <div className="tc-contact-feature-card">
-            <div className="tc-contact-feature-icon tc-contact-feature-icon--emerald">
-              <Award className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="tc-contact-feature-label">Editorial Ethics</p>
-              <p className="tc-contact-feature-value">100% Independent</p>
-            </div>
-          </div>
-        </div>
-
         {/* Main Grid: Form + Contacts */}
         <div className="tc-contact-grid">
           {/* Interactive Form */}
@@ -80,66 +47,32 @@ export default function ContactPage() {
           <div>
             <div className="tc-contact-card">
               <h2 className="tc-contact-desks-title">
-                Direct Contact Desks
+                Official Communication
               </h2>
+              <p className="text-sm text-muted-foreground mt-2 mb-6">
+                Have a tip, press release, editorial question, or partnership inquiry? Reach out directly to our central newsdesk.
+              </p>
 
               <div className="tc-contact-desks-list">
                 <div className="tc-contact-desk-item">
                   <div className="tc-contact-desk-icon tc-contact-desk-icon--blue">
-                    <Newspaper className="w-4 h-4" />
+                    <Mail className="w-5 h-5" />
                   </div>
                   <div>
                     <p className="tc-contact-desk-label">
-                      Breaking News & Leaks
+                      Editorial & Newsdesk
                     </p>
-                    <a href="mailto:tips@techcrest.news" className="tc-contact-desk-link">
-                      tips@techcrest.news
+                    <a href="mailto:editor@techcrest.news" className="tc-contact-desk-link text-base font-semibold">
+                      editor@techcrest.news
                     </a>
                   </div>
                 </div>
+              </div>
 
-                <div className="tc-contact-desk-item">
-                  <div className="tc-contact-desk-icon tc-contact-desk-icon--purple">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="tc-contact-desk-label">
-                      Press & PR Inquiries
-                    </p>
-                    <a href="mailto:press@techcrest.news" className="tc-contact-desk-link">
-                      press@techcrest.news
-                    </a>
-                  </div>
-                </div>
-
-                <div className="tc-contact-desk-item">
-                  <div className="tc-contact-desk-icon tc-contact-desk-icon--emerald">
-                    <Award className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="tc-contact-desk-label">
-                      Advertising & Sponsorship
-                    </p>
-                    <a href="mailto:ads@techcrest.news" className="tc-contact-desk-link">
-                      ads@techcrest.news
-                    </a>
-                  </div>
-                </div>
-
-                <div className="tc-contact-desk-item tc-contact-divider">
-                  <div className="tc-contact-desk-icon tc-contact-desk-icon--orange">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="tc-contact-desk-label">
-                      Editorial Headquarters
-                    </p>
-                    <p className="tc-contact-desk-text">
-                      500 Technology Square, 4th Floor<br />
-                      Cambridge, MA 02139, USA
-                    </p>
-                  </div>
-                </div>
+              <div className="mt-6 pt-5 border-t border-[var(--color-surface-border)] text-xs text-muted-foreground leading-relaxed">
+                <p className="m-0">
+                  All correspondence is reviewed directly by our editorial staff. For confidential tips or leaks, please mention &quot;Confidential Tip&quot; in the email subject.
+                </p>
               </div>
             </div>
           </div>

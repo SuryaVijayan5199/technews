@@ -25,6 +25,8 @@ const LISTING_TTL_MS = 5 * 60 * 1000;
 const ARTICLE_TTL_MS = 10 * 60 * 1000;
 // Breaking news bar cache (2 minutes) — kept short for news freshness
 const BREAKING_TTL_MS = 2 * 60 * 1000;
+// Related articles cache (1 minute) — dynamic and responsive to fresh articles
+const RELATED_TTL_MS = 60 * 1000;
 
 export function getMemoryCache<T>(key: string): T | null {
   const item = memoryCache.get(key);
@@ -149,7 +151,7 @@ export const getCachedRelatedArticles = async (articleId: number, categorySlug: 
   const cached = getMemoryCache<any[]>(key);
   if (cached) return cached;
   const data = await getRelatedArticles(articleId, categorySlug, limit);
-  return setMemoryCache(key, data, ARTICLE_TTL_MS);
+  return setMemoryCache(key, data, RELATED_TTL_MS);
 };
 
 export const getCachedArticlesByCategory = async (categorySlug: string, limit = 30) => {

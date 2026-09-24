@@ -2,11 +2,52 @@
 
 import { useState } from "react";
 import { Link2, Check, Share2 } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
+import { Share } from "@capacitor/share";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 export function ShareButtons({ title }: { title: string }) {
   const [copied, setCopied] = useState(false);
 
-  const copyLink = () => {
+  const triggerHaptic = async () => {
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await Haptics.impact({ style: ImpactStyle.Light });
+      } catch {}
+    }
+  };
+
+  const handleNativeShare = async () => {
+    await triggerHaptic();
+    const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await Share.share({
+          title,
+          text: title,
+          url: currentUrl,
+          dialogTitle: "Share TechCrest Story",
+        });
+        return;
+      } catch {}
+    }
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text: title,
+          url: currentUrl,
+        });
+        return;
+      } catch {}
+    }
+
+    copyLink();
+  };
+
+  const copyLink = async () => {
+    await triggerHaptic();
     try {
       if (navigator?.clipboard?.writeText) {
         navigator.clipboard.writeText(window.location.href);
@@ -26,7 +67,8 @@ export function ShareButtons({ title }: { title: string }) {
     }
   };
 
-  const shareOnTwitter = () => {
+  const shareOnTwitter = async () => {
+    await triggerHaptic();
     window.open(
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(
         title
@@ -35,7 +77,8 @@ export function ShareButtons({ title }: { title: string }) {
     );
   };
 
-  const shareOnLinkedIn = () => {
+  const shareOnLinkedIn = async () => {
+    await triggerHaptic();
     window.open(
       `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
         window.location.href
@@ -47,6 +90,15 @@ export function ShareButtons({ title }: { title: string }) {
   return (
     <div className="tc-share-btns">
       <span className="tc-share-btns__label">Share:</span>
+      <button
+        id="share-native"
+        onClick={handleNativeShare}
+        className="tc-share-btns__btn tc-share-btns__btn--native"
+        aria-label="Share article"
+        title="Share"
+      >
+        <Share2 className="tc-share-btns__icon" />
+      </button>
       <button
         id="share-twitter"
         onClick={shareOnTwitter}

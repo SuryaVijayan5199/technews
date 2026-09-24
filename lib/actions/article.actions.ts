@@ -728,10 +728,11 @@ export async function getRelatedArticles(
   try {
     let categoryId: number | undefined;
     if (categorySlug) {
+      const normalizedSlug = categorySlug.toLowerCase().trim();
       const cat = await db.query.categories.findFirst({
-        where: eq(categories.slug, categorySlug),
+        where: eq(categories.slug, normalizedSlug),
       });
-      categoryId = cat?.id;
+      categoryId = cat?.id ?? STATIC_FALLBACK_CATEGORIES[normalizedSlug]?.id;
     }
 
     const conditions: any[] = [
@@ -823,15 +824,31 @@ export async function getLatestArticles(limit = 6, categorySlug?: string): Promi
   }
 }
 
+const lastViewIncrementMap = new Map<number, number>();
+
 export async function incrementArticleViewCount(articleId: number): Promise<void> {
   try {
     if (!articleId) return;
+    const now = Date.now();
+    const last = lastViewIncrementMap.get(articleId) || 0;
+    // Throttle write to once every 10 seconds per article per serverless instance
+    // Protects Neon DB compute hours and free tier limits from bot/crawler flooding
+    if (now - last < 10000) return;
+    lastViewIncrementMap.set(articleId, now);
+
+    // Evict old entries periodically to prevent memory growth
+    if (lastViewIncrementMap.size > 200) {
+      for (const [id, time] of lastViewIncrementMap.entries()) {
+        if (now - time > 60000) lastViewIncrementMap.delete(id);
+      }
+    }
+
     await db
       .update(articles)
       .set({ viewCount: sql`${articles.viewCount} + 1` })
       .where(eq(articles.id, articleId));
   } catch (error) {
-    console.error("Error incrementing view count:", error);
+    // Non-critical background operation — suppress to prevent unhandled rejection
   }
 }
 
