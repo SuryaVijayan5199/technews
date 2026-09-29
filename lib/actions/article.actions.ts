@@ -32,8 +32,14 @@ export async function getAllCategories() {
 // GET ARTICLES BY CATEGORY SLUG
 // Includes subcategories automatically
 // ─────────────────────────────────────────────
+const CATEGORY_SLUG_ALIASES: Record<string, string> = {
+  robotics: "robotic",
+  "smart-home": "home",
+};
+
 export async function getArticlesByCategory(categorySlug: string, limit = 30) {
-  const normalizedSlug = categorySlug.toLowerCase().trim();
+  const rawSlug = categorySlug.toLowerCase().trim();
+  const normalizedSlug = CATEGORY_SLUG_ALIASES[rawSlug] || rawSlug;
   let categoryObj: any = null;
 
   try {
@@ -78,7 +84,8 @@ export async function getArticlesByCategoryPaginated(
   page = 1,
   pageSize = 7
 ) {
-  const normalizedSlug = categorySlug.toLowerCase().trim();
+  const rawSlug = categorySlug.toLowerCase().trim();
+  const normalizedSlug = CATEGORY_SLUG_ALIASES[rawSlug] || rawSlug;
   let categoryObj: any = null;
 
   try {
@@ -825,21 +832,33 @@ export async function getLatestArticles(limit = 6, categorySlug?: string): Promi
 }
 
 const lastViewIncrementMap = new Map<number, number>();
+const BOT_REGEX = /bot|spider|crawl|slurp|facebookexternalhit|whatsapp|telegram|twitterbot|pinterest|googlebot|bingbot|yandex|duckduckgo|baiduspider|headless|semrush|ahrefs/i;
 
 export async function incrementArticleViewCount(articleId: number): Promise<void> {
   try {
     if (!articleId) return;
+
+    // Filter out bots and search crawlers to save Neon DB compute hours
+    try {
+      const { headers } = await import("next/headers");
+      const h = await headers();
+      const ua = h.get("user-agent") || "";
+      if (BOT_REGEX.test(ua)) return;
+    } catch {
+      // outside request context or during static generation
+    }
+
     const now = Date.now();
     const last = lastViewIncrementMap.get(articleId) || 0;
-    // Throttle write to once every 10 seconds per article per serverless instance
-    // Protects Neon DB compute hours and free tier limits from bot/crawler flooding
-    if (now - last < 10000) return;
+    // Throttle write to once every 60 seconds per article per serverless instance
+    // Protects Neon DB compute hours and free tier limits from traffic spikes
+    if (now - last < 60000) return;
     lastViewIncrementMap.set(articleId, now);
 
     // Evict old entries periodically to prevent memory growth
     if (lastViewIncrementMap.size > 200) {
       for (const [id, time] of lastViewIncrementMap.entries()) {
-        if (now - time > 60000) lastViewIncrementMap.delete(id);
+        if (now - time > 120000) lastViewIncrementMap.delete(id);
       }
     }
 

@@ -4,7 +4,7 @@ import { ChevronRight, Cookie, Shield, Eye, Settings } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Cookie Policy — TechCrest",
-  description: "Learn how TechCrest uses cookies and similar technologies to enhance your website experience.",
+  description: "Learn how TechCrest uses cookies and similar technologies, why we use them and how you can manage your cookie preferences.",
 };
 
 export default function CookiesPage() {

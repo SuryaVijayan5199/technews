@@ -4,7 +4,7 @@ import { ChevronRight, DollarSign, Award, ShoppingBag, Info, ShieldCheck } from 
 
 export const metadata: Metadata = {
   title: "Affiliate Disclosure — TechCrest",
-  description: "Learn about TechCrest's affiliate relationships, commerce disclosures, and strict editorial independence.",
+  description: "Read TechCrest's affiliate disclosure to understand how we may earn commissions from product links and how we keep our coverage independent.",
 };
 
 export default function AffiliateDisclosurePage() {

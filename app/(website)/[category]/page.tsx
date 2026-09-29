@@ -1,33 +1,46 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { notFound } from "next/navigation";
-import { getCachedArticlesByCategoryPaginated } from "@/lib/cache/cached-queries";
+import { notFound, permanentRedirect } from "next/navigation";
+import { getCachedArticlesByCategory } from "@/lib/cache/cached-queries";
 import { getAllCategories } from "@/lib/actions/article.actions";
 import { cleanAuthorName } from "@/lib/utils";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
-  searchParams: Promise<{ page?: string }>;
 }
 
-export const dynamic = "force-dynamic";
+// ISR: revalidate category pages every 2 minutes. Instant purge on publish via invalidateArticleCache().
+export const revalidate = 120;
 
 import { siteConfig } from "@/config/site";
 
-export async function generateMetadata({ params, searchParams }: CategoryPageProps): Promise<Metadata> {
-  const { category } = await params;
-  const { page: pageStr } = await searchParams;
-  const rawPage = parseInt(pageStr || "1", 10);
-  const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+export const CATEGORY_META_DESCRIPTIONS: Record<string, string> = {
+  phone: "Latest smartphone news, launches, reviews and updates from Apple, Samsung, Google and more. Stay ahead on iPhone, Android and mobile tech with TechCrest.",
+  audio: "Headphone, earbud and speaker news, launches and reviews. Explore the latest audio gear from Sony, Bose, Apple and more on TechCrest.",
+  robotics: "Robotics news covering humanoid robots, automation, AI hardware and industry funding. Track the machines shaping the future of work on TechCrest.",
+  robotic: "Robotics news covering humanoid robots, automation, AI hardware and industry funding. Track the machines shaping the future of work on TechCrest.",
+  fitness: "Fitness tech news on smartwatches, wearables, fitness trackers and health gadgets. Find the latest launches and trends to power your workouts on TechCrest.",
+  security: "Cybersecurity news on data breaches, hacks, privacy threats and zero-day flaws. Stay informed and protect your data with TechCrest's security coverage.",
+  ai: "Latest AI news on ChatGPT, LLMs, machine learning, AI startups and funding. Get fast updates and expert analysis on artificial intelligence at TechCrest.",
+  "smart-home": "Smart home news on connected devices, hubs, appliances and home automation. Discover the latest gadgets and updates for a smarter home on TechCrest.",
+  home: "Smart home news on connected devices, hubs, appliances and home automation. Discover the latest gadgets and updates for a smarter home on TechCrest.",
+  evs: "Electric vehicle news on Tesla, EV launches, charging tech, self-driving and robotaxis. Follow the future of mobility with TechCrest's EV coverage.",
+  crypto: "Crypto news on Bitcoin, stablecoins, exchanges, blockchain and Web3. Get the latest cryptocurrency updates and market-moving stories on TechCrest.",
+  gaming: "Gaming news on consoles, PC games, Xbox, PlayStation, Nintendo and esports. Catch the latest game launches, industry updates and trends on TechCrest.",
+};
 
-  const { category: cat } = await getCachedArticlesByCategoryPaginated(category, page, 7);
+export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+  const { category } = await params;
+  const rawSlug = category.toLowerCase().trim();
+  const canonicalSlug = rawSlug === "robotics" ? "robotic" : rawSlug === "smart-home" ? "home" : rawSlug;
+
+  const { category: cat } = await getCachedArticlesByCategory(canonicalSlug, 50);
   if (!cat) return { title: "Category Not Found" };
 
-  const pageSuffix = page > 1 ? ` (Page ${page})` : "";
-  const title = `${cat.name}${pageSuffix} — News, Reviews & Analysis`;
-  const description = cat.description ?? `Latest ${cat.name} news, in-depth reviews, and expert analysis on TechCrest.`;
-  const canonicalUrl = `${siteConfig.url}/${cat.slug}${page > 1 ? `?page=${page}` : ""}`;
+  const title = `${cat.name} — News, Reviews & Analysis`;
+  const description = CATEGORY_META_DESCRIPTIONS[canonicalSlug] ?? cat.description ?? `Latest ${cat.name} news, in-depth reviews, and expert analysis on TechCrest.`;
+  const canonicalUrl = `${siteConfig.url}/${cat.slug}`;
 
   return {
     title,
@@ -60,21 +73,24 @@ function timeAgo(date: Date | string | null | undefined): string {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
-export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
+export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category: slug } = await params;
-  const { page: pageStr } = await searchParams;
-  const rawPage = parseInt(pageStr || "1", 10);
-  const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+  const rawSlug = slug.toLowerCase().trim();
 
-  const PAGE_SIZE = 7;
-  const { category, articles, totalArticles, totalPages, currentPage } =
-    await getCachedArticlesByCategoryPaginated(slug, page, PAGE_SIZE);
+  // Redirect aliases: /robotics -> /robotic, /smart-home -> /home
+  if (rawSlug === "robotics") {
+    permanentRedirect("/robotic");
+  }
+  if (rawSlug === "smart-home") {
+    permanentRedirect("/home");
+  }
+
+  const { category, articles } = await getCachedArticlesByCategory(rawSlug, 50);
 
   if (!category) notFound();
 
-  const isFirstPage = currentPage === 1;
-  const lead = isFirstPage && articles.length > 0 ? articles[0] : null;
-  const gridArticles = isFirstPage ? articles.slice(1) : articles;
+  const lead = articles.length > 0 ? articles[0] : null;
+  const gridArticles = articles.length > 1 ? articles.slice(1) : [];
   const themeColor = category.color ?? "#2D7FF9";
 
   const breadcrumbJsonLd = {
@@ -180,61 +196,6 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                 </div>
               </article>
             ))}
-          </div>
-        )}
-
-        {/* PAGINATION CONTROL BAR */}
-        {totalPages > 1 && (
-          <div className="cat-pagination">
-            <div className="cat-pagination__info">
-              Page {currentPage} of {totalPages} &bull; {totalArticles} Articles in {category.name}
-            </div>
-            <div className="cat-pagination__controls">
-              {/* Previous Button */}
-              {currentPage > 1 ? (
-                <Link
-                  href={`/${slug}?page=${currentPage - 1}`}
-                  className="cat-pagination__btn"
-                >
-                  &larr; Previous
-                </Link>
-              ) : (
-                <span className="cat-pagination__btn is-disabled">&larr; Previous</span>
-              )}
-
-              {/* Page Number Pills */}
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) =>
-                p === currentPage ? (
-                  <span
-                    key={p}
-                    className="cat-pagination__num is-active"
-                    style={{ backgroundColor: themeColor, borderColor: themeColor }}
-                  >
-                    {p}
-                  </span>
-                ) : (
-                  <Link
-                    key={p}
-                    href={`/${slug}?page=${p}`}
-                    className="cat-pagination__num"
-                  >
-                    {p}
-                  </Link>
-                )
-              )}
-
-              {/* Next Button */}
-              {currentPage < totalPages ? (
-                <Link
-                  href={`/${slug}?page=${currentPage + 1}`}
-                  className="cat-pagination__btn"
-                >
-                  Next &rarr;
-                </Link>
-              ) : (
-                <span className="cat-pagination__btn is-disabled">Next &rarr;</span>
-              )}
-            </div>
           </div>
         )}
       </div>

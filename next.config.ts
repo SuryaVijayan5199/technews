@@ -45,6 +45,41 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+
+  async redirects() {
+    return [
+      {
+        source: "/robotics",
+        destination: "/robotic",
+        permanent: true,
+      },
+      {
+        source: "/robotics/:slug*",
+        destination: "/robotic/:slug*",
+        permanent: true,
+      },
+      {
+        source: "/smart-home",
+        destination: "/home",
+        permanent: true,
+      },
+      {
+        source: "/smart-home/:slug*",
+        destination: "/home/:slug*",
+        permanent: true,
+      },
+      {
+        source: "/author",
+        destination: "/authors",
+        permanent: true,
+      },
+      {
+        source: "/author/:slug*",
+        destination: "/authors/:slug*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

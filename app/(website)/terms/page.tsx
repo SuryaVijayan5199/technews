@@ -4,7 +4,7 @@ import { ChevronRight, Scale } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Terms of Service — TechCrest",
-  description: "Terms and conditions governing access to and use of TechCrest digital publishing services.",
+  description: "Review TechCrest's Terms of Service, including the rules and conditions for using our website, content, newsletters and related services.",
 };
 
 export default function TermsPage() {

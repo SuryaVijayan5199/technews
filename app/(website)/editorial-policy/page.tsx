@@ -4,7 +4,7 @@ import { ChevronRight, Award } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Editorial Policy — TechCrest",
-  description: "Learn about TechCrest's standards for independent, accurate, and responsible technology journalism.",
+  description: "Discover TechCrest's editorial standards on accuracy, sourcing, fact-checking, corrections and independence that guide every story we publish.",
 };
 
 export default function EditorialPolicyPage() {

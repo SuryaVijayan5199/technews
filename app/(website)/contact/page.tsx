@@ -6,7 +6,7 @@ import { ContactForm } from "@/components/contact/contact-form";
 
 export const metadata: Metadata = {
   title: "Contact Us — TechCrest",
-  description: "Get in touch with the TechCrest editorial team, send press releases, report news tips, or request advertising partnerships.",
+  description: "Get in touch with the TechCrest team. Send news tips, press releases, feedback, corrections or partnership inquiries, and we'll get back to you.",
 };
 
 export default function ContactPage() {

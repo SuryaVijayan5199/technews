@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-export const metadata: Metadata = { title: "Advertise — TechCrest", description: "Reach our tech-savvy audience." };
+export const metadata: Metadata = {
+  title: "Advertise — TechCrest",
+  description:
+    "Explore advertising and partnership opportunities with TechCrest to reach an engaged audience of tech readers and industry decision-makers.",
+};
 export default function AdvertisePage() {
   return (
     <div className="container py-16 max-w-2xl mx-auto">

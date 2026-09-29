@@ -32,7 +32,7 @@ export function Footer() {
           <div className="tc-footer__brand">
             <TechCrestBrand size="md" href="/" theme="dark" />
             <p className="tc-footer__desc">
-              Independent technology journalism. Critical insights on devices, software, and ideas shaping our future.
+              Technology News. Smarter Insights. Real Impact
             </p>
             <div className="tc-footer__socials">
               {footerNav.social.map((link) => (

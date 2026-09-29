@@ -4,7 +4,7 @@ import { ChevronRight, ShieldCheck } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — TechCrest",
-  description: "Learn how TechCrest collects, uses, and protects your personal information when using our website and services.",
+  description: "Read TechCrest's Privacy Policy to learn how we collect, use, store and protect your personal information when you visit our site or subscribe.",
 };
 
 export default function PrivacyPage() {

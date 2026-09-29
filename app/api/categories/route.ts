@@ -6,12 +6,18 @@ import { getMemoryCache, setMemoryCache } from "@/lib/cache/cached-queries";
 
 import { STATIC_FALLBACK_CATEGORIES } from "@/lib/constants";
 
+export const revalidate = 3600; // Cache on Vercel Edge for 1 hour
+
 export async function GET() {
   try {
     const cacheKey = "api-categories-list";
     const cached = getMemoryCache<any[]>(cacheKey);
     if (cached) {
-      return NextResponse.json(cached);
+      return NextResponse.json(cached, {
+        headers: {
+          "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+        },
+      });
     }
 
     let activeCategories: any[] = [];
@@ -41,7 +47,11 @@ export async function GET() {
 
     setMemoryCache(cacheKey, formatted, 60 * 60 * 1000); // 1-hour server RAM cache
 
-    return NextResponse.json(formatted);
+    return NextResponse.json(formatted, {
+      headers: {
+        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+      },
+    });
   } catch (error) {
     console.error("[GET /api/categories]", error);
     const fallbackList = Object.values(STATIC_FALLBACK_CATEGORIES).map((cat: any) => ({
@@ -54,7 +64,11 @@ export async function GET() {
       color: cat.color || "#2D7FF9",
       description: cat.description || `${cat.name} news and updates`,
     }));
-    return NextResponse.json(fallbackList);
+    return NextResponse.json(fallbackList, {
+      headers: {
+        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+      },
+    });
   }
 }
 
