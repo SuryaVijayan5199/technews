@@ -22,9 +22,10 @@ import { auth } from "@/lib/auth";
 import { isStaff } from "@/lib/permissions";
 import { siteConfig } from "@/config/site";
 
-// Force dynamic rendering: articles are served from in-memory RAM cache on-demand.
-// This eliminates ISR Writes and Fast Origin Transfer from static page pre-generation.
-export const dynamic = "force-dynamic";
+// ISR: revalidate articles every 5 minutes (300 seconds).
+// Vercel Edge CDN caches rendered pages for visitors and search crawlers, reducing Neon DB compute to near-zero.
+// On new publish or edit, invalidateArticleCache() purges the cache immediately via revalidatePath.
+export const revalidate = 300;
 
 interface ArticlePageProps {
   params: Promise<{ category: string; slug: string }>;

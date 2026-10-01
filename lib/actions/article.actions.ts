@@ -838,6 +838,9 @@ export async function incrementArticleViewCount(articleId: number): Promise<void
   try {
     if (!articleId) return;
 
+    // Skip DB writes during local development to prevent waking up Neon compute
+    if (process.env.NODE_ENV === "development") return;
+
     // Filter out bots and search crawlers to save Neon DB compute hours
     try {
       const { headers } = await import("next/headers");

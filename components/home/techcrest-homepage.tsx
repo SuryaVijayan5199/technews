@@ -49,11 +49,11 @@ function kViews(n: number): string {
 const TOPICS = [
   { label: "Phone", sub: "Smartphones • iOS • Android", href: "/phone", icon: Smartphone, color: "#0ea5e9" },
   { label: "Audio", sub: "Headphones • Speakers • Hi-Fi", href: "/audio", icon: Headphones, color: "#8b5cf6" },
-  { label: "Robotic", sub: "Humanoids • Drones • Automation", href: "/robotics", icon: Bot, color: "#6366f1" },
+  { label: "Robotic", sub: "Humanoids • Drones • Automation", href: "/robotic", icon: Bot, color: "#6366f1" },
   { label: "Fitness", sub: "Wearables • Biosensors • Trackers", href: "/fitness", icon: Activity, color: "#10b981" },
   { label: "Security", sub: "Zero-Trust • Privacy • Defense", href: "/security", icon: Shield, color: "#f59e0b" },
   { label: "AI", sub: "LLMs • Autonomous Agents • Research", href: "/ai", icon: Brain, color: "#a855f7" },
-  { label: "Home", sub: "Matter • Hubs • Automation", href: "/smart-home", icon: HomeIcon, color: "#14b8a6" },
+  { label: "Home", sub: "Matter • Hubs • Automation", href: "/home", icon: HomeIcon, color: "#14b8a6" },
   { label: "EVs", sub: "Electric Vehicles • Charging", href: "/evs", icon: Zap, color: "#22c55e" },
   { label: "Crypto", sub: "Tokenization • Zero-Knowledge", href: "/crypto", icon: Bitcoin, color: "#f97316" },
   { label: "Gaming", sub: "Consoles • PC Gaming • Hardware", href: "/gaming", icon: Gamepad2, color: "#ef4444" },
