@@ -39,7 +39,6 @@ export const categoryNav = [
 export const footerNav = {
   company: [
     { label: "About Us", href: "/about" },
-    { label: "Authors", href: "/authors" },
     { label: "Contact", href: "/contact" },
     { label: "Advertise", href: "/advertise" },
   ],

@@ -1,4 +1,4 @@
-﻿/* styles/components.css */
+/* styles/components.css */
 
 /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    GLASS MORPHISM
@@ -10627,12 +10627,18 @@ header ul, header li {
     display: flex !important;
     flex-direction: column;
     justify-content: space-between;
-    background: hsl(var(--color-surface-1));
-    border: 1px solid hsl(var(--color-surface-border));
+    background: #edf5ff;
+    border: 1px solid rgba(45, 127, 249, 0.22);
     border-radius: 16px;
     padding: 1.25rem 1.4rem;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 4px 20px rgba(45, 127, 249, 0.08);
   }
+}
+
+.dark .tc-article-related-sidecard {
+  background: rgba(45, 127, 249, 0.08) !important;
+  border-color: rgba(45, 127, 249, 0.25) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
 .tc-article-hero-split__card--full {
@@ -10644,8 +10650,12 @@ header ul, header li {
   align-items: center;
   justify-content: space-between;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid hsl(var(--color-surface-border));
+  border-bottom: 1px solid rgba(45, 127, 249, 0.18);
   margin-bottom: 0.65rem;
+}
+
+.dark .tc-article-related-sidecard__header {
+  border-bottom-color: rgba(45, 127, 249, 0.2) !important;
 }
 
 .tc-article-related-sidecard__title-box {
@@ -10698,8 +10708,12 @@ header ul, header li {
   gap: 0.85rem;
   text-decoration: none;
   padding: 0.65rem 0;
-  border-bottom: 1px solid hsl(var(--color-surface-border) / 0.7);
+  border-bottom: 1px solid rgba(45, 127, 249, 0.12);
   transition: transform 0.15s ease;
+}
+
+.dark .tc-article-related-sidecard__item {
+  border-bottom-color: rgba(45, 127, 249, 0.15) !important;
 }
 
 .tc-article-related-sidecard__item:first-child {

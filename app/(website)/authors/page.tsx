@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight, Award, BookOpen } from "lucide-react";
+import { notFound } from "next/navigation";
 import { getAuthorsWithStats } from "@/lib/actions/author.actions";
 import { cleanAuthorName, getAuthorInitials } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
@@ -31,6 +32,9 @@ export const metadata: Metadata = {
 };
 
 export default async function AuthorsIndexPage() {
+  // Page hidden per user request
+  notFound();
+
   const authorsList = await getAuthorsWithStats();
 
   return (
