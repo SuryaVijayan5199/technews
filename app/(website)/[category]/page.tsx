@@ -13,6 +13,21 @@ interface CategoryPageProps {
 // ISR: revalidate category pages every 5 minutes (300 seconds). Instant purge on publish via invalidateArticleCache().
 export const revalidate = 300;
 
+export function generateStaticParams() {
+  return [
+    { category: "phone" },
+    { category: "audio" },
+    { category: "robotic" },
+    { category: "fitness" },
+    { category: "security" },
+    { category: "ai" },
+    { category: "home" },
+    { category: "evs" },
+    { category: "crypto" },
+    { category: "gaming" },
+  ];
+}
+
 import { siteConfig } from "@/config/site";
 
 export const CATEGORY_META_DESCRIPTIONS: Record<string, string> = {

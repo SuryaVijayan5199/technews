@@ -16,16 +16,23 @@ import {
   getCachedArticleComments,
   getCachedTrendingArticles,
 } from "@/lib/cache/cached-queries";
-import { incrementArticleViewCount } from "@/lib/actions/article.actions";
 import { CommentsSection } from "@/components/article/comments-section";
-import { auth } from "@/lib/auth";
-import { isStaff } from "@/lib/permissions";
 import { siteConfig } from "@/config/site";
+import { getTopPublishedArticleParams } from "@/lib/actions/article.actions";
 
-// ISR: revalidate articles every 5 minutes (300 seconds).
-// Vercel Edge CDN caches rendered pages for visitors and search crawlers, reducing Neon DB compute to near-zero.
+// ISR: revalidate articles every 10 minutes (600 seconds).
+// Pre-renders top articles at build time and caches all articles at Vercel Edge CDN.
 // On new publish or edit, invalidateArticleCache() purges the cache immediately via revalidatePath.
-export const revalidate = 300;
+export const revalidate = 600;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  try {
+    return await getTopPublishedArticleParams(30);
+  } catch {
+    return [];
+  }
+}
 
 interface ArticlePageProps {
   params: Promise<{ category: string; slug: string }>;
@@ -146,19 +153,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const { category, slug } = await params;
   const dbArticle = await getCachedArticleBySlug(slug);
 
-  let session = null;
-  try {
-    session = await auth();
-  } catch (err) {
-    // ISR / Static rendering context — default to guest
+  if (!dbArticle || dbArticle.status !== "published") {
+    notFound();
   }
-  const userIsStaff = isStaff(session?.user?.role);
-
-  if (!dbArticle) notFound();
-  if (dbArticle.status !== "published" && !userIsStaff) notFound();
-
-  // Dynamically increment article view count in DB
-  incrementArticleViewCount(dbArticle.id).catch(() => {});
 
   const categoryName = dbArticle.category?.name || category.toUpperCase();
   const categorySlug = dbArticle.category?.slug || category;

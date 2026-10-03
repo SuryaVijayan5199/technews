@@ -23,18 +23,7 @@ export function Header() {
   const [modalLoading, setModalLoading] = useState(false);
   const [modalSubmitted, setModalSubmitted] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [navItems, setNavItems] = useState(mainNav);
-
-  useEffect(() => {
-    fetch("/api/categories")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setNavItems(data);
-        }
-      })
-      .catch((err) => console.error("Error fetching categories for header:", err));
-  }, []);
+  const navItems = mainNav;
 
   const handleModalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

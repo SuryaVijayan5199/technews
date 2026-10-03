@@ -1198,4 +1198,25 @@ export async function bumpArticlePublishDateAction(id: number) {
   }
 }
 
+export async function getTopPublishedArticleParams(limit = 40) {
+  try {
+    const list = await db.query.articles.findMany({
+      where: and(eq(articles.status, "published"), isNotNull(articles.publishedAt)),
+      columns: { slug: true },
+      with: { category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit,
+    });
+    return list
+      .filter((a: any) => a.category?.slug && a.slug)
+      .map((a: any) => ({
+        category: a.category.slug,
+        slug: a.slug,
+      }));
+  } catch {
+    return [];
+  }
+}
+
+
 
