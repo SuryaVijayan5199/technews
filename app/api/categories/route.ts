@@ -6,7 +6,7 @@ import { getMemoryCache, setMemoryCache } from "@/lib/cache/cached-queries";
 
 import { STATIC_FALLBACK_CATEGORIES } from "@/lib/constants";
 
-export const revalidate = 3600; // Cache on Vercel Edge for 1 hour
+export const revalidate = 86400; // Cache on Vercel Edge for 24 hours
 
 export async function GET() {
   try {

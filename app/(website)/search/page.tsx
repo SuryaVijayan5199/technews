@@ -15,12 +15,12 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
   };
 }
 
-import { searchPublicArticles } from "@/lib/actions/article.actions";
+import { getCachedSearchResults } from "@/lib/cache/cached-queries";
 
 export default async function SearchResultsPage({ searchParams }: SearchPageProps) {
   const { q } = await searchParams;
   const query = q ?? "";
-  const results = query ? await searchPublicArticles(query, 20) : [];
+  const results = query ? await getCachedSearchResults(query, 20) : [];
 
   return (
     <div className="search-page">

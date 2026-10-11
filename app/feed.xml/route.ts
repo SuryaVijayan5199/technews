@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { siteConfig } from "@/config/site";
 
+export const revalidate = 86400;
+
 export async function GET() {
   const articles = [
     {

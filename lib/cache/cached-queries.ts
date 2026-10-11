@@ -192,3 +192,16 @@ export const getCachedArticleComments = async (articleId: number) => {
   const data = await getArticleComments(articleId);
   return setMemoryCache(key, data, COMMENTS_TTL_MS);
 };
+
+// Search Results Cache — 1 hour TTL
+export const getCachedSearchResults = async (query: string, limit = 20) => {
+  if (!query || query.trim().length === 0) return [];
+  const cleanQ = query.trim().toLowerCase();
+  const key = `search-${cleanQ}-${limit}`;
+  const cached = getMemoryCache<any[]>(key);
+  if (cached) return cached;
+  const { searchPublicArticles } = await import("@/lib/actions/article.actions");
+  const data = await searchPublicArticles(query, limit);
+  return setMemoryCache(key, data || [], 60 * 60 * 1000);
+};
+
