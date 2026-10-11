@@ -6,8 +6,8 @@ import { siteConfig } from "@/config/site";
 
 const BASE_URL = siteConfig.url;
 
-// Revalidate sitemap every hour — avoids full DB scan on every search crawler hit
-export const revalidate = 3600;
+// Revalidate sitemap every 24 hours (86400s) — avoids frequent DB scans from bots
+export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static routes

@@ -19,16 +19,16 @@ import { getArticleComments } from "@/lib/actions/comment.actions";
 // Completely eliminates Vercel Data Cache HTTP calls, ISR Writes, & Fast Origin Transfer charges ($0 Vercel Cost)
 const memoryCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
-// Listing pages cache (15 minutes) — less DB load, still fresh enough for news
-const LISTING_TTL_MS = 15 * 60 * 1000;
-// Article content cache (20 minutes) — articles rarely change after publish
-const ARTICLE_TTL_MS = 20 * 60 * 1000;
-// Breaking news bar cache (3 minutes) — short for freshness but not every request
-const BREAKING_TTL_MS = 3 * 60 * 1000;
-// Related articles cache (5 minutes) — less churn
-const RELATED_TTL_MS = 5 * 60 * 1000;
-// Comments cache (10 minutes)
-const COMMENTS_TTL_MS = 10 * 60 * 1000;
+// Listing pages cache (2 hours) — minimal DB load, auto-purged on publish
+const LISTING_TTL_MS = 2 * 60 * 60 * 1000;
+// Article content cache (2 hours) — articles rarely change after publish
+const ARTICLE_TTL_MS = 2 * 60 * 60 * 1000;
+// Breaking news bar cache (1 hour) — refreshed automatically on publish
+const BREAKING_TTL_MS = 1 * 60 * 60 * 1000;
+// Related articles cache (2 hours)
+const RELATED_TTL_MS = 2 * 60 * 60 * 1000;
+// Comments cache (30 minutes)
+const COMMENTS_TTL_MS = 30 * 60 * 1000;
 
 export function getMemoryCache<T>(key: string): T | null {
   const item = memoryCache.get(key);
@@ -80,7 +80,7 @@ export const getCachedTrendingArticles = async (limit = 10, excludeId?: number) 
   let data = getMemoryCache<any[]>(key);
   if (!data) {
     data = await getTrendingArticles(fetchLimit);
-    setMemoryCache(key, data, 60 * 1000);
+    setMemoryCache(key, data, 2 * 60 * 60 * 1000);
   }
   if (excludeId && Array.isArray(data)) {
     return data.filter((a: any) => a.id !== excludeId).slice(0, limit);

@@ -7,7 +7,7 @@ import { getAuthorsWithStats } from "@/lib/actions/author.actions";
 import { cleanAuthorName, getAuthorInitials } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "Meet the TechCrest Editorial Team — Authors & Journalists",

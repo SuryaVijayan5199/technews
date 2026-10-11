@@ -10,8 +10,8 @@ interface CategoryPageProps {
   params: Promise<{ category: string }>;
 }
 
-// ISR: revalidate category pages every 5 minutes (300 seconds). Instant purge on publish via invalidateArticleCache().
-export const revalidate = 300;
+// ISR: revalidate category pages once every 24 hours (86400s). Instant purge on publish via invalidateArticleCache().
+export const revalidate = 86400;
 
 export function generateStaticParams() {
   return [

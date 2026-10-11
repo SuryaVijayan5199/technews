@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
 import { TechCrestHomepage } from "@/components/home/techcrest-homepage";
 
-// ISR: revalidate every 5 minutes (300 seconds) — drastically reduces Vercel CPU + Neon DB wakeups.
-// Manual invalidation still works instantly via invalidateArticleCache → revalidatePath.
-export const revalidate = 300;
+// ISR: revalidate once every 24 hours (86400s).
+// Instant purge on publish or edit via invalidateArticleCache() -> revalidatePath.
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: `${siteConfig.name} — ${siteConfig.tagline}`,

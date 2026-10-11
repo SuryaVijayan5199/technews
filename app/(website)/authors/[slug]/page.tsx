@@ -7,7 +7,7 @@ import { ArticleCard } from "@/components/article/article-card";
 import { getCachedAuthorBySlugWithArticles } from "@/lib/cache/cached-queries";
 import { getAuthorsWithStats } from "@/lib/actions/author.actions";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 86400;
 
 interface AuthorPageProps {
   params: Promise<{ slug: string }>;

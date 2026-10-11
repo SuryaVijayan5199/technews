@@ -20,10 +20,10 @@ import { CommentsSection } from "@/components/article/comments-section";
 import { siteConfig } from "@/config/site";
 import { getTopPublishedArticleParams } from "@/lib/actions/article.actions";
 
-// ISR: revalidate articles every 10 minutes (600 seconds).
+// ISR: revalidate articles once every 24 hours (86400 seconds).
 // Pre-renders top articles at build time and caches all articles at Vercel Edge CDN.
 // On new publish or edit, invalidateArticleCache() purges the cache immediately via revalidatePath.
-export const revalidate = 600;
+export const revalidate = 86400;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
