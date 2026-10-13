@@ -357,9 +357,6 @@ export async function TechCrestHomepage() {
                       View All &rarr;
                     </Link>
                   </div>
-                  {category.description && (
-                    <p className="tc-topic-block__desc">{category.description}</p>
-                  )}
                   <div className="tc-topic-block__articles">
                     {articles.map((art: any) => (
                       <article key={art.id} className="tc-topic-art-card">

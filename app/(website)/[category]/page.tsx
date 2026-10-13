@@ -140,9 +140,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               TechCrest / {category.name}
             </span>
             <h1 className="cat-header__title">{category.name}</h1>
-            {category.description && (
-              <p className="cat-header__desc">{category.description}</p>
-            )}
           </div>
         </div>
       </div>

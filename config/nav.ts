@@ -41,6 +41,7 @@ export const footerNav = {
     { label: "About Us", href: "/about" },
     { label: "Contact", href: "/contact" },
     { label: "Advertise", href: "/advertise" },
+    { label: "Raw Pitch", href: "https://rawpitch.org/" },
   ],
   content: [
     { label: "Phone",       href: "/phone" },

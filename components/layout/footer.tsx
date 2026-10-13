@@ -34,18 +34,17 @@ export function Footer() {
             <p className="tc-footer__desc">
               Technology News. Smarter Insights. Real Impact
             </p>
-            <div className="tc-footer__socials">
+            <div className="tc-footer__socials" aria-label="Social media profiles (coming soon)">
               {footerNav.social.map((link) => (
-                <a
+                <span
                   key={link.label}
-                  href={link.href}
-                  target={link.href.startsWith("http") ? "_blank" : undefined}
-                  rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="tc-footer__social-btn"
-                  aria-label={link.label}
+                  className="tc-footer__social-btn tc-footer__social-btn--inactive"
+                  aria-label={`${link.label} (Not active)`}
+                  title={`${link.label} (Coming Soon)`}
+                  style={{ cursor: "default", opacity: 0.75, pointerEvents: "none" }}
                 >
                   <SocialIcon label={link.label} />
-                </a>
+                </span>
               ))}
             </div>
           </div>
@@ -71,7 +70,20 @@ export function Footer() {
             <ul className="tc-footer__list">
               {footerNav.company.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="tc-footer__link">{link.label}</Link>
+                  {link.href.startsWith("http") ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="tc-footer__link"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link href={link.href} className="tc-footer__link">
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

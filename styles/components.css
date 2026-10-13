@@ -1011,6 +1011,16 @@ html:not(.dark) .mobile-menu-panel__footer {
   border-color: #2D7FF9;
   color: #2D7FF9;
 }
+.tc-footer__social-btn--inactive {
+  cursor: default !important;
+  pointer-events: none !important;
+  opacity: 0.65;
+}
+.tc-footer__social-btn--inactive:hover {
+  background: hsl(var(--color-surface-2)) !important;
+  border-color: hsl(var(--color-surface-border)) !important;
+  color: hsl(var(--color-text-muted)) !important;
+}
 .tc-footer__social-btn .footer-social-icon {
   width: 14px;
   height: 14px;

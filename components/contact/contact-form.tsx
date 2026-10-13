@@ -1,11 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Send, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Send, CheckCircle2, ShieldCheck, AlertCircle } from "lucide-react";
+import { submitContactFormAction } from "@/lib/actions/contact.actions";
 
 export function ContactForm() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -13,13 +16,24 @@ export function ContactForm() {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
+    setErrorMessage("");
+
+    try {
+      const result = await submitContactFormAction(formData);
+      if (result.success) {
+        setSuccessMessage(result.message || "Thank you for reaching out to TechCrest. Our editorial desk has received your note and will review it promptly.");
+        setIsSubmitted(true);
+      } else {
+        setErrorMessage(result.error || "Failed to send message. Please try again.");
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.message || "An unexpected error occurred. Please try again or email editor@techcrest.news.");
+    } finally {
       setIsSubmitting(false);
-      setIsSubmitted(true);
-    }, 800);
+    }
   };
 
   if (isSubmitted) {
@@ -32,13 +46,14 @@ export function ContactForm() {
           Message Sent Successfully!
         </h2>
         <p className="tc-contact-success-desc">
-          Thank you for reaching out to TechCrest. Our editorial desk has received your note and will review it promptly.
+          {successMessage || "Thank you for reaching out to TechCrest. Our editorial desk has received your note and will review it promptly."}
         </p>
         <button
           type="button"
           onClick={() => {
             setIsSubmitted(false);
             setFormData({ name: "", email: "", subject: "tip", message: "" });
+            setErrorMessage("");
           }}
           className="btn btn-outline text-sm"
         >
@@ -64,6 +79,27 @@ export function ContactForm() {
           <span>Encrypted & Confidential</span>
         </div>
       </div>
+
+      {errorMessage && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            padding: "0.75rem 1rem",
+            marginBottom: "1rem",
+            borderRadius: "var(--radius-md, 8px)",
+            backgroundColor: "rgba(239, 68, 68, 0.1)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            color: "#ef4444",
+            fontSize: "0.875rem",
+          }}
+          role="alert"
+        >
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="tc-contact-form">
         <div className="tc-contact-form-row">

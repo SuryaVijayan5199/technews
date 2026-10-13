@@ -638,3 +638,17 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   reviews: many(reviews),
   affiliateLinks: many(affiliateLinks),
 }));
+
+// ─────────────────────────────────────────────
+// CONTACT SUBMISSIONS
+// ─────────────────────────────────────────────
+export const contactSubmissions = pgTable("contact_submissions", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  status: varchar("status", { length: 50 }).default("unread").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
