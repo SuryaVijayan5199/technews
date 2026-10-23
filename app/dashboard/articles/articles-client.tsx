@@ -16,6 +16,7 @@ import {
   Filter,
   X,
   Star,
+  Clock,
 } from "lucide-react";
 import { RoleGate } from "@/components/shared/role-gate";
 import { deleteArticleAction, toggleFeaturedArticleAction } from "@/lib/actions/article.actions";
@@ -30,6 +31,7 @@ type Article = {
   isFeatured?: boolean;
   viewCount: number;
   publishedAt: Date | null;
+  scheduledAt?: Date | string | null;
   createdAt: Date;
   author: {
     displayName: string;
@@ -302,7 +304,27 @@ export function ArticlesClient({
                     <span className="dashboard-article-card__category">
                       {article.category?.name || "Uncategorized"}
                     </span>
-                    {article.publishedAt && (
+                    {article.status === "scheduled" && article.scheduledAt ? (
+                      <>
+                        <span className="dashboard-article-card__dot">•</span>
+                        <span
+                          className="dashboard-article-card__date flex items-center gap-1 font-semibold"
+                          style={{ color: "#6366f1" }}
+                          title={`Scheduled for ${new Date(article.scheduledAt).toLocaleString()}`}
+                        >
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>
+                            Scheduled:{" "}
+                            {new Date(article.scheduledAt).toLocaleString("en-IN", {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </span>
+                      </>
+                    ) : article.publishedAt ? (
                       <>
                         <span className="dashboard-article-card__dot">•</span>
                         <span className="dashboard-article-card__date">
@@ -310,7 +332,7 @@ export function ArticlesClient({
                           {new Date(article.publishedAt).toLocaleDateString("en-IN")}
                         </span>
                       </>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </div>

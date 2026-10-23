@@ -13,6 +13,7 @@ import {
   AlertCircle,
   CheckCircle,
   Calendar,
+  Clock,
   Check,
 } from "lucide-react";
 import { RichTextEditor } from "@/components/editor/rich-text-editor";
@@ -20,6 +21,7 @@ import { AiAssistantPanel } from "@/components/editor/ai-assistant-panel";
 import { EnhancedImageUploader } from "@/components/dashboard/enhanced-image-uploader";
 import { createArticle, getAuthorsList } from "@/lib/actions/article.actions";
 import { getCategories } from "@/lib/actions/dashboard.actions";
+import { toLocalDatetimeInputString } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -55,9 +57,15 @@ export default function NewArticleEditorContent() {
   const [isBriefing, setIsBriefing] = useState(false);
   const [isGlobalBriefing, setIsGlobalBriefing] = useState(false);
   const [isBreaking, setIsBreaking] = useState(false);
-  const [publishedAtStr, setPublishedAtStr] = useState<string>(
-    new Date().toISOString().slice(0, 16)
+  const [publishedAtStr, setPublishedAtStr] = useState<string>(() =>
+    toLocalDatetimeInputString(new Date())
   );
+  const [scheduledAtStr, setScheduledAtStr] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(9, 0, 0, 0);
+    return toLocalDatetimeInputString(d);
+  });
 
   // Extended Article Attributes
   const [heroImageAlt, setHeroImageAlt] = useState("");
@@ -91,6 +99,7 @@ export default function NewArticleEditorContent() {
   // Submission state
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
 
   // AI panel
   const [aiOpen, setAiOpen] = useState(false);
@@ -181,7 +190,24 @@ export default function NewArticleEditorContent() {
       return;
     }
 
-    const setter = saveStatus === "published" ? setIsPublishing : setIsSaving;
+    if (saveStatus === "scheduled") {
+      const scheduledDate = new Date(scheduledAtStr);
+      if (isNaN(scheduledDate.getTime())) {
+        showToast("error", "Please select a valid scheduled date and time.");
+        return;
+      }
+      if (scheduledDate.getTime() <= Date.now()) {
+        showToast("error", "Scheduled publication date and time must be in the future.");
+        return;
+      }
+    }
+
+    const setter =
+      saveStatus === "published"
+        ? setIsPublishing
+        : saveStatus === "scheduled"
+        ? setIsScheduling
+        : setIsSaving;
     setter(true);
 
     try {
@@ -208,7 +234,8 @@ export default function NewArticleEditorContent() {
         isBriefing,
         isGlobalBriefing,
         isBreaking,
-        publishedAt: publishedAtStr ? new Date(publishedAtStr) : undefined,
+        publishedAt: saveStatus === "published" && publishedAtStr ? new Date(publishedAtStr) : undefined,
+        scheduledAt: saveStatus === "scheduled" ? new Date(scheduledAtStr) : undefined,
       });
 
       if (result.success) {
@@ -216,6 +243,13 @@ export default function NewArticleEditorContent() {
           "success",
           saveStatus === "published"
             ? "Article published successfully! Opening article..."
+            : saveStatus === "scheduled"
+            ? `Article scheduled for ${new Date(scheduledAtStr).toLocaleString("en-IN", {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}!`
             : saveStatus === "pending_review"
             ? "Article submitted for review!"
             : "Draft saved successfully!"
@@ -276,7 +310,7 @@ export default function NewArticleEditorContent() {
             type="button"
             className="btn btn-ghost dashboard-editor__action-btn text-xs sm:text-sm"
             onClick={() => handleSave("draft")}
-            disabled={isSaving || isPublishing}
+            disabled={isSaving || isPublishing || isScheduling}
           >
             {isSaving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -290,7 +324,7 @@ export default function NewArticleEditorContent() {
             type="button"
             className="btn btn-secondary dashboard-editor__action-btn text-xs sm:text-sm"
             onClick={() => handleSave("pending_review")}
-            disabled={isSaving || isPublishing}
+            disabled={isSaving || isPublishing || isScheduling}
           >
             {isPublishing ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -301,19 +335,39 @@ export default function NewArticleEditorContent() {
           </button>
 
           {canDirectPublish && (
-            <button
-              type="button"
-              className="btn btn-primary dashboard-editor__action-btn text-xs sm:text-sm"
-              onClick={() => handleSave("published")}
-              disabled={isSaving || isPublishing}
-            >
-              {isPublishing ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <CheckCircle className="w-4 h-4" />
-              )}
-              {isPublishing ? "Publishing..." : "Publish Now"}
-            </button>
+            <>
+              <button
+                type="button"
+                className="btn dashboard-editor__action-btn text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 border-indigo-600 shadow-sm"
+                onClick={() => {
+                  setStatus("scheduled");
+                  handleSave("scheduled");
+                }}
+                disabled={isSaving || isPublishing || isScheduling}
+                title="Schedule this article for automated future publication"
+              >
+                {isScheduling ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Clock className="w-4 h-4" />
+                )}
+                {isScheduling ? "Scheduling..." : "Schedule"}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-primary dashboard-editor__action-btn text-xs sm:text-sm"
+                onClick={() => handleSave("published")}
+                disabled={isSaving || isPublishing || isScheduling}
+              >
+                {isPublishing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CheckCircle className="w-4 h-4" />
+                )}
+                {isPublishing ? "Publishing..." : "Publish Now"}
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -448,7 +502,7 @@ export default function NewArticleEditorContent() {
             <div className="dashboard-editor__field mt-3">
               <label
                 htmlFor="editor-status-select"
-                className="dashboard-editor__label text-xs sm:text-sm"
+                className="dashboard-editor__label text-xs sm:text-sm font-semibold"
               >
                 Status
               </label>
@@ -461,10 +515,71 @@ export default function NewArticleEditorContent() {
                 <option value="draft">Draft</option>
                 <option value="pending_review">Pending Review</option>
                 <option value="seo_review">SEO Review</option>
-                <option value="scheduled">Scheduled</option>
+                <option value="scheduled">Scheduled for Release</option>
                 <option value="published">Published</option>
               </select>
             </div>
+
+            {/* Scheduled Release Panel */}
+            {status === "scheduled" && (
+              <div className="mt-3 p-3 bg-indigo-500/10 border border-indigo-500/30 rounded-xl space-y-2">
+                <div className="flex items-center gap-1.5 text-indigo-400 font-bold text-xs">
+                  <Clock className="w-4 h-4 text-indigo-400" />
+                  <span>Scheduled Publication</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground leading-relaxed">
+                  The article will remain hidden from readers until this date &amp; time, when it automatically goes live.
+                </p>
+                <div>
+                  <label htmlFor="editor-scheduled-at" className="text-[10px] font-semibold text-muted-foreground block mb-1">
+                    Release Date &amp; Time
+                  </label>
+                  <input
+                    id="editor-scheduled-at"
+                    type="datetime-local"
+                    value={scheduledAtStr}
+                    onChange={(e) => setScheduledAtStr(e.target.value)}
+                    className="input dashboard-editor__input text-xs w-full p-2 bg-[var(--color-surface-2)] rounded-lg border border-indigo-500/40 focus:border-indigo-500"
+                  />
+                </div>
+                {/* Presets */}
+                <div className="flex flex-wrap gap-1 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setScheduledAtStr(toLocalDatetimeInputString(new Date(Date.now() + 60 * 60 * 1000)));
+                    }}
+                    className="text-[10px] px-2 py-0.5 rounded bg-[var(--color-surface-2)] border border-[var(--color-surface-border)] hover:border-indigo-500 hover:text-indigo-400 transition-colors"
+                  >
+                    +1 Hour
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const d = new Date();
+                      d.setDate(d.getDate() + 1);
+                      d.setHours(9, 0, 0, 0);
+                      setScheduledAtStr(toLocalDatetimeInputString(d));
+                    }}
+                    className="text-[10px] px-2 py-0.5 rounded bg-[var(--color-surface-2)] border border-[var(--color-surface-border)] hover:border-indigo-500 hover:text-indigo-400 transition-colors"
+                  >
+                    Tomorrow 9 AM
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const d = new Date();
+                      d.setDate(d.getDate() + ((1 + 7 - d.getDay()) % 7 || 7));
+                      d.setHours(9, 0, 0, 0);
+                      setScheduledAtStr(toLocalDatetimeInputString(d));
+                    }}
+                    className="text-[10px] px-2 py-0.5 rounded bg-[var(--color-surface-2)] border border-[var(--color-surface-border)] hover:border-indigo-500 hover:text-indigo-400 transition-colors"
+                  >
+                    Next Monday 9 AM
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Category */}
             <div className="dashboard-editor__field mt-3">
@@ -649,21 +764,23 @@ export default function NewArticleEditorContent() {
             </div>
 
             {/* Publish Date & Time Field */}
-            <div className="dashboard-editor__field mt-4 border-t border-[var(--color-surface-border)] pt-3">
-              <label htmlFor="editor-published-at" className="dashboard-editor__label text-xs sm:text-sm font-semibold flex items-center gap-1.5 mb-1">
-                <Calendar className="w-3.5 h-3.5 text-[#2D7FF9]" /> Publish Date &amp; Time
-              </label>
-              <input
-                id="editor-published-at"
-                type="datetime-local"
-                value={publishedAtStr}
-                onChange={(e) => setPublishedAtStr(e.target.value)}
-                className="input dashboard-editor__input text-xs w-full p-2 bg-[var(--color-surface-2)] rounded-lg border border-[var(--color-surface-border)]"
-              />
-              <p className="text-[10px] text-muted-foreground mt-1">
-                Editors can schedule or backdate publishing timestamp.
-              </p>
-            </div>
+            {status !== "scheduled" && (
+              <div className="dashboard-editor__field mt-4 border-t border-[var(--color-surface-border)] pt-3">
+                <label htmlFor="editor-published-at" className="dashboard-editor__label text-xs sm:text-sm font-semibold flex items-center gap-1.5 mb-1">
+                  <Calendar className="w-3.5 h-3.5 text-[#2D7FF9]" /> Publish Date &amp; Time
+                </label>
+                <input
+                  id="editor-published-at"
+                  type="datetime-local"
+                  value={publishedAtStr}
+                  onChange={(e) => setPublishedAtStr(e.target.value)}
+                  className="input dashboard-editor__input text-xs w-full p-2 bg-[var(--color-surface-2)] rounded-lg border border-[var(--color-surface-border)]"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Editors can set custom or backdated publishing timestamp.
+                </p>
+              </div>
+            )}
 
             {/* Homepage Section Placement Flags */}
             <div className="dashboard-editor__field mt-4 border-t border-[var(--color-surface-border)] pt-3">

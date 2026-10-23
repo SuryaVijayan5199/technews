@@ -3,7 +3,7 @@
 import { cache } from "react";
 import { db } from "@/lib/db";
 import { articles, authors, categories } from "@/lib/db/schema";
-import { eq, or, ilike, and, desc, isNotNull, inArray, ne, sql } from "drizzle-orm";
+import { eq, or, ilike, and, desc, isNotNull, inArray, ne, sql, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { invalidateArticleCache } from "@/lib/cache/revalidate";
 import { auth } from "@/lib/auth";
@@ -332,6 +332,7 @@ export async function createArticle(data: {
   isBriefing?: boolean;
   isGlobalBriefing?: boolean;
   publishedAt?: Date | string | null;
+  scheduledAt?: Date | string | null;
 }) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -410,11 +411,25 @@ export async function createArticle(data: {
       slug = `${slug}-${Date.now()}`;
     }
 
-    const publishedAt = data.publishedAt
-      ? new Date(data.publishedAt)
-      : data.status === "published"
-      ? new Date()
-      : null;
+    const isScheduled = data.status === "scheduled";
+    let scheduledAt: Date | null = null;
+    let publishedAt: Date | null = null;
+
+    if (isScheduled) {
+      scheduledAt = data.scheduledAt
+        ? new Date(data.scheduledAt)
+        : data.publishedAt
+        ? new Date(data.publishedAt)
+        : new Date(Date.now() + 24 * 60 * 60 * 1000);
+      publishedAt = null;
+    } else {
+      publishedAt = data.publishedAt
+        ? new Date(data.publishedAt)
+        : data.status === "published"
+        ? new Date()
+        : null;
+      scheduledAt = data.scheduledAt ? new Date(data.scheduledAt) : null;
+    }
 
     const [article] = await db
       .insert(articles)
@@ -441,6 +456,7 @@ export async function createArticle(data: {
         isBriefing: !!data.isBriefing,
         isGlobalBriefing: !!data.isGlobalBriefing,
         publishedAt: publishedAt ?? null,
+        scheduledAt: scheduledAt ?? null,
         readingTimeMinutes: estimateReadingTime(data.contentHtml ?? ""),
       })
       .returning();
@@ -530,8 +546,75 @@ export async function searchPublicArticles(query: string, limit = 5) {
   }
 }
 
+/**
+ * Automatically checks for scheduled articles whose scheduled release time has arrived,
+ * publishes them, and invalidates all associated caches.
+ */
+export async function checkAndPublishScheduledArticles() {
+  try {
+    const now = new Date();
+    const dueArticles = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "scheduled"),
+        isNotNull(articles.scheduledAt),
+        lte(articles.scheduledAt, now)
+      ),
+      columns: {
+        id: true,
+        slug: true,
+        scheduledAt: true,
+        categoryId: true,
+        authorId: true,
+        secondaryCategoryIds: true,
+      },
+      with: {
+        category: true,
+      },
+    });
+
+    if (!dueArticles || dueArticles.length === 0) {
+      return { success: true, count: 0 };
+    }
+
+    for (const item of dueArticles) {
+      await db
+        .update(articles)
+        .set({
+          status: "published",
+          publishedAt: item.scheduledAt || now,
+          updatedAt: now,
+        })
+        .where(eq(articles.id, item.id));
+
+      let secSlugs: string[] = [];
+      if (item.secondaryCategoryIds && item.secondaryCategoryIds.length > 0) {
+        const secCats = await db.query.categories.findMany({
+          where: inArray(categories.id, item.secondaryCategoryIds),
+        });
+        secSlugs = secCats.map((sc) => sc.slug);
+      }
+
+      await invalidateArticleCache({
+        articleId: item.id,
+        articleSlug: item.slug,
+        categorySlug: item.category?.slug,
+        authorId: item.authorId ?? undefined,
+        secondaryCategorySlugs: secSlugs,
+      });
+    }
+
+    await updateExcelBackupFile();
+    return { success: true, count: dueArticles.length };
+  } catch (error) {
+    console.error("Error auto-publishing scheduled articles:", error);
+    return { success: false, error: String(error), count: 0 };
+  }
+}
+
 export async function getArticles(search: string = "", tab: string = "all") {
   try {
+    await checkAndPublishScheduledArticles();
+
     const conditions = [];
 
     if (search) {
@@ -998,6 +1081,34 @@ export const getArticleBySlug = cache(async (slug: string) => {
       },
     });
 
+    if (
+      article &&
+      article.status === "scheduled" &&
+      article.scheduledAt &&
+      new Date(article.scheduledAt) <= new Date()
+    ) {
+      await db
+        .update(articles)
+        .set({
+          status: "published",
+          publishedAt: article.scheduledAt,
+          updatedAt: new Date(),
+        })
+        .where(eq(articles.id, article.id));
+
+      await invalidateArticleCache({
+        articleId: article.id,
+        articleSlug: article.slug,
+        categorySlug: article.category?.slug,
+      });
+
+      return {
+        ...article,
+        status: "published",
+        publishedAt: article.scheduledAt,
+      };
+    }
+
     return article;
   } catch (error) {
     console.error("Error fetching article by slug:", error);
@@ -1053,6 +1164,7 @@ export async function updateArticleAction(
     isBriefing?: boolean;
     isGlobalBriefing?: boolean;
     publishedAt?: Date | string | null;
+    scheduledAt?: Date | string | null;
   }
 ) {
   const session = await auth();
@@ -1083,13 +1195,34 @@ export async function updateArticleAction(
 
     const wasPublished = existingArticle.status === "published";
     const isNowPublished = data.status === "published";
-    const publishedAt = data.publishedAt
-      ? new Date(data.publishedAt)
-      : isNowPublished && !wasPublished
-      ? new Date()
-      : isNowPublished
-      ? existingArticle.publishedAt ?? new Date()
-      : existingArticle.publishedAt; // PRESERVE existing publishedAt when archiving/drafting
+    const isNowScheduled = data.status === "scheduled";
+
+    let scheduledAt: Date | null = existingArticle.scheduledAt;
+    let publishedAt: Date | null = existingArticle.publishedAt;
+
+    if (isNowScheduled) {
+      scheduledAt = data.scheduledAt
+        ? new Date(data.scheduledAt)
+        : data.publishedAt
+        ? new Date(data.publishedAt)
+        : existingArticle.scheduledAt ?? new Date(Date.now() + 24 * 60 * 60 * 1000);
+      if (!wasPublished) {
+        publishedAt = null;
+      }
+    } else if (isNowPublished) {
+      publishedAt = data.publishedAt
+        ? new Date(data.publishedAt)
+        : !wasPublished
+        ? new Date()
+        : existingArticle.publishedAt ?? new Date();
+    } else {
+      publishedAt = data.publishedAt
+        ? new Date(data.publishedAt)
+        : existingArticle.publishedAt;
+      if (data.scheduledAt !== undefined) {
+        scheduledAt = data.scheduledAt ? new Date(data.scheduledAt) : null;
+      }
+    }
 
     let newSlug = data.customSlug ? generateSlug(data.customSlug) : existingArticle.slug;
     if (data.customSlug) {
@@ -1123,6 +1256,7 @@ export async function updateArticleAction(
       isBriefing: !!data.isBriefing,
       isGlobalBriefing: !!data.isGlobalBriefing,
       publishedAt,
+      scheduledAt,
       readingTimeMinutes: estimateReadingTime(data.contentHtml ?? ""),
       updatedAt: new Date(),
     };

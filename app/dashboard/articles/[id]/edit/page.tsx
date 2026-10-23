@@ -13,6 +13,7 @@ import {
   AlertCircle,
   CheckCircle,
   Calendar,
+  Clock,
   Check,
 } from "lucide-react";
 import { RichTextEditor } from "@/components/editor/rich-text-editor";
@@ -20,6 +21,7 @@ import { AiAssistantPanel } from "@/components/editor/ai-assistant-panel";
 import { EnhancedImageUploader } from "@/components/dashboard/enhanced-image-uploader";
 import { getArticleById, updateArticleAction, getAuthorsList } from "@/lib/actions/article.actions";
 import { getCategories } from "@/lib/actions/dashboard.actions";
+import { toLocalDatetimeInputString } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -65,6 +67,12 @@ export default function EditArticlePage({
   const [isGlobalBriefing, setIsGlobalBriefing] = useState(false);
   const [isBreaking, setIsBreaking] = useState(false);
   const [publishedAtStr, setPublishedAtStr] = useState<string>("");
+  const [scheduledAtStr, setScheduledAtStr] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(9, 0, 0, 0);
+    return toLocalDatetimeInputString(d);
+  });
 
   // Extended Article Attributes
   const [heroImageAlt, setHeroImageAlt] = useState("");
@@ -84,6 +92,7 @@ export default function EditArticlePage({
   // Submission state
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
 
   // AI panel
   const [aiOpen, setAiOpen] = useState(false);
@@ -133,17 +142,10 @@ export default function EditArticlePage({
             setSelectedAuthorId(article.authorId);
           }
           if (article.publishedAt) {
-            try {
-              const d = new Date(article.publishedAt);
-              const year = d.getFullYear();
-              const month = String(d.getMonth() + 1).padStart(2, "0");
-              const day = String(d.getDate()).padStart(2, "0");
-              const hours = String(d.getHours()).padStart(2, "0");
-              const minutes = String(d.getMinutes()).padStart(2, "0");
-              setPublishedAtStr(`${year}-${month}-${day}T${hours}:${minutes}`);
-            } catch (e) {
-              setPublishedAtStr("");
-            }
+            setPublishedAtStr(toLocalDatetimeInputString(article.publishedAt));
+          }
+          if (article.scheduledAt) {
+            setScheduledAtStr(toLocalDatetimeInputString(article.scheduledAt));
           }
           if (article.category?.slug) {
             setCategory(article.category.slug);
@@ -238,7 +240,24 @@ export default function EditArticlePage({
       return;
     }
 
-    const setter = saveStatus === "published" ? setIsPublishing : setIsSaving;
+    if (saveStatus === "scheduled") {
+      const scheduledDate = new Date(scheduledAtStr);
+      if (isNaN(scheduledDate.getTime())) {
+        showToast("error", "Please select a valid scheduled date and time.");
+        return;
+      }
+      if (scheduledDate.getTime() <= Date.now()) {
+        showToast("error", "Scheduled publication date and time must be in the future.");
+        return;
+      }
+    }
+
+    const setter =
+      saveStatus === "published"
+        ? setIsPublishing
+        : saveStatus === "scheduled"
+        ? setIsScheduling
+        : setIsSaving;
     setter(true);
 
     try {
@@ -265,7 +284,8 @@ export default function EditArticlePage({
         isBriefing,
         isGlobalBriefing,
         isBreaking,
-        publishedAt: publishedAtStr ? new Date(publishedAtStr) : undefined,
+        publishedAt: saveStatus === "published" && publishedAtStr ? new Date(publishedAtStr) : undefined,
+        scheduledAt: saveStatus === "scheduled" ? new Date(scheduledAtStr) : undefined,
       });
 
       if (result.success) {
@@ -273,6 +293,13 @@ export default function EditArticlePage({
           "success",
           saveStatus === "published"
             ? "Article published & updated!"
+            : saveStatus === "scheduled"
+            ? `Article scheduled for ${new Date(scheduledAtStr).toLocaleString("en-IN", {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}!`
             : "Article updated successfully!"
         );
         setTimeout(() => router.push("/dashboard/articles"), 1200);
@@ -335,7 +362,7 @@ export default function EditArticlePage({
             type="button"
             className="btn btn-ghost dashboard-editor__action-btn text-xs sm:text-sm"
             onClick={() => handleSave(status)}
-            disabled={isSaving || isPublishing}
+            disabled={isSaving || isPublishing || isScheduling}
           >
             {isSaving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -345,20 +372,44 @@ export default function EditArticlePage({
             {isSaving ? "Saving..." : "Save Changes"}
           </button>
 
-          {canDirectPublish && status !== "published" && (
-            <button
-              type="button"
-              className="btn btn-primary dashboard-editor__action-btn text-xs sm:text-sm"
-              onClick={() => handleSave("published")}
-              disabled={isSaving || isPublishing}
-            >
-              {isPublishing ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Send className="w-4 h-4" />
+          {canDirectPublish && (
+            <>
+              {status !== "scheduled" && status !== "published" && (
+                <button
+                  type="button"
+                  className="btn dashboard-editor__action-btn text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 border-indigo-600 shadow-sm"
+                  onClick={() => {
+                    setStatus("scheduled");
+                    handleSave("scheduled");
+                  }}
+                  disabled={isSaving || isPublishing || isScheduling}
+                  title="Schedule this article for automated future publication"
+                >
+                  {isScheduling ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Clock className="w-4 h-4" />
+                  )}
+                  {isScheduling ? "Scheduling..." : "Schedule"}
+                </button>
               )}
-              {isPublishing ? "Publishing..." : "Publish Article"}
-            </button>
+
+              {status !== "published" && (
+                <button
+                  type="button"
+                  className="btn btn-primary dashboard-editor__action-btn text-xs sm:text-sm"
+                  onClick={() => handleSave("published")}
+                  disabled={isSaving || isPublishing || isScheduling}
+                >
+                  {isPublishing ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                  {isPublishing ? "Publishing..." : "Publish Article"}
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -490,8 +541,8 @@ export default function EditArticlePage({
 
             {/* Status */}
             <div className="dashboard-editor__field mt-3">
-              <label htmlFor="edit-status-select" className="dashboard-editor__label text-xs sm:text-sm">
-                Status
+              <label htmlFor="edit-status-select" className="dashboard-editor__label text-xs sm:text-sm font-semibold">
+                Article Status
               </label>
               <select
                 id="edit-status-select"
@@ -502,10 +553,71 @@ export default function EditArticlePage({
                 <option value="draft">Draft</option>
                 <option value="pending_review">Pending Review</option>
                 <option value="seo_review">SEO Review</option>
-                <option value="scheduled">Scheduled</option>
+                <option value="scheduled">Scheduled for Release</option>
                 <option value="published">Published</option>
               </select>
             </div>
+
+            {/* Scheduled Release Panel */}
+            {status === "scheduled" && (
+              <div className="mt-3 p-3 bg-indigo-500/10 border border-indigo-500/30 rounded-xl space-y-2">
+                <div className="flex items-center gap-1.5 text-indigo-400 font-bold text-xs">
+                  <Clock className="w-4 h-4 text-indigo-400" />
+                  <span>Scheduled Publication</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground leading-relaxed">
+                  The article will remain hidden from readers until this date &amp; time, when it automatically goes live.
+                </p>
+                <div>
+                  <label htmlFor="edit-scheduled-at" className="text-[10px] font-semibold text-muted-foreground block mb-1">
+                    Release Date &amp; Time
+                  </label>
+                  <input
+                    id="edit-scheduled-at"
+                    type="datetime-local"
+                    value={scheduledAtStr}
+                    onChange={(e) => setScheduledAtStr(e.target.value)}
+                    className="input dashboard-editor__input text-xs w-full p-2 bg-[var(--color-surface-2)] rounded-lg border border-indigo-500/40 focus:border-indigo-500"
+                  />
+                </div>
+                {/* Presets */}
+                <div className="flex flex-wrap gap-1 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setScheduledAtStr(toLocalDatetimeInputString(new Date(Date.now() + 60 * 60 * 1000)));
+                    }}
+                    className="text-[10px] px-2 py-0.5 rounded bg-[var(--color-surface-2)] border border-[var(--color-surface-border)] hover:border-indigo-500 hover:text-indigo-400 transition-colors"
+                  >
+                    +1 Hour
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const d = new Date();
+                      d.setDate(d.getDate() + 1);
+                      d.setHours(9, 0, 0, 0);
+                      setScheduledAtStr(toLocalDatetimeInputString(d));
+                    }}
+                    className="text-[10px] px-2 py-0.5 rounded bg-[var(--color-surface-2)] border border-[var(--color-surface-border)] hover:border-indigo-500 hover:text-indigo-400 transition-colors"
+                  >
+                    Tomorrow 9 AM
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const d = new Date();
+                      d.setDate(d.getDate() + ((1 + 7 - d.getDay()) % 7 || 7));
+                      d.setHours(9, 0, 0, 0);
+                      setScheduledAtStr(toLocalDatetimeInputString(d));
+                    }}
+                    className="text-[10px] px-2 py-0.5 rounded bg-[var(--color-surface-2)] border border-[var(--color-surface-border)] hover:border-indigo-500 hover:text-indigo-400 transition-colors"
+                  >
+                    Next Monday 9 AM
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Category */}
             <div className="dashboard-editor__field mt-3">
@@ -687,21 +799,23 @@ export default function EditArticlePage({
             </div>
 
             {/* Publish Date & Time Field */}
-            <div className="dashboard-editor__field mt-4 border-t border-[var(--color-surface-border)] pt-3">
-              <label htmlFor="edit-published-at" className="dashboard-editor__label text-xs sm:text-sm font-semibold flex items-center gap-1.5 mb-1">
-                <Calendar className="w-3.5 h-3.5 text-[#2D7FF9]" /> Publish Date &amp; Time
-              </label>
-              <input
-                id="edit-published-at"
-                type="datetime-local"
-                value={publishedAtStr}
-                onChange={(e) => setPublishedAtStr(e.target.value)}
-                className="input dashboard-editor__input text-xs w-full p-2 bg-[var(--color-surface-2)] rounded-lg border border-[var(--color-surface-border)]"
-              />
-              <p className="text-[10px] text-muted-foreground mt-1">
-                Editors can schedule or backdate publishing timestamp.
-              </p>
-            </div>
+            {status !== "scheduled" && (
+              <div className="dashboard-editor__field mt-4 border-t border-[var(--color-surface-border)] pt-3">
+                <label htmlFor="edit-published-at" className="dashboard-editor__label text-xs sm:text-sm font-semibold flex items-center gap-1.5 mb-1">
+                  <Calendar className="w-3.5 h-3.5 text-[#2D7FF9]" /> Publish Date &amp; Time
+                </label>
+                <input
+                  id="edit-published-at"
+                  type="datetime-local"
+                  value={publishedAtStr}
+                  onChange={(e) => setPublishedAtStr(e.target.value)}
+                  className="input dashboard-editor__input text-xs w-full p-2 bg-[var(--color-surface-2)] rounded-lg border border-[var(--color-surface-border)]"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Editors can set custom or backdated publishing timestamp.
+                </p>
+              </div>
+            )}
 
             {/* Homepage Section Placement Flags */}
             <div className="dashboard-editor__field mt-4 border-t border-[var(--color-surface-border)] pt-3">

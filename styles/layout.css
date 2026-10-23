@@ -2235,6 +2235,18 @@ html:not(.dark) .dashboard-toast, .light .dashboard-toast {
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
+.status-badge--scheduled {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.status-badge--archived {
+  background-color: rgba(100, 116, 139, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
 /* Action Group Buttons */
 .dashboard-action-group {
   display: inline-flex;

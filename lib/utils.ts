@@ -23,6 +23,21 @@ export function formatDate(
 }
 
 /**
+ * Format a Date object or ISO string to local YYYY-MM-DDTHH:mm string for HTML <input type="datetime-local">.
+ * Preserves the browser/user local timezone instead of converting to UTC.
+ */
+export function toLocalDatetimeInputString(date: Date | string = new Date()): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "";
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+/**
  * Format a relative time (e.g., "2 hours ago")
  */
 export function formatRelativeTime(date: Date | string): string {
