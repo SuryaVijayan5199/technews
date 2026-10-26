@@ -377,7 +377,7 @@ export default function EditArticlePage({
               {status !== "scheduled" && status !== "published" && (
                 <button
                   type="button"
-                  className="btn dashboard-editor__action-btn text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 border-indigo-600 shadow-sm"
+                  className="btn dashboard-editor__action-btn dashboard-editor__schedule-btn text-xs sm:text-sm"
                   onClick={() => {
                     setStatus("scheduled");
                     handleSave("scheduled");
@@ -560,16 +560,16 @@ export default function EditArticlePage({
 
             {/* Scheduled Release Panel */}
             {status === "scheduled" && (
-              <div className="mt-3 p-3 bg-indigo-500/10 border border-indigo-500/30 rounded-xl space-y-2">
-                <div className="flex items-center gap-1.5 text-indigo-400 font-bold text-xs">
-                  <Clock className="w-4 h-4 text-indigo-400" />
+              <div className="dashboard-editor__schedule-box space-y-2">
+                <div className="dashboard-editor__schedule-box-header">
+                  <Clock className="w-4 h-4" />
                   <span>Scheduled Publication</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground leading-relaxed">
+                <p className="text-[11px] text-muted-foreground leading-relaxed m-0">
                   The article will remain hidden from readers until this date &amp; time, when it automatically goes live.
                 </p>
                 <div>
-                  <label htmlFor="edit-scheduled-at" className="text-[10px] font-semibold text-muted-foreground block mb-1">
+                  <label htmlFor="edit-scheduled-at" className="text-[11px] font-semibold text-muted-foreground block mb-1">
                     Release Date &amp; Time
                   </label>
                   <input
@@ -587,7 +587,7 @@ export default function EditArticlePage({
                     onClick={() => {
                       setScheduledAtStr(toLocalDatetimeInputString(new Date(Date.now() + 60 * 60 * 1000)));
                     }}
-                    className="text-[10px] px-2 py-0.5 rounded bg-[var(--color-surface-2)] border border-[var(--color-surface-border)] hover:border-indigo-500 hover:text-indigo-400 transition-colors"
+                    className="dashboard-editor__schedule-preset-btn"
                   >
                     +1 Hour
                   </button>
@@ -599,7 +599,7 @@ export default function EditArticlePage({
                       d.setHours(9, 0, 0, 0);
                       setScheduledAtStr(toLocalDatetimeInputString(d));
                     }}
-                    className="text-[10px] px-2 py-0.5 rounded bg-[var(--color-surface-2)] border border-[var(--color-surface-border)] hover:border-indigo-500 hover:text-indigo-400 transition-colors"
+                    className="dashboard-editor__schedule-preset-btn"
                   >
                     Tomorrow 9 AM
                   </button>
@@ -611,7 +611,7 @@ export default function EditArticlePage({
                       d.setHours(9, 0, 0, 0);
                       setScheduledAtStr(toLocalDatetimeInputString(d));
                     }}
-                    className="text-[10px] px-2 py-0.5 rounded bg-[var(--color-surface-2)] border border-[var(--color-surface-border)] hover:border-indigo-500 hover:text-indigo-400 transition-colors"
+                    className="dashboard-editor__schedule-preset-btn"
                   >
                     Next Monday 9 AM
                   </button>
