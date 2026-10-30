@@ -41,6 +41,19 @@ export const siteConfig = {
     linkedin: "https://linkedin.com/company/techcrest",
     rss: "/feed.xml",
   },
+  address: {
+    entity: "TechCrest",
+    floor: "4th Floor, VM Grandeur",
+    city: "Bangalore",
+    postalCode: "560113",
+    state: "Karnataka",
+    country: "India",
+    full: "TechCrest, 4th Floor VM Grandeur, Bangalore 560113, India",
+  },
+  contact: {
+    email: "editor@techcrest.news",
+    privacyEmail: "privacy@techcrest.news",
+  },
 };
 
 export type SiteConfig = typeof siteConfig;

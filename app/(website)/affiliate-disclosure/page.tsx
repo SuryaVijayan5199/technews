@@ -101,6 +101,22 @@ export default function AffiliateDisclosurePage() {
               The terms, commission structures and participating partners may change over time.
             </p>
           </section>
+
+          {/* Contact & Transparency */}
+          <section className="tc-policy-page__section">
+            <h2 className="tc-policy-page__section-title">
+              <Info className="tc-policy-page__section-icon" />
+              Commerce Questions & Transparency
+            </h2>
+            <p>
+              If you have any questions about an affiliate link, product feature, or commerce partnership, please reach our editorial commerce desk:
+            </p>
+            <div className="tc-policy-page__intro-card mt-3 text-sm space-y-1.5">
+              <p><strong>Entity:</strong> TechCrest</p>
+              <p><strong>Headquarters:</strong> 4th Floor VM Grandeur, Bangalore 560113, India</p>
+              <p><strong>Inquiries:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
+            </div>
+          </section>
         </div>
       </div>
     </div>

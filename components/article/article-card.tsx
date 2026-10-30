@@ -30,6 +30,7 @@ interface ArticleCardProps {
   variant?: "default" | "featured" | "compact" | "horizontal";
   className?: string;
   showReadingTime?: boolean;
+  showBreakingBadge?: boolean;
 }
 
 export function ArticleCard({
@@ -37,8 +38,10 @@ export function ArticleCard({
   variant = "default",
   className,
   showReadingTime = true,
+  showBreakingBadge = false,
 }: ArticleCardProps) {
   const href = `/${article.categorySlug ?? "news"}/${article.slug}`;
+  const displayBreaking = showBreakingBadge && article.isBreaking;
 
   if (variant === "compact") {
     return (
@@ -139,10 +142,10 @@ export function ArticleCard({
           )}
           <div className="article-card__featured-overlay" />
           <div className="article-card__featured-content">
-            {article.isBreaking && (
+            {displayBreaking && (
               <span className="badge badge-breaking mb-3 relative tc-card-badge">Breaking</span>
             )}
-            {!article.isBreaking && article.categoryName && (
+            {!displayBreaking && article.categoryName && (
               <span className="badge badge-news mb-3 relative tc-card-badge">{article.categoryName}</span>
             )}
             <h2 className="article-card__featured-title">
@@ -189,12 +192,12 @@ export function ArticleCard({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="article-card__image"
           />
-          {article.isBreaking && (
+          {displayBreaking && (
             <div className="article-card__badge-wrap">
               <span className="badge badge-breaking tc-shadow-md">Breaking</span>
             </div>
           )}
-          {article.categoryName && !article.isBreaking && (
+          {article.categoryName && !displayBreaking && (
             <div className="article-card__badge-wrap">
               <span className="article-card__category-badge">
                 {article.categoryName}

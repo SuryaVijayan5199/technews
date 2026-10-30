@@ -34,6 +34,11 @@ export function Footer() {
             <p className="tc-footer__desc">
               Technology News. Smarter Insights. Real Impact
             </p>
+            <address className="not-italic text-xs text-muted-foreground mt-2 mb-3 leading-relaxed">
+              <span className="font-semibold text-foreground/80">Headquarters:</span><br />
+              TechCrest, 4th Floor VM Grandeur<br />
+              Bangalore 560113, India
+            </address>
             <div className="tc-footer__socials" aria-label="Social media profiles (coming soon)">
               {footerNav.social.map((link) => (
                 <span

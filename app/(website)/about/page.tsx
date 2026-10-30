@@ -136,13 +136,26 @@ export default function AboutPage() {
           <section className="tc-policy-page__section">
             <h2 className="tc-policy-page__section-title">
               <span className="tc-policy-page__section-num">5</span>
+              Newsroom Headquarters
+            </h2>
+            <p>
+              Operating from the heart of India&apos;s primary technology hub, our editorial desk coordinates reporting, investigative research, and hands-on hardware testing for a global audience.
+            </p>
+            <div className="tc-policy-page__intro-card mt-3 text-sm space-y-1.5">
+              <p><strong>Headquarters:</strong> TechCrest, 4th Floor VM Grandeur, Bangalore 560113, India</p>
+              <p><strong>Editorial Desk:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
+              <p><strong>Sister Initiative:</strong> <a href="https://rawpitch.org/" target="_blank" rel="noopener noreferrer" className="text-[#2D7FF9] underline">Raw Pitch (rawpitch.org)</a></p>
+            </div>
+          </section>
+
+          {/* Section 6 */}
+          <section className="tc-policy-page__section">
+            <h2 className="tc-policy-page__section-title">
+              <span className="tc-policy-page__section-num">6</span>
               Get in Touch
             </h2>
             <p>
-              We value our community of readers and welcome your feedback,
-              story tips, and questions. Whether you&apos;d like to pitch a
-              story, explore partnership opportunities, or simply share your
-              thoughts, we&apos;d love to hear from you.
+              We value our community of readers and welcome your feedback, story tips, and questions. Whether you&apos;d like to pitch a story, explore partnership opportunities, or simply share your thoughts, reach out via our <Link href="/contact" className="text-[#2D7FF9] underline">Contact Desk</Link>.
             </p>
           </section>
         </div>

@@ -223,6 +223,22 @@ export default function EditorialPolicyPage() {
               We may moderate or remove content that violates our community standards or applicable law.
             </p>
           </section>
+
+          {/* Section 13 */}
+          <section className="tc-policy-page__section">
+            <h2 className="tc-policy-page__section-title">
+              <span className="tc-policy-page__section-num">13</span>
+              Corrections, Tips & Newsroom Address
+            </h2>
+            <p>
+              To report a factual error, submit an official correction request, or send confidential news tips directly to the editors:
+            </p>
+            <div className="tc-policy-page__intro-card mt-3 text-sm space-y-1.5">
+              <p><strong>Editorial Newsroom:</strong> TechCrest</p>
+              <p><strong>Headquarters:</strong> 4th Floor VM Grandeur, Bangalore 560113, India</p>
+              <p><strong>Corrections & Tips:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
+            </div>
+          </section>
         </div>
       </div>
     </div>

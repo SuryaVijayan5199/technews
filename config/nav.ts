@@ -40,6 +40,7 @@ export const footerNav = {
   company: [
     { label: "About Us", href: "/about" },
     { label: "Contact", href: "/contact" },
+    { label: "Careers", href: "/careers" },
     { label: "Advertise", href: "/advertise" },
     { label: "Raw Pitch", href: "https://rawpitch.org/" },
   ],

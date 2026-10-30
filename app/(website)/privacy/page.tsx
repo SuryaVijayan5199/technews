@@ -253,6 +253,23 @@ export default function PrivacyPage() {
               When we make material changes, we will post the revised policy on this page and, where appropriate, provide additional notice.
             </p>
           </section>
+
+          {/* Section 13 */}
+          <section className="tc-policy-page__section">
+            <h2 className="tc-policy-page__section-title">
+              <span className="tc-policy-page__section-num">13</span>
+              Grievance Officer & Official Inquiries
+            </h2>
+            <p>
+              In accordance with applicable Information Technology rules and data protection regulations, you may direct any data rights requests, concerns, or grievances to our designated privacy desk:
+            </p>
+            <div className="tc-policy-page__intro-card mt-3 text-sm space-y-1.5">
+              <p><strong>Entity:</strong> TechCrest</p>
+              <p><strong>Headquarters Address:</strong> 4th Floor VM Grandeur, Bangalore 560113, India</p>
+              <p><strong>Privacy & Grievance Email:</strong> <a href="mailto:privacy@techcrest.news" className="text-[#2D7FF9] underline">privacy@techcrest.news</a></p>
+              <p><strong>Editorial Newsroom:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
+            </div>
+          </section>
         </div>
       </div>
     </div>

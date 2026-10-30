@@ -27,6 +27,7 @@ import {
   getCachedBreakingArticle,
   getCachedArticlesGroupedByTopics,
 } from "@/lib/cache/cached-queries";
+import { checkAndPublishScheduledArticles } from "@/lib/actions/article.actions";
 import { HeroSectionCarousel } from "@/components/shared/hero-carousel";
 import { NewsletterCta } from "@/components/shared/newsletter-cta";
 import { AudioBriefingPlayer } from "@/components/shared/audio-briefing-player";
@@ -83,6 +84,8 @@ function getCategoryIcon(iconName?: string | null, categoryName?: string | null)
 }
 
 export async function TechCrestHomepage() {
+  await checkAndPublishScheduledArticles();
+
   const [
     featuredArticles,
     latestArticles,

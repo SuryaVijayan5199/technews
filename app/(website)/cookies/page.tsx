@@ -157,6 +157,22 @@ export default function CookiesPage() {
               Revised policies will be posted directly to this page.
             </p>
           </section>
+
+          {/* Section 6 */}
+          <section className="tc-policy-page__section">
+            <h2 className="tc-policy-page__section-title">
+              <span className="tc-policy-page__section-num">6</span>
+              Questions & Contact
+            </h2>
+            <p>
+              If you have any questions about our use of cookies or tracking technologies, please contact our data team:
+            </p>
+            <div className="tc-policy-page__intro-card mt-3 text-sm space-y-1.5">
+              <p><strong>Entity:</strong> TechCrest</p>
+              <p><strong>Office:</strong> 4th Floor VM Grandeur, Bangalore 560113, India</p>
+              <p><strong>Email:</strong> <a href="mailto:privacy@techcrest.news" className="text-[#2D7FF9] underline">privacy@techcrest.news</a></p>
+            </div>
+          </section>
         </div>
       </div>
     </div>

@@ -19,8 +19,8 @@ import { getArticleComments } from "@/lib/actions/comment.actions";
 // Completely eliminates Vercel Data Cache HTTP calls, ISR Writes, & Fast Origin Transfer charges ($0 Vercel Cost)
 const memoryCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
-// Listing pages cache (2 hours) — minimal DB load, auto-purged on publish
-const LISTING_TTL_MS = 2 * 60 * 60 * 1000;
+// Listing pages cache (60 seconds) — shields Neon DB from traffic spikes, auto-purged on publish
+const LISTING_TTL_MS = 60 * 1000;
 // Article content cache (2 hours) — articles rarely change after publish
 const ARTICLE_TTL_MS = 2 * 60 * 60 * 1000;
 // Breaking news bar cache (1 hour) — refreshed automatically on publish

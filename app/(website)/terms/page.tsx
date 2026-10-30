@@ -207,8 +207,24 @@ export default function TermsPage() {
               Governing Law
             </h2>
             <p>
-              These Terms will be governed by applicable law, subject to any mandatory consumer protection or other legal rights that apply to you based on your place of residence.
+              These Terms will be governed by and construed in accordance with the laws of India, subject to the jurisdiction of competent courts in Bangalore, Karnataka, without regard to conflict of law principles.
             </p>
+          </section>
+
+          {/* Section 12 */}
+          <section className="tc-policy-page__section">
+            <h2 className="tc-policy-page__section-title">
+              <span className="tc-policy-page__section-num">12</span>
+              Legal Notice & Contact
+            </h2>
+            <p>
+              For formal legal notices, contractual questions, or copyright infringement notifications, please contact us at:
+            </p>
+            <div className="tc-policy-page__intro-card mt-3 text-sm space-y-1.5">
+              <p><strong>Operating Entity:</strong> TechCrest</p>
+              <p><strong>Headquarters:</strong> 4th Floor VM Grandeur, Bangalore 560113, India</p>
+              <p><strong>Legal & Compliance Email:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
+            </div>
           </section>
         </div>
       </div>
