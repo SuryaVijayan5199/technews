@@ -10,6 +10,7 @@ import { ReadingProgress } from "@/components/article/reading-progress";
 import { TrendingSidebar } from "@/components/article/trending-sidebar";
 import { ShareButtons } from "@/components/article/share-buttons";
 import { BookmarkButton } from "@/components/shared/bookmark-button";
+import { ArticleViewTracker } from "@/components/article/article-view-tracker";
 import {
   getCachedArticleBySlug,
   getCachedRelatedArticles,
@@ -243,6 +244,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       />
       <link rel="canonical" href={canonicalUrl} />
       <ReadingProgress />
+      <ArticleViewTracker articleId={dbArticle.id} />
 
       <article className="article-page tc-article-page-padding">
         <div className="container">

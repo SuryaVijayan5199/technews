@@ -25,21 +25,30 @@ export async function invalidateArticleCache(params: ArticleInvalidationParams) 
     // Revalidate homepage
     revalidatePath("/");
 
+    // Helper to revalidate category and any known aliases
+    const revalidateCat = (slug?: string | null) => {
+      if (!slug) return;
+      const cleanSlug = slug.toLowerCase().trim();
+      revalidatePath(`/${cleanSlug}`);
+      if (cleanSlug === "robotic") revalidatePath("/robotics");
+      if (cleanSlug === "robotics") revalidatePath("/robotic");
+      if (cleanSlug === "home") revalidatePath("/smart-home");
+      if (cleanSlug === "smart-home") revalidatePath("/home");
+    };
+
     // Revalidate current category page
-    if (params.categorySlug) {
-      revalidatePath(`/${params.categorySlug}`);
-    }
+    revalidateCat(params.categorySlug);
 
     // Revalidate old category page if category was changed
     if (params.oldCategorySlug && params.oldCategorySlug !== params.categorySlug) {
-      revalidatePath(`/${params.oldCategorySlug}`);
+      revalidateCat(params.oldCategorySlug);
     }
 
     // Revalidate secondary categories if any
     if (params.secondaryCategorySlugs && params.secondaryCategorySlugs.length > 0) {
       for (const secSlug of params.secondaryCategorySlugs) {
         if (secSlug && secSlug !== params.categorySlug) {
-          revalidatePath(`/${secSlug}`);
+          revalidateCat(secSlug);
         }
       }
     }

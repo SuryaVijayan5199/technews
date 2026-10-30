@@ -80,7 +80,7 @@ export const getCachedTrendingArticles = async (limit = 10, excludeId?: number) 
   let data = getMemoryCache<any[]>(key);
   if (!data) {
     data = await getTrendingArticles(fetchLimit);
-    setMemoryCache(key, data, 2 * 60 * 60 * 1000);
+    setMemoryCache(key, data, LISTING_TTL_MS);
   }
   if (excludeId && Array.isArray(data)) {
     return data.filter((a: any) => a.id !== excludeId).slice(0, limit);

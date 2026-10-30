@@ -953,9 +953,6 @@ export async function incrementArticleViewCount(articleId: number): Promise<void
   try {
     if (!articleId) return;
 
-    // Skip DB writes during local development to prevent waking up Neon compute
-    if (process.env.NODE_ENV === "development") return;
-
     // Filter out bots and search crawlers to save Neon DB compute hours
     try {
       const { headers } = await import("next/headers");
@@ -991,6 +988,9 @@ export async function incrementArticleViewCount(articleId: number): Promise<void
 
 export async function getTrendingArticles(limit = 4): Promise<any[]> {
   try {
+    await checkAndPublishScheduledArticles();
+
+    // 1. Fetch articles explicitly flagged as trending, prioritizing recent ones
     const flagged = await db.query.articles.findMany({
       where: and(
         eq(articles.status, "published"),
@@ -999,13 +999,13 @@ export async function getTrendingArticles(limit = 4): Promise<any[]> {
       ),
       columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
-      orderBy: [desc(articles.viewCount), desc(articles.publishedAt)],
+      orderBy: [desc(articles.publishedAt), desc(articles.viewCount)],
       limit,
     });
 
     if (flagged.length >= limit) return flagged as any;
 
-    // Fallback sorted by view count
+    // 2. Fallback: recent published articles with highest views
     const latest = await db.query.articles.findMany({
       where: and(
         eq(articles.status, "published"),
@@ -1013,7 +1013,7 @@ export async function getTrendingArticles(limit = 4): Promise<any[]> {
       ),
       columns: ARTICLE_CARD_COLUMNS,
       with: { author: true, category: true },
-      orderBy: [desc(articles.viewCount), desc(articles.publishedAt)],
+      orderBy: [desc(articles.publishedAt), desc(articles.viewCount)],
       limit: limit * 3,
     });
 

@@ -3,15 +3,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getCachedArticlesByCategory } from "@/lib/cache/cached-queries";
-import { getAllCategories } from "@/lib/actions/article.actions";
+import { getAllCategories, checkAndPublishScheduledArticles } from "@/lib/actions/article.actions";
 import { cleanAuthorName } from "@/lib/utils";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
 }
 
-// ISR: revalidate category pages once every 24 hours (86400s). Instant purge on publish via invalidateArticleCache().
-export const revalidate = 86400;
+// ISR: revalidate category pages every 60 seconds. Instant purge on publish via invalidateArticleCache().
+export const revalidate = 60;
 // Prevent bot crawlers from hitting rogue non-existent URLs and causing ISR write storms
 export const dynamicParams = false;
 
@@ -103,6 +103,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   if (rawSlug === "smart-home") {
     permanentRedirect("/home");
   }
+
+  // Ensure any scheduled articles whose time has arrived are published
+  await checkAndPublishScheduledArticles();
 
   const { category, articles } = await getCachedArticlesByCategory(rawSlug, 50);
 
