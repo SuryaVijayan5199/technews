@@ -1,6 +1,8 @@
 import { clearMemoryCache } from "./cached-queries";
 import { revalidatePath } from "next/cache";
 
+export { clearMemoryCache };
+
 export interface ArticleInvalidationParams {
   articleId: number;
   articleSlug?: string | null;
@@ -13,21 +15,41 @@ export interface ArticleInvalidationParams {
 
 /**
  * Targeted cache invalidation when an article is created, updated, published, or deleted.
- * Clears Node.js RAM cache and triggers revalidatePath for instant UI updates — $0 ISR Write cost.
+ * Clears Node.js RAM cache and triggers targeted revalidatePath ONLY for the affected pages.
+ * NOTE: Never call revalidatePath with "layout" on (website) — that purges all 150+ articles
+ * and causes massive Vercel ISR write spikes.
  */
 export async function invalidateArticleCache(params: ArticleInvalidationParams) {
   clearMemoryCache();
   try {
+    // Revalidate homepage
     revalidatePath("/");
-    revalidatePath("/(website)", "layout");
+
+    // Revalidate current category page
     if (params.categorySlug) {
       revalidatePath(`/${params.categorySlug}`);
     }
+
+    // Revalidate old category page if category was changed
+    if (params.oldCategorySlug && params.oldCategorySlug !== params.categorySlug) {
+      revalidatePath(`/${params.oldCategorySlug}`);
+    }
+
+    // Revalidate secondary categories if any
+    if (params.secondaryCategorySlugs && params.secondaryCategorySlugs.length > 0) {
+      for (const secSlug of params.secondaryCategorySlugs) {
+        if (secSlug && secSlug !== params.categorySlug) {
+          revalidatePath(`/${secSlug}`);
+        }
+      }
+    }
+
+    // Revalidate the specific article page
     if (params.articleSlug && params.categorySlug) {
       revalidatePath(`/${params.categorySlug}/${params.articleSlug}`);
     }
   } catch (err) {
-    // Ignore outside server action context
+    // Ignore outside server action context or during static generation
   }
 }
 

@@ -1,6 +1,12 @@
 {
   "framework": "nextjs",
   "regions": ["sin1"],
+  "crons": [
+    {
+      "path": "/api/cron/scheduled-articles",
+      "schedule": "0 * * * *"
+    }
+  ],
   "functions": {
     "app/(website)/page.tsx": {
       "maxDuration": 10

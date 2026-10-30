@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { articles, authors, categories } from "@/lib/db/schema";
 import { eq, or, ilike, and, desc, isNotNull, inArray, ne, sql, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { invalidateArticleCache } from "@/lib/cache/revalidate";
+import { invalidateArticleCache, clearMemoryCache } from "@/lib/cache/revalidate";
 import { auth } from "@/lib/auth";
 import { cleanAuthorName } from "@/lib/utils";
 import { ARTICLE_CARD_COLUMNS, STATIC_FALLBACK_CATEGORIES } from "@/lib/constants";
@@ -38,6 +38,7 @@ const CATEGORY_SLUG_ALIASES: Record<string, string> = {
 };
 
 export async function getArticlesByCategory(categorySlug: string, limit = 30) {
+  await checkAndPublishScheduledArticles();
   const rawSlug = categorySlug.toLowerCase().trim();
   const normalizedSlug = CATEGORY_SLUG_ALIASES[rawSlug] || rawSlug;
   let categoryObj: any = null;
@@ -158,6 +159,7 @@ export async function getArticlesByCategoryPaginated(
 // ─────────────────────────────────────────────
 export async function getArticlesGroupedByTopics() {
   try {
+    await checkAndPublishScheduledArticles();
     const activeCategories = await db.query.categories.findMany({
       where: eq(categories.isActive, true),
       orderBy: [categories.sortOrder],
@@ -469,22 +471,26 @@ export async function createArticle(data: {
       if (parentCat) parentCatSlug = parentCat.slug;
     }
 
-    let secSlugs: string[] = [];
-    if (data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0) {
-      const secCats = await db.query.categories.findMany({
-        where: inArray(categories.id, data.secondaryCategoryIds),
-      });
-      secSlugs = secCats.map((sc) => sc.slug);
-    }
+    // Only invalidate public caches if the article is published!
+    // Drafts, pending reviews, and scheduled articles do not exist on the public site and must not burn ISR writes.
+    if (data.status === "published") {
+      let secSlugs: string[] = [];
+      if (data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0) {
+        const secCats = await db.query.categories.findMany({
+          where: inArray(categories.id, data.secondaryCategoryIds),
+        });
+        secSlugs = secCats.map((sc) => sc.slug);
+      }
 
-    await invalidateArticleCache({
-      articleId: article.id,
-      articleSlug: article.slug,
-      categorySlug: data.categorySlug,
-      oldCategorySlug: parentCatSlug,
-      authorId: authorIdToAssign,
-      secondaryCategorySlugs: secSlugs,
-    });
+      await invalidateArticleCache({
+        articleId: article.id,
+        articleSlug: article.slug,
+        categorySlug: data.categorySlug,
+        oldCategorySlug: parentCatSlug,
+        authorId: authorIdToAssign,
+        secondaryCategorySlugs: secSlugs,
+      });
+    }
 
     await updateExcelBackupFile();
     return { success: true, article };
@@ -508,7 +514,7 @@ export async function deleteArticleAction(id: number) {
   try {
     const existing = await db.query.articles.findFirst({ where: eq(articles.id, id), with: { category: true } });
     await db.delete(articles).where(eq(articles.id, id));
-    if (existing) {
+    if (existing && existing.status === "published") {
       await invalidateArticleCache({
         articleId: id,
         articleSlug: existing.slug,
@@ -546,11 +552,21 @@ export async function searchPublicArticles(query: string, limit = 5) {
   }
 }
 
+let lastScheduledCheckTimestamp = 0;
+const SCHEDULED_CHECK_COOLDOWN_MS = 60 * 1000; // 60 seconds throttle to save Neon DB compute
+
 /**
  * Automatically checks for scheduled articles whose scheduled release time has arrived,
  * publishes them, and invalidates all associated caches.
+ * Uses a 60-second memory cooldown across serverless invocations to protect Neon compute.
  */
-export async function checkAndPublishScheduledArticles() {
+export async function checkAndPublishScheduledArticles(force = false) {
+  const nowMs = Date.now();
+  if (!force && nowMs - lastScheduledCheckTimestamp < SCHEDULED_CHECK_COOLDOWN_MS) {
+    return { success: true, count: 0, throttled: true };
+  }
+  lastScheduledCheckTimestamp = nowMs;
+
   try {
     const now = new Date();
     const dueArticles = await db.query.articles.findMany({
@@ -576,6 +592,9 @@ export async function checkAndPublishScheduledArticles() {
       return { success: true, count: 0 };
     }
 
+    const affectedCategories = new Set<string>();
+    const affectedArticles: { categorySlug: string; slug: string }[] = [];
+
     for (const item of dueArticles) {
       await db
         .update(articles)
@@ -586,24 +605,35 @@ export async function checkAndPublishScheduledArticles() {
         })
         .where(eq(articles.id, item.id));
 
-      let secSlugs: string[] = [];
+      if (item.category?.slug) {
+        affectedCategories.add(item.category.slug);
+        affectedArticles.push({ categorySlug: item.category.slug, slug: item.slug });
+      }
+
       if (item.secondaryCategoryIds && item.secondaryCategoryIds.length > 0) {
         const secCats = await db.query.categories.findMany({
           where: inArray(categories.id, item.secondaryCategoryIds),
         });
-        secSlugs = secCats.map((sc) => sc.slug);
+        secCats.forEach((sc) => affectedCategories.add(sc.slug));
       }
-
-      await invalidateArticleCache({
-        articleId: item.id,
-        articleSlug: item.slug,
-        categorySlug: item.category?.slug,
-        authorId: item.authorId ?? undefined,
-        secondaryCategorySlugs: secSlugs,
-      });
     }
 
-    await updateExcelBackupFile();
+    // Purge in-memory listing cache so new queries immediately pick up newly published stories
+    clearMemoryCache();
+
+    // Targeted ISR revalidations: ONLY homepage, affected categories, and published articles
+    try {
+      revalidatePath("/");
+      for (const catSlug of affectedCategories) {
+        revalidatePath(`/${catSlug}`);
+      }
+      for (const a of affectedArticles) {
+        revalidatePath(`/${a.categorySlug}/${a.slug}`);
+      }
+    } catch {
+      // outside server action context
+    }
+
     return { success: true, count: dueArticles.length };
   } catch (error) {
     console.error("Error auto-publishing scheduled articles:", error);
@@ -613,7 +643,7 @@ export async function checkAndPublishScheduledArticles() {
 
 export async function getArticles(search: string = "", tab: string = "all") {
   try {
-    await checkAndPublishScheduledArticles();
+    await checkAndPublishScheduledArticles(true);
 
     const conditions = [];
 
@@ -741,6 +771,7 @@ export async function getBreakingArticles(limit = 10): Promise<any[]> {
 
 export async function getFeaturedArticles(limit = 5): Promise<any[]> {
   try {
+    await checkAndPublishScheduledArticles();
     // First, fetch articles explicitly flagged as featured
     const flagged = await db.query.articles.findMany({
       where: and(
@@ -869,6 +900,7 @@ export async function getRelatedArticles(
 
 export async function getLatestArticles(limit = 6, categorySlug?: string): Promise<any[]> {
   try {
+    await checkAndPublishScheduledArticles();
     // 1. Fetch articles explicitly flagged as isLatest
     const flagged = await db.query.articles.findMany({
       where: and(
@@ -1271,23 +1303,27 @@ export async function updateArticleAction(
       .where(eq(articles.id, id))
       .returning();
 
-    const oldCategory = await db.query.categories.findFirst({ where: eq(categories.id, existingArticle.categoryId ?? 0) });
-    let secSlugs: string[] = [];
-    if (data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0) {
-      const secCats = await db.query.categories.findMany({
-        where: inArray(categories.id, data.secondaryCategoryIds),
-      });
-      secSlugs = secCats.map((sc) => sc.slug);
-    }
+    // Only invalidate public caches if the article was or now is published!
+    // Draft-to-draft or draft-to-scheduled edits do not touch the live public website and must not burn ISR writes.
+    if (existingArticle.status === "published" || data.status === "published") {
+      const oldCategory = await db.query.categories.findFirst({ where: eq(categories.id, existingArticle.categoryId ?? 0) });
+      let secSlugs: string[] = [];
+      if (data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0) {
+        const secCats = await db.query.categories.findMany({
+          where: inArray(categories.id, data.secondaryCategoryIds),
+        });
+        secSlugs = secCats.map((sc) => sc.slug);
+      }
 
-    await invalidateArticleCache({
-      articleId: updated.id,
-      articleSlug: updated.slug,
-      categorySlug: data.categorySlug,
-      oldCategorySlug: oldCategory?.slug,
-      authorId: updated.authorId ?? undefined,
-      secondaryCategorySlugs: secSlugs,
-    });
+      await invalidateArticleCache({
+        articleId: updated.id,
+        articleSlug: updated.slug,
+        categorySlug: data.categorySlug,
+        oldCategorySlug: oldCategory?.slug,
+        authorId: updated.authorId ?? undefined,
+        secondaryCategorySlugs: secSlugs,
+      });
+    }
 
     await updateExcelBackupFile();
     return { success: true, article: updated };
@@ -1332,7 +1368,7 @@ export async function bumpArticlePublishDateAction(id: number) {
   }
 }
 
-export async function getTopPublishedArticleParams(limit = 40) {
+export async function getTopPublishedArticleParams(limit = 200) {
   try {
     const list = await db.query.articles.findMany({
       where: and(eq(articles.status, "published"), isNotNull(articles.publishedAt)),

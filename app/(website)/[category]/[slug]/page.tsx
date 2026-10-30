@@ -28,7 +28,7 @@ export const dynamicParams = true;
 
 export async function generateStaticParams() {
   try {
-    return await getTopPublishedArticleParams(30);
+    return await getTopPublishedArticleParams(200);
   } catch {
     return [];
   }

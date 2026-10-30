@@ -5,6 +5,9 @@ import { getArticles } from "@/lib/actions/article.actions";
 import { getCategories } from "@/lib/actions/dashboard.actions";
 import { ArticlesClient } from "./articles-client";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
   title: "Articles Directory | TechCrest Dashboard",
 };
