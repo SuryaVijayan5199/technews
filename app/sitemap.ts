@@ -6,8 +6,9 @@ import { siteConfig } from "@/config/site";
 
 const BASE_URL = siteConfig.url;
 
-// Revalidate sitemap every 24 hours (86400s) — avoids frequent DB scans from bots
-export const revalidate = 86400;
+// Dynamic sitemap: Eliminates all Vercel ISR writes ($0 cost, 0 writes).
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static routes

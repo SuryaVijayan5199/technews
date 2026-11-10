@@ -9,25 +9,9 @@ import { eq, desc, and } from "drizzle-orm";
 
 import { getMemoryCache, setMemoryCache } from "@/lib/cache/cached-queries";
 
-export const revalidate = 86400; // 24 hours ISR — statically cached at Vercel Edge CDN
-export const dynamicParams = true;
-
-export function generateStaticParams() {
-  return [
-    { slug: "gpt-5" },
-    { slug: "iphone-17" },
-    { slug: "rtx-5090" },
-    { slug: "pixel-10" },
-    { slug: "eu-ai-act" },
-    { slug: "kubernetes" },
-    { slug: "matter-2" },
-    { slug: "dlss-5" },
-    { slug: "claude-4" },
-    { slug: "steam-deck-2" },
-    { slug: "windows-12" },
-    { slug: "starlink-gen4" },
-  ];
-}
+// Dynamic rendering: Eliminates all Vercel ISR writes ($0 cost, 0 writes).
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface TagPageProps {
   params: Promise<{ slug: string }>;

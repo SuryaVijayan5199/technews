@@ -7,14 +7,12 @@ import { ArticleCard } from "@/components/article/article-card";
 import { getCachedAuthorBySlugWithArticles } from "@/lib/cache/cached-queries";
 import { getAuthorsWithStats } from "@/lib/actions/author.actions";
 
-export const revalidate = 60;
+// Dynamic rendering: Eliminates all Vercel ISR writes ($0 cost, 0 writes).
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface AuthorPageProps {
   params: Promise<{ slug: string }>;
-}
-
-export async function generateStaticParams() {
-  return [];
 }
 
 import { siteConfig } from "@/config/site";

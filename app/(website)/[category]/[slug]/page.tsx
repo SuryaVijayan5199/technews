@@ -21,19 +21,10 @@ import { CommentsSection } from "@/components/article/comments-section";
 import { siteConfig } from "@/config/site";
 import { getTopPublishedArticleParams } from "@/lib/actions/article.actions";
 
-// ISR: revalidate articles once every 24 hours (86400 seconds).
-// Pre-renders top articles at build time and caches all articles at Vercel Edge CDN.
-// On new publish or edit, invalidateArticleCache() purges the cache immediately via revalidatePath.
-export const revalidate = 86400;
-export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  try {
-    return await getTopPublishedArticleParams(200);
-  } catch {
-    return [];
-  }
-}
+// Dynamic rendering: Eliminates all Vercel ISR writes ($0 cost, 0 writes).
+// In-memory RAM cache (ARTICLE_TTL_MS = 2 hours) protects Neon DB and responds in ~3ms.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface ArticlePageProps {
   params: Promise<{ category: string; slug: string }>;

@@ -7,7 +7,9 @@ import { getAuthorsWithStats } from "@/lib/actions/author.actions";
 import { cleanAuthorName, getAuthorInitials } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 
-export const revalidate = 86400;
+// Dynamic rendering: Eliminates all Vercel ISR writes ($0 cost, 0 writes).
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Meet the TechCrest Editorial Team — Authors & Journalists",

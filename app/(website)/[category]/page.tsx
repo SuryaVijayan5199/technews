@@ -10,27 +10,10 @@ interface CategoryPageProps {
   params: Promise<{ category: string }>;
 }
 
-// ISR: revalidate category pages every 60 seconds. Instant purge on publish via invalidateArticleCache().
-export const revalidate = 60;
-// Prevent bot crawlers from hitting rogue non-existent URLs and causing ISR write storms
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return [
-    { category: "phone" },
-    { category: "audio" },
-    { category: "robotic" },
-    { category: "robotics" },
-    { category: "fitness" },
-    { category: "security" },
-    { category: "ai" },
-    { category: "home" },
-    { category: "smart-home" },
-    { category: "evs" },
-    { category: "crypto" },
-    { category: "gaming" },
-  ];
-}
+// Dynamic rendering: Eliminates all Vercel ISR writes ($0 cost, 0 writes).
+// Fast in-memory RAM cache (LISTING_TTL_MS = 60s) protects Neon DB and responds in ~3ms.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 import { siteConfig } from "@/config/site";
 
