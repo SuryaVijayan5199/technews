@@ -77,6 +77,28 @@ export function LegalPageLayout({
               <CheckCircle2 className="w-3.5 h-3.5" /> Official Standards
             </span>
           </div>
+
+          {/* Mobile Horizontal Sub-Navigation */}
+          <div className="tc-company-mobile-nav">
+            <div className="tc-company-mobile-nav__track">
+              {LEGAL_NAV.map((item) => {
+                const isActive = currentSlug === item.href;
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`tc-company-mobile-nav__pill ${
+                      isActive ? "tc-company-mobile-nav__pill--active" : ""
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         </header>
 
         {/* 2-Column Split Layout */}

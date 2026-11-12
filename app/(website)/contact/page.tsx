@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Mail, ChevronRight, MapPin, Building2, ShieldCheck } from "lucide-react";
+import { Mail, ChevronRight, Building2, ShieldCheck, Globe, Briefcase, Megaphone, ExternalLink } from "lucide-react";
 import { TechCrestIcon } from "@/components/shared/techcrest-icon";
 import { ContactForm } from "@/components/contact/contact-form";
 
 export const metadata: Metadata = {
-  title: "Contact Us — TechCrest",
+  title: "Contact Us — TechCrest Newsroom Desk",
   description: "Get in touch with the TechCrest team. Send news tips, press releases, feedback, corrections or partnership inquiries, and we'll get back to you.",
 };
+
+const COMPANY_NAV = [
+  { href: "/about", label: "About Us", icon: Globe },
+  { href: "/contact", label: "Contact Desk", icon: Mail },
+  { href: "/careers", label: "Careers & Pitches", icon: Briefcase },
+  { href: "/advertise", label: "Advertise & Media", icon: Megaphone },
+  { href: "https://rawpitch.org/", label: "Raw Pitch", icon: ExternalLink, isExternal: true },
+];
 
 export default function ContactPage() {
   return (
@@ -18,7 +26,9 @@ export default function ContactPage() {
           <nav aria-label="Breadcrumb" className="tc-contact-breadcrumb">
             <Link href="/" className="tc-contact-breadcrumb__link">Home</Link>
             <ChevronRight className="w-3.5 h-3.5" style={{ color: "hsl(var(--color-text-muted))" }} />
-            <span style={{ fontWeight: 600, color: "hsl(var(--color-text-primary))" }}>Contact</span>
+            <span className="tc-legal-breadcrumb__parent">Company</span>
+            <ChevronRight className="w-3.5 h-3.5" style={{ color: "hsl(var(--color-text-muted))" }} />
+            <span style={{ fontWeight: 600, color: "hsl(var(--color-text-primary))" }}>Contact Desk</span>
           </nav>
 
           <div className="tc-contact-eyebrow">
@@ -34,6 +44,40 @@ export default function ContactPage() {
           <p className="tc-contact-subtitle">
             Have a news tip, confidential leak, product review request, or partnership inquiry? We&apos;d love to hear from you.
           </p>
+
+          {/* Mobile Horizontal Sub-Navigation */}
+          <div className="tc-company-mobile-nav">
+            <div className="tc-company-mobile-nav__track">
+              {COMPANY_NAV.map((item) => {
+                const isActive = item.href === "/contact";
+                const Icon = item.icon;
+                if (item.isExternal) {
+                  return (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="tc-company-mobile-nav__pill"
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{item.label}</span>
+                    </a>
+                  );
+                }
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`tc-company-mobile-nav__pill ${isActive ? "tc-company-mobile-nav__pill--active" : ""}`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {/* Main Grid: Form + Contacts */}
