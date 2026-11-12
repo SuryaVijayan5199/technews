@@ -29,13 +29,13 @@ export default function AboutPage() {
     <CompanyPageLayout
       title="About TechCrest News"
       badge="Independent Technology Journalism"
-      badgeIcon={<Globe className="w-3.5 h-3.5" />}
+      badgeIcon={<Globe className="tc-subpage-badge__icon" />}
       subtitle="Accurate reporting, hands-on hardware critiques, and sharp technical analysis of the breakthroughs shaping our digital world."
       currentSlug="/about"
     >
       {/* Editorial Manifesto Lead */}
-      <div className="tc-manifesto-card">
-        <p className="tc-manifesto-text">
+      <div className="tc-manifesto-box">
+        <p className="tc-manifesto-box__text">
           Welcome to TechCrest News, your trusted source for the latest
           technology news, expert reviews, and sharp analysis of the trends
           shaping our digital world. In an industry that moves at breakneck
@@ -46,15 +46,15 @@ export default function AboutPage() {
       </div>
 
       {/* Section 1: Our Mission */}
-      <section className="tc-editorial-section">
-        <div className="tc-editorial-section__header">
-          <h2 className="tc-editorial-section__title">
-            <Compass className="w-5 h-5 text-[#2D7FF9]" />
+      <section className="tc-editorial-block">
+        <div className="tc-editorial-block__header">
+          <h2 className="tc-editorial-block__title">
+            <Compass className="tc-subpage-meta__icon" />
             Our Mission
           </h2>
-          <span className="tc-editorial-section__badge">Core Purpose</span>
+          <span className="tc-editorial-block__badge">Core Purpose</span>
         </div>
-        <p className="tc-editorial-section__desc">
+        <p className="tc-editorial-block__desc">
           At TechCrest News, our mission is simple: to make technology
           understandable, accessible, and relevant to everyone. We believe great
           tech journalism does more than report what happened, it explains why
@@ -65,15 +65,15 @@ export default function AboutPage() {
       </section>
 
       {/* Section 2: What We Cover */}
-      <section className="tc-editorial-section">
-        <div className="tc-editorial-section__header">
-          <h2 className="tc-editorial-section__title">
-            <Cpu className="w-5 h-5 text-[#2D7FF9]" />
+      <section className="tc-editorial-block">
+        <div className="tc-editorial-block__header">
+          <h2 className="tc-editorial-block__title">
+            <Cpu className="tc-subpage-meta__icon" />
             What We Cover
           </h2>
-          <span className="tc-editorial-section__badge">6 Editorial Beats</span>
+          <span className="tc-editorial-block__badge">6 Editorial Beats</span>
         </div>
-        <p className="tc-editorial-section__desc">
+        <p className="tc-editorial-block__desc">
           Technology touches every part of modern life, and our coverage
           reflects that breadth. Our editorial team reports and analyzes across
           the areas that matter most:
@@ -81,15 +81,9 @@ export default function AboutPage() {
 
         <div className="tc-beat-grid">
           {/* Beat 1 */}
-          <div className="tc-beat-card">
-            <div
-              className="tc-beat-card__icon-wrap"
-              style={{
-                backgroundColor: "rgba(45, 127, 249, 0.12)",
-                color: "#2D7FF9",
-              }}
-            >
-              <Cpu className="w-5 h-5" />
+          <div className="tc-beat-card tc-beat-card--ai">
+            <div className="tc-beat-card__icon-wrap">
+              <Cpu className="tc-subpage-meta__icon" />
             </div>
             <h3 className="tc-beat-card__title">
               Artificial Intelligence & Machine Learning
@@ -100,15 +94,9 @@ export default function AboutPage() {
           </div>
 
           {/* Beat 2 */}
-          <div className="tc-beat-card">
-            <div
-              className="tc-beat-card__icon-wrap"
-              style={{
-                backgroundColor: "rgba(16, 185, 129, 0.12)",
-                color: "#10b981",
-              }}
-            >
-              <Smartphone className="w-5 h-5" />
+          <div className="tc-beat-card tc-beat-card--reviews">
+            <div className="tc-beat-card__icon-wrap">
+              <Smartphone className="tc-subpage-meta__icon" />
             </div>
             <h3 className="tc-beat-card__title">Gadgets & Product Reviews</h3>
             <p className="tc-beat-card__desc">
@@ -118,15 +106,9 @@ export default function AboutPage() {
           </div>
 
           {/* Beat 3 */}
-          <div className="tc-beat-card">
-            <div
-              className="tc-beat-card__icon-wrap"
-              style={{
-                backgroundColor: "rgba(139, 92, 246, 0.12)",
-                color: "#8b5cf6",
-              }}
-            >
-              <Rocket className="w-5 h-5" />
+          <div className="tc-beat-card tc-beat-card--startups">
+            <div className="tc-beat-card__icon-wrap">
+              <Rocket className="tc-subpage-meta__icon" />
             </div>
             <h3 className="tc-beat-card__title">Startups & Innovation</h3>
             <p className="tc-beat-card__desc">
@@ -136,15 +118,9 @@ export default function AboutPage() {
           </div>
 
           {/* Beat 4 */}
-          <div className="tc-beat-card">
-            <div
-              className="tc-beat-card__icon-wrap"
-              style={{
-                backgroundColor: "rgba(245, 158, 11, 0.12)",
-                color: "#f59e0b",
-              }}
-            >
-              <ShieldCheck className="w-5 h-5" />
+          <div className="tc-beat-card tc-beat-card--security">
+            <div className="tc-beat-card__icon-wrap">
+              <ShieldCheck className="tc-subpage-meta__icon" />
             </div>
             <h3 className="tc-beat-card__title">Cybersecurity & Privacy</h3>
             <p className="tc-beat-card__desc">
@@ -154,15 +130,9 @@ export default function AboutPage() {
           </div>
 
           {/* Beat 5 */}
-          <div className="tc-beat-card">
-            <div
-              className="tc-beat-card__icon-wrap"
-              style={{
-                backgroundColor: "rgba(6, 182, 212, 0.12)",
-                color: "#06b6d4",
-              }}
-            >
-              <Coins className="w-5 h-5" />
+          <div className="tc-beat-card tc-beat-card--crypto">
+            <div className="tc-beat-card__icon-wrap">
+              <Coins className="tc-subpage-meta__icon" />
             </div>
             <h3 className="tc-beat-card__title">Fintech, Crypto & Blockchain</h3>
             <p className="tc-beat-card__desc">
@@ -172,15 +142,9 @@ export default function AboutPage() {
           </div>
 
           {/* Beat 6 */}
-          <div className="tc-beat-card">
-            <div
-              className="tc-beat-card__icon-wrap"
-              style={{
-                backgroundColor: "rgba(236, 72, 153, 0.12)",
-                color: "#ec4899",
-              }}
-            >
-              <BookOpen className="w-5 h-5" />
+          <div className="tc-beat-card tc-beat-card--guides">
+            <div className="tc-beat-card__icon-wrap">
+              <BookOpen className="tc-subpage-meta__icon" />
             </div>
             <h3 className="tc-beat-card__title">How-To Guides & Explainers</h3>
             <p className="tc-beat-card__desc">
@@ -192,15 +156,15 @@ export default function AboutPage() {
       </section>
 
       {/* Section 3: Why Readers Trust TechCrest News */}
-      <section className="tc-editorial-section">
-        <div className="tc-editorial-section__header">
-          <h2 className="tc-editorial-section__title">
-            <CheckCircle2 className="w-5 h-5 text-[#10b981]" />
+      <section className="tc-editorial-block">
+        <div className="tc-editorial-block__header">
+          <h2 className="tc-editorial-block__title">
+            <CheckCircle2 className="tc-subpage-meta__icon" />
             Why Readers Trust TechCrest News
           </h2>
-          <span className="tc-editorial-section__badge">Editorial Integrity</span>
+          <span className="tc-editorial-block__badge">Editorial Integrity</span>
         </div>
-        <p className="tc-editorial-section__desc">
+        <p className="tc-editorial-block__desc">
           Credibility is the foundation of everything we publish. Our reporting
           is grounded in verified facts, primary sources, and rigorous editorial
           standards. We prioritize accuracy over speed-for-its-own-sake, clearly
@@ -209,10 +173,10 @@ export default function AboutPage() {
           clickbait, no hype, just journalism you can rely on.
         </p>
 
-        <div className="tc-trust-grid mt-2">
+        <div className="tc-trust-grid">
           <div className="tc-trust-card">
-            <div className="flex items-center gap-2 text-[#2D7FF9] font-bold text-xs uppercase tracking-wider">
-              <CheckCircle2 className="w-4 h-4" />
+            <div className="tc-trust-card__badge" style={{ color: "#2D7FF9" }}>
+              <CheckCircle2 className="tc-subpage-meta__icon" />
               <span>Verified Facts</span>
             </div>
             <h3 className="tc-trust-card__title">Accuracy Over Speed</h3>
@@ -223,8 +187,8 @@ export default function AboutPage() {
           </div>
 
           <div className="tc-trust-card">
-            <div className="flex items-center gap-2 text-[#10b981] font-bold text-xs uppercase tracking-wider">
-              <ShieldCheck className="w-4 h-4" />
+            <div className="tc-trust-card__badge" style={{ color: "#10b981" }}>
+              <ShieldCheck className="tc-subpage-meta__icon" />
               <span>Editorial Firewall</span>
             </div>
             <h3 className="tc-trust-card__title">Zero Commercial Influence</h3>
@@ -234,8 +198,8 @@ export default function AboutPage() {
           </div>
 
           <div className="tc-trust-card">
-            <div className="flex items-center gap-2 text-[#8b5cf6] font-bold text-xs uppercase tracking-wider">
-              <Compass className="w-4 h-4" />
+            <div className="tc-trust-card__badge" style={{ color: "#8b5cf6" }}>
+              <Compass className="tc-subpage-meta__icon" />
               <span>Full Accountability</span>
             </div>
             <h3 className="tc-trust-card__title">Transparent Corrections</h3>
@@ -247,15 +211,15 @@ export default function AboutPage() {
       </section>
 
       {/* Section 4: Our Team */}
-      <section className="tc-editorial-section">
-        <div className="tc-editorial-section__header">
-          <h2 className="tc-editorial-section__title">
-            <Users className="w-5 h-5 text-[#8b5cf6]" />
+      <section className="tc-editorial-block">
+        <div className="tc-editorial-block__header">
+          <h2 className="tc-editorial-block__title">
+            <Users className="tc-subpage-meta__icon" />
             Our Team
           </h2>
-          <span className="tc-editorial-section__badge">Global Newsroom</span>
+          <span className="tc-editorial-block__badge">Global Newsroom</span>
         </div>
-        <p className="tc-editorial-section__desc">
+        <p className="tc-editorial-block__desc">
           TechCrest News is powered by a team of experienced journalists,
           writers, and industry analysts who live and breathe technology. Our
           contributors combine deep subject-matter expertise with a passion for
@@ -265,57 +229,53 @@ export default function AboutPage() {
       </section>
 
       {/* Section 5: Newsroom Desk */}
-      <section className="tc-editorial-section">
-        <div className="tc-editorial-section__header">
-          <h2 className="tc-editorial-section__title">
-            <Building2 className="w-5 h-5 text-[#6366f1]" />
+      <section className="tc-editorial-block">
+        <div className="tc-editorial-block__header">
+          <h2 className="tc-editorial-block__title">
+            <Building2 className="tc-subpage-meta__icon" />
             Newsroom Desk
           </h2>
-          <span className="tc-editorial-section__badge">Hub & Operations</span>
+          <span className="tc-editorial-block__badge">Hub & Operations</span>
         </div>
-        <p className="tc-editorial-section__desc">
+        <p className="tc-editorial-block__desc">
           Operating from the heart of India&apos;s primary technology hub, our
           editorial desk coordinates reporting, investigative research, and
           hands-on hardware testing for a global audience.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-1">
-          <div className="p-4 rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-1)]">
-            <div className="flex items-center gap-2 mb-2 text-[#2D7FF9] font-bold text-xs uppercase tracking-wider">
-              <Mail className="w-4 h-4" />
+        <div className="tc-desk-grid">
+          <div className="tc-desk-card">
+            <div className="tc-desk-card__label" style={{ color: "#2D7FF9" }}>
+              <Mail className="tc-subpage-meta__icon" />
               <span>Editorial Desk</span>
             </div>
-            <p className="text-sm font-semibold text-[var(--color-text-primary)]">
-              Official Correspondence:
-            </p>
+            <h3 className="tc-desk-card__title">Official Correspondence:</h3>
             <a
               href="mailto:editor@techcrest.news"
-              className="text-sm font-bold text-[#2D7FF9] hover:underline mt-1 inline-block"
+              className="tc-desk-card__link"
             >
               editor@techcrest.news
             </a>
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="tc-desk-card__desc">
               For tips, press releases, story pitches, and newsroom inquiries.
             </p>
           </div>
 
-          <div className="p-4 rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-1)]">
-            <div className="flex items-center gap-2 mb-2 text-[#8b5cf6] font-bold text-xs uppercase tracking-wider">
-              <ExternalLink className="w-4 h-4" />
+          <div className="tc-desk-card">
+            <div className="tc-desk-card__label" style={{ color: "#8b5cf6" }}>
+              <ExternalLink className="tc-subpage-meta__icon" />
               <span>Sister Initiative</span>
             </div>
-            <p className="text-sm font-semibold text-[var(--color-text-primary)]">
-              Raw Pitch:
-            </p>
+            <h3 className="tc-desk-card__title">Raw Pitch:</h3>
             <a
               href="https://rawpitch.org/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-bold text-[#2D7FF9] hover:underline mt-1 inline-flex items-center gap-1"
+              className="tc-desk-card__link"
             >
-              rawpitch.org <ExternalLink className="w-3.5 h-3.5" />
+              rawpitch.org <ExternalLink className="tc-hub-card__link-icon" />
             </a>
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="tc-desk-card__desc">
               Showcasing early-stage builders, deep-tech research, and founder stories.
             </p>
           </div>
@@ -334,7 +294,7 @@ export default function AboutPage() {
           </p>
         </div>
         <Link href="/contact" className="tc-action-banner__btn">
-          Visit Contact Desk <ArrowRight className="w-4 h-4" />
+          Visit Contact Desk <ArrowRight className="tc-subpage-meta__icon" />
         </Link>
       </section>
     </CompanyPageLayout>

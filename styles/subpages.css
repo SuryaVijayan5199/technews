@@ -1,0 +1,1312 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   TECHCREST SUBPAGES — PURE VANILLA CSS ARCHITECTURE
+   Handcrafted design system for Company & Legal subpages
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────────────────────────────────────────────
+   1. SHELL & CONTAINERS
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-subpage-shell {
+  padding: 2.5rem 0 6rem;
+  min-height: 90vh;
+  background-color: hsl(var(--color-surface-0));
+  background-image: radial-gradient(ellipse 70% 40% at 50% -10%, rgba(45, 127, 249, 0.08), transparent 70%);
+}
+
+.tc-subpage-container {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.tc-subpage-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 1023px) {
+  .tc-subpage-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+.tc-subpage-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.75rem;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   2. BREADCRUMBS & BADGES
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-subpage-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: hsl(var(--color-text-muted));
+  margin-bottom: 1.75rem;
+}
+
+.tc-subpage-breadcrumb__link {
+  color: hsl(var(--color-text-muted));
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.tc-subpage-breadcrumb__link:hover {
+  color: #2D7FF9;
+}
+
+.tc-subpage-breadcrumb__parent {
+  color: hsl(var(--color-text-muted));
+}
+
+.tc-subpage-breadcrumb__current {
+  color: hsl(var(--color-text-primary));
+  font-weight: 600;
+}
+
+.tc-subpage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background-color: rgba(45, 127, 249, 0.1);
+  color: #2D7FF9;
+  border: 1px solid rgba(45, 127, 249, 0.2);
+  margin-bottom: 1rem;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   3. MASTHEAD HEADERS & METADATA STRIP
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-subpage-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid hsl(var(--color-surface-border));
+}
+
+.tc-subpage-title {
+  font-family: var(--font-display), "Outfit", "Inter", sans-serif;
+  font-size: clamp(2.1rem, 4vw, 2.85rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: hsl(var(--color-text-primary));
+  margin: 0 0 0.85rem;
+}
+
+.tc-subpage-subtitle {
+  font-size: 1.125rem;
+  line-height: 1.65;
+  color: hsl(var(--color-text-secondary));
+  max-width: 48rem;
+  margin: 0 0 1.35rem;
+}
+
+.tc-subpage-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 0.8125rem;
+  color: hsl(var(--color-text-muted));
+}
+
+.tc-subpage-meta__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.tc-subpage-meta__item--verified {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.tc-subpage-meta__dot {
+  opacity: 0.4;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   4. MOBILE HORIZONTAL HUB NAVIGATION TRACK
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-hub-mobile-nav {
+  margin-top: 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tc-hub-mobile-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.tc-hub-mobile-track {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.25rem;
+  width: max-content;
+}
+
+@media (min-width: 1024px) {
+  .tc-hub-mobile-nav {
+    display: none;
+  }
+}
+
+.tc-hub-mobile-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: hsl(var(--color-text-secondary));
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.tc-hub-mobile-pill:hover {
+  background-color: hsl(var(--color-surface-2));
+  color: hsl(var(--color-text-primary));
+}
+
+.tc-hub-mobile-pill--active {
+  background-color: #2D7FF9 !important;
+  color: #ffffff !important;
+  border-color: #2D7FF9 !important;
+  box-shadow: 0 2px 10px rgba(45, 127, 249, 0.35);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   5. DESKTOP STICKY SIDEBAR & HUB CARDS
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-hub-sidebar {
+  min-width: 0;
+}
+
+@media (max-width: 1023px) {
+  .tc-hub-sidebar {
+    display: none;
+  }
+}
+
+.tc-hub-sidebar__sticky {
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.tc-hub-card {
+  padding: 1.35rem 1.5rem;
+  border-radius: 1rem;
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.tc-hub-card--accent {
+  background: linear-gradient(145deg, hsl(var(--color-surface-1)), hsl(var(--color-surface-2)));
+  border-color: rgba(45, 127, 249, 0.3);
+}
+
+.tc-hub-card__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: hsl(var(--color-text-muted));
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid hsl(var(--color-surface-border));
+}
+
+.tc-hub-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tc-hub-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.85rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(var(--color-text-secondary));
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.tc-hub-nav-link:hover {
+  background-color: hsl(var(--color-surface-2));
+  color: #2D7FF9;
+}
+
+.tc-hub-nav-link--active {
+  background-color: rgba(45, 127, 249, 0.12) !important;
+  color: #2D7FF9 !important;
+  font-weight: 700 !important;
+}
+
+.tc-hub-contact-btn {
+  display: block;
+  text-align: center;
+  padding: 0.65rem 1rem;
+  border-radius: 0.5rem;
+  background-color: #2D7FF9;
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 2px 8px rgba(45, 127, 249, 0.25);
+}
+
+.tc-hub-contact-btn:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   6. EDITORIAL MANIFESTO BOX
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-manifesto-box {
+  position: relative;
+  padding: 2.25rem 2.5rem;
+  border-radius: 1.25rem;
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.tc-manifesto-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #2D7FF9, #8b5cf6);
+}
+
+.tc-manifesto-box__title {
+  font-family: var(--font-display), "Outfit", "Inter", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin: 0 0 0.65rem;
+}
+
+.tc-manifesto-box__text {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: hsl(var(--color-text-secondary));
+  margin: 0;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   7. EDITORIAL BLOCKS & SECTION HEADERS
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-editorial-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.tc-editorial-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid hsl(var(--color-surface-border));
+}
+
+.tc-editorial-block__title {
+  font-family: var(--font-display), "Outfit", "Inter", sans-serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: hsl(var(--color-text-primary));
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.tc-editorial-block__badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: hsl(var(--color-text-muted));
+  background-color: hsl(var(--color-surface-2));
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--color-surface-border));
+}
+
+.tc-editorial-block__desc {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: hsl(var(--color-text-secondary));
+  margin: 0;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   8. BEAT CARDS GRID (ABOUT US)
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-beat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.15rem;
+}
+
+.tc-beat-card {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tc-beat-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(45, 127, 249, 0.4);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+.tc-beat-card__icon-wrap {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tc-beat-card--ai .tc-beat-card__icon-wrap {
+  background-color: rgba(45, 127, 249, 0.12);
+  color: #2D7FF9;
+}
+
+.tc-beat-card--reviews .tc-beat-card__icon-wrap {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.tc-beat-card--startups .tc-beat-card__icon-wrap {
+  background-color: rgba(139, 92, 246, 0.12);
+  color: #8b5cf6;
+}
+
+.tc-beat-card--security .tc-beat-card__icon-wrap {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.tc-beat-card--crypto .tc-beat-card__icon-wrap {
+  background-color: rgba(6, 182, 212, 0.12);
+  color: #06b6d4;
+}
+
+.tc-beat-card--guides .tc-beat-card__icon-wrap {
+  background-color: rgba(236, 72, 153, 0.12);
+  color: #ec4899;
+}
+
+
+.tc-beat-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin: 0;
+  line-height: 1.35;
+}
+
+.tc-beat-card__desc {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: hsl(var(--color-text-secondary));
+  margin: 0;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   9. TRUST PILLARS GRID (ABOUT & CAREERS)
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.15rem;
+}
+
+.tc-trust-card {
+  padding: 1.35rem 1.5rem;
+  border-radius: 1rem;
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tc-trust-card__badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tc-trust-card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin: 0;
+}
+
+.tc-trust-card__desc {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: hsl(var(--color-text-secondary));
+  margin: 0;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   10. NEWSROOM DESK & PARTNERSHIP CARDS (ABOUT)
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-desk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.15rem;
+}
+
+.tc-desk-card {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tc-desk-card__label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.25rem;
+}
+
+.tc-desk-card__title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin: 0;
+}
+
+.tc-desk-card__link {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #2D7FF9;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.tc-desk-card__link:hover {
+  text-decoration: underline;
+}
+
+.tc-desk-card__desc {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: hsl(var(--color-text-muted));
+  margin: 0.25rem 0 0;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   11. NEWSROOM SCOUTING ROLES (CAREERS)
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-role-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tc-role-card {
+  padding: 1.5rem 1.75rem;
+  border-radius: 1rem;
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.tc-role-card:hover {
+  border-color: rgba(45, 127, 249, 0.4);
+  transform: translateY(-2px);
+}
+
+.tc-role-card__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.tc-role-card__title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin: 0;
+}
+
+.tc-role-card__tag {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  background-color: rgba(45, 127, 249, 0.1);
+  color: #2D7FF9;
+  border: 1px solid rgba(45, 127, 249, 0.2);
+}
+
+.tc-role-card__desc {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: hsl(var(--color-text-secondary));
+  margin: 0;
+}
+
+.tc-role-card__cta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #2D7FF9;
+  text-decoration: none;
+  margin-top: 0.25rem;
+}
+
+.tc-role-card__cta:hover {
+  text-decoration: underline;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   12. FREELANCE PITCH CHECKLIST BOX (CAREERS)
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-checklist-box {
+  padding: 1.5rem 1.75rem;
+  border-radius: 1rem;
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+}
+
+.tc-checklist-box__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin-bottom: 0.75rem;
+}
+
+.tc-checklist-box__desc {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: hsl(var(--color-text-secondary));
+  margin: 0 0 1rem;
+}
+
+.tc-checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid hsl(var(--color-surface-border));
+}
+
+.tc-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--color-text-secondary));
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   13. AUDIENCE STATS & COLLABORATION FORMATS (ADVERTISE)
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.15rem;
+}
+
+.tc-stat-card {
+  padding: 1.75rem;
+  border-radius: 1rem;
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.tc-stat-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(45, 127, 249, 0.4);
+}
+
+.tc-stat-card__num {
+  font-family: var(--font-display), "Outfit", "Inter", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.5rem;
+}
+
+.tc-stat-card__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: hsl(var(--color-text-muted));
+  margin: 0 0 0.75rem;
+}
+
+.tc-stat-card__desc {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: hsl(var(--color-text-secondary));
+  margin: 0;
+}
+
+.tc-collab-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tc-collab-card {
+  padding: 1.5rem 1.75rem;
+  border-radius: 1rem;
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+  display: flex;
+  align-items: flex-start;
+  gap: 1.15rem;
+}
+
+.tc-collab-card__icon-wrap {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tc-collab-card__title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin: 0 0 0.35rem;
+}
+
+.tc-collab-card__desc {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: hsl(var(--color-text-secondary));
+  margin: 0;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   14. ACTION / CTA BANNERS
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-action-banner {
+  padding: 2rem 2.25rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(145deg, hsl(var(--color-surface-1)), hsl(var(--color-surface-2)));
+  border: 1px solid hsl(var(--color-surface-border));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.75rem;
+}
+
+@media (max-width: 768px) {
+  .tc-action-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.tc-action-banner__content {
+  max-width: 38rem;
+}
+
+.tc-action-banner__title {
+  font-family: var(--font-display), "Outfit", "Inter", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin: 0 0 0.45rem;
+}
+
+.tc-action-banner__desc {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: hsl(var(--color-text-secondary));
+  margin: 0;
+}
+
+.tc-action-banner__note {
+  font-size: 0.75rem;
+  color: hsl(var(--color-text-muted));
+  margin-top: 0.65rem;
+}
+
+.tc-action-banner__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.65rem;
+  border-radius: 0.625rem;
+  background-color: #2D7FF9;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 10px rgba(45, 127, 249, 0.3);
+}
+
+.tc-action-banner__btn:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(45, 127, 249, 0.45);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   15. CONTACT DESK PAGE
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-contact-shell {
+  padding: 2.5rem 0 6rem;
+  min-height: 90vh;
+  background-color: hsl(var(--color-surface-0));
+  background-image: radial-gradient(ellipse 70% 40% at 50% -10%, rgba(45, 127, 249, 0.08), transparent 70%);
+}
+
+.tc-contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 2.75rem;
+  align-items: start;
+}
+
+@media (max-width: 1023px) {
+  .tc-contact-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+.tc-contact-sidebar-card {
+  padding: 2rem;
+  border-radius: 1.25rem;
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tc-contact-desk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.tc-contact-desk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.tc-contact-desk-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tc-contact-desk-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: hsl(var(--color-text-muted));
+  margin: 0 0 0.25rem;
+}
+
+.tc-contact-desk-link {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.tc-contact-desk-link:hover {
+  color: #2D7FF9;
+}
+
+.tc-contact-desks-title {
+  font-family: var(--font-display), "Outfit", "Inter", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin: 0 0 0.5rem;
+}
+
+.tc-contact-desks-desc {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: hsl(var(--color-text-secondary));
+  margin: 0;
+}
+
+.tc-contact-desk-icon--blue {
+  background-color: rgba(45, 127, 249, 0.12);
+  color: #2D7FF9;
+}
+
+.tc-contact-desk-icon--green {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.tc-contact-desk-icon--purple {
+  background-color: rgba(139, 92, 246, 0.12);
+  color: #8b5cf6;
+}
+
+.tc-contact-disclaimer {
+  padding-top: 1.25rem;
+  border-top: 1px solid hsl(var(--color-surface-border));
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: hsl(var(--color-text-muted));
+  margin: 0;
+}
+
+
+.tc-contact-address {
+  font-style: normal;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: hsl(var(--color-text-primary));
+  font-weight: 500;
+  margin: 0.25rem 0 0;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   16. LEGAL SUBPAGES (STANDALONE VANILLA STYLES)
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-legal-shell {
+  padding: 2.5rem 0 6rem;
+  min-height: 90vh;
+  background-color: hsl(var(--color-surface-0));
+  background-image: radial-gradient(ellipse 70% 40% at 50% -10%, rgba(45, 127, 249, 0.08), transparent 70%);
+}
+
+.tc-legal-intro-card {
+  padding: 1.75rem 2.25rem;
+  border-radius: 1rem;
+  background-color: hsl(var(--color-surface-1));
+  border: 1px solid hsl(var(--color-surface-border));
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  margin-bottom: 2rem;
+}
+
+.tc-legal-intro-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin: 0 0 0.5rem;
+}
+
+.tc-legal-intro-text {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: hsl(var(--color-text-secondary));
+  margin: 0;
+}
+
+.tc-legal-intro-note {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: hsl(var(--color-text-muted));
+  margin: 1rem 0 0;
+}
+
+.tc-legal-doc-section {
+  padding: 2rem 0;
+  border-bottom: 1px solid hsl(var(--color-surface-border));
+  scroll-margin-top: 100px;
+}
+
+.tc-legal-doc-section:first-of-type {
+  padding-top: 0;
+}
+
+.tc-legal-doc-section:last-of-type {
+  border-bottom: none;
+}
+
+.tc-legal-doc-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.tc-legal-doc-num {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.375rem;
+  background-color: rgba(45, 127, 249, 0.08);
+  border: 1px solid rgba(45, 127, 249, 0.2);
+  color: #2D7FF9;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.tc-legal-doc-title {
+  font-family: var(--font-display), "Outfit", "Inter", sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: hsl(var(--color-text-primary));
+  margin: 0;
+  letter-spacing: -0.015em;
+}
+
+.tc-legal-doc-subheading {
+  font-family: var(--font-display), "Outfit", "Inter", sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin-top: 1.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.tc-legal-doc-list {
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.tc-legal-doc-item {
+  position: relative;
+  padding-left: 1.5rem;
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: hsl(var(--color-text-secondary));
+}
+
+.tc-legal-doc-item::before {
+  content: "";
+  position: absolute;
+  top: 0.65rem;
+  left: 0.35rem;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background-color: #2D7FF9;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   17. TOC & HUB HELPER UTILITIES (PURE VANILLA CSS)
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-subpage-breadcrumb__separator {
+  width: 0.875rem;
+  height: 0.875rem;
+  opacity: 0.5;
+  color: hsl(var(--color-text-muted));
+}
+
+.tc-subpage-badge__icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.tc-subpage-meta__icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.tc-hub-mobile-pill__icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.tc-hub-nav-link__icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.tc-hub-nav-link__label {
+  flex: 1;
+}
+
+.tc-hub-nav-link__external {
+  width: 0.75rem;
+  height: 0.75rem;
+  opacity: 0.6;
+}
+
+.tc-hub-card__header-accent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #2D7FF9;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.tc-hub-card__header-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.tc-hub-card__header-subtle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  color: hsl(var(--color-text-primary));
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tc-hub-card__header-subtle-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: #8b5cf6;
+}
+
+.tc-hub-card__body-text {
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: hsl(var(--color-text-muted));
+  margin: 0 0 0.75rem;
+}
+
+.tc-hub-card__link {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2D7FF9;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tc-hub-card__link:hover {
+  text-decoration: underline;
+}
+
+.tc-hub-card__link-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* Legal Table of Contents */
+.tc-legal-toc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.tc-legal-toc__link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  color: hsl(var(--color-text-secondary));
+  text-decoration: none;
+  line-height: 1.4;
+  transition: all 0.15s ease;
+}
+
+.tc-legal-toc__link:hover {
+  background-color: rgba(45, 127, 249, 0.08);
+  color: #2D7FF9;
+}
+
+.tc-legal-toc__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.25rem;
+  background-color: rgba(45, 127, 249, 0.1);
+  color: #2D7FF9;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-family: var(--font-mono), monospace;
+  flex-shrink: 0;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   18. COMPATIBILITY ALIASES (LEGACY & EXTENSION SELECTORS)
+   ────────────────────────────────────────────────────────────────────────── */
+.tc-policy-page__section {
+  padding: 2rem 0;
+  border-bottom: 1px solid hsl(var(--color-surface-border));
+  scroll-margin-top: 100px;
+}
+
+.tc-policy-page__section--first {
+  padding-top: 0;
+}
+
+.tc-policy-page__section:last-of-type {
+  border-bottom: none;
+}
+
+.tc-policy-page__section-title {
+  font-family: var(--font-display), "Outfit", "Inter", sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: hsl(var(--color-text-primary));
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  letter-spacing: -0.015em;
+}
+
+.tc-policy-page__section-num {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.375rem;
+  background-color: rgba(45, 127, 249, 0.08);
+  border: 1px solid rgba(45, 127, 249, 0.2);
+  color: #2D7FF9;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.tc-policy-page__subheading {
+  font-family: var(--font-display), "Outfit", "Inter", sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: hsl(var(--color-text-primary));
+  margin-top: 1.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.tc-policy-page__list {
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.tc-policy-page__list-item {
+  position: relative;
+  padding-left: 1.5rem;
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: hsl(var(--color-text-secondary));
+}
+
+.tc-policy-page__list-item::before {
+  content: "";
+  position: absolute;
+  top: 0.65rem;
+  left: 0.35rem;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background-color: #2D7FF9;
+}
+
+

@@ -26,16 +26,16 @@ export default function CareersPage() {
     <CompanyPageLayout
       title="Careers at TechCrest"
       badge="Join Our Newsroom"
-      badgeIcon={<Briefcase className="w-3.5 h-3.5" />}
+      badgeIcon={<Briefcase className="tc-subpage-badge__icon" />}
       subtitle="We are building the definitive independent technology newsroom for the next generation of engineers, builders, and inquisitive thinkers."
       currentSlug="/careers"
     >
       {/* Editorial Lead Manifesto */}
-      <div className="tc-manifesto-card">
-        <h2 className="text-xl font-bold text-[var(--color-text-primary)] mb-2 font-display">
+      <div className="tc-manifesto-box">
+        <h2 className="tc-manifesto-box__title">
           Journalism Driven by Curiosity, Context & Craft
         </h2>
-        <p className="tc-manifesto-text text-base">
+        <p className="tc-manifesto-box__text">
           At TechCrest, we believe technology reporting shouldn&apos;t be a race
           to summarize press releases. We dig into the code, inspect the
           hardware architectures, examine the regulatory nuances, and explain
@@ -44,19 +44,19 @@ export default function CareersPage() {
       </div>
 
       {/* Editorial Values */}
-      <section className="tc-editorial-section">
-        <div className="tc-editorial-section__header">
-          <h2 className="tc-editorial-section__title">
-            <Compass className="w-5 h-5 text-[#2D7FF9]" />
+      <section className="tc-editorial-block">
+        <div className="tc-editorial-block__header">
+          <h2 className="tc-editorial-block__title">
+            <Compass className="tc-subpage-meta__icon" />
             Our Editorial Values
           </h2>
-          <span className="tc-editorial-section__badge">Newsroom Standards</span>
+          <span className="tc-editorial-block__badge">Newsroom Standards</span>
         </div>
 
         <div className="tc-trust-grid">
           <div className="tc-trust-card">
-            <div className="flex items-center gap-2 text-[#2D7FF9] font-bold text-xs uppercase tracking-wider">
-              <Shield className="w-4 h-4" />
+            <div className="tc-trust-card__badge" style={{ color: "#2D7FF9" }}>
+              <Shield className="tc-subpage-meta__icon" />
               <span>Independence</span>
             </div>
             <h3 className="tc-trust-card__title">Editorial Independence</h3>
@@ -67,8 +67,8 @@ export default function CareersPage() {
           </div>
 
           <div className="tc-trust-card">
-            <div className="flex items-center gap-2 text-[#10b981] font-bold text-xs uppercase tracking-wider">
-              <Cpu className="w-4 h-4" />
+            <div className="tc-trust-card__badge" style={{ color: "#10b981" }}>
+              <Cpu className="tc-subpage-meta__icon" />
               <span>Rigor</span>
             </div>
             <h3 className="tc-trust-card__title">Technical Depth</h3>
@@ -80,8 +80,8 @@ export default function CareersPage() {
           </div>
 
           <div className="tc-trust-card">
-            <div className="flex items-center gap-2 text-[#8b5cf6] font-bold text-xs uppercase tracking-wider">
-              <Users className="w-4 h-4" />
+            <div className="tc-trust-card__badge" style={{ color: "#8b5cf6" }}>
+              <Users className="tc-subpage-meta__icon" />
               <span>Impact</span>
             </div>
             <h3 className="tc-trust-card__title">Human Perspective</h3>
@@ -95,15 +95,15 @@ export default function CareersPage() {
       </section>
 
       {/* Open Roles & Beat Inquiries */}
-      <section className="tc-editorial-section">
-        <div className="tc-editorial-section__header">
-          <h2 className="tc-editorial-section__title">
-            <Sparkles className="w-5 h-5 text-[#10b981]" />
+      <section className="tc-editorial-block">
+        <div className="tc-editorial-block__header">
+          <h2 className="tc-editorial-block__title">
+            <Sparkles className="tc-subpage-meta__icon" />
             Areas We Are Actively Scouting
           </h2>
-          <span className="tc-editorial-section__badge">Open Inquiries</span>
+          <span className="tc-editorial-block__badge">Open Inquiries</span>
         </div>
-        <p className="tc-editorial-section__desc">
+        <p className="tc-editorial-block__desc">
           While we may not always have a generic job opening posted, we are
           continuously looking for exceptional writers, beat journalists, and
           technical specialists across:
@@ -126,7 +126,7 @@ export default function CareersPage() {
               href="mailto:editor@techcrest.news?subject=Beat%20Inquiry%20%E2%80%94%20AI%20%26%20Machine%20Learning"
               className="tc-role-card__cta"
             >
-              Pitch this beat <ArrowRight className="w-3.5 h-3.5" />
+              Pitch this beat <ArrowRight className="tc-hub-card__link-icon" />
             </a>
           </div>
 
@@ -146,7 +146,7 @@ export default function CareersPage() {
               href="mailto:editor@techcrest.news?subject=Beat%20Inquiry%20%E2%80%94%20Consumer%20Hardware%20Reviewer"
               className="tc-role-card__cta"
             >
-              Pitch this beat <ArrowRight className="w-3.5 h-3.5" />
+              Pitch this beat <ArrowRight className="tc-hub-card__link-icon" />
             </a>
           </div>
 
@@ -166,7 +166,7 @@ export default function CareersPage() {
               href="mailto:editor@techcrest.news?subject=Beat%20Inquiry%20%E2%80%94%20Clean%20Energy%20%26%20EV%20Mobility"
               className="tc-role-card__cta"
             >
-              Pitch this beat <ArrowRight className="w-3.5 h-3.5" />
+              Pitch this beat <ArrowRight className="tc-hub-card__link-icon" />
             </a>
           </div>
 
@@ -186,48 +186,57 @@ export default function CareersPage() {
               href="mailto:editor@techcrest.news?subject=Beat%20Inquiry%20%E2%80%94%20Cybersecurity%20%26%20Privacy"
               className="tc-role-card__cta"
             >
-              Pitch this beat <ArrowRight className="w-3.5 h-3.5" />
+              Pitch this beat <ArrowRight className="tc-hub-card__link-icon" />
             </a>
           </div>
         </div>
       </section>
 
       {/* Freelance & Pitch Submissions */}
-      <section className="tc-editorial-section">
-        <div className="tc-editorial-section__header">
-          <h2 className="tc-editorial-section__title">
-            <HeartHandshake className="w-5 h-5 text-[#8b5cf6]" />
+      <section className="tc-editorial-block">
+        <div className="tc-editorial-block__header">
+          <h2 className="tc-editorial-block__title">
+            <HeartHandshake className="tc-subpage-meta__icon" />
             Freelance Contributors & Op-Ed Pitches
           </h2>
-          <span className="tc-editorial-section__badge">Competitive Rates</span>
+          <span className="tc-editorial-block__badge">Competitive Rates</span>
         </div>
-        <p className="tc-editorial-section__desc">
+        <p className="tc-editorial-block__desc">
           Are you an engineer, researcher, founder, or investigative writer with
           a unique perspective or scoop? We pay competitive rates for original
           reporting, in-depth explainers, and well-argued opinion pieces.
         </p>
 
-        <div className="p-5 rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-1)]">
-          <div className="flex items-center gap-2 mb-3 text-sm font-bold text-[var(--color-text-primary)]">
-            <FileText className="w-4 h-4 text-[#2D7FF9]" />
+        <div className="tc-checklist-box">
+          <div className="tc-checklist-box__header">
+            <FileText className="tc-subpage-meta__icon" />
             <span>Submission Checklist for Freelancers</span>
           </div>
-          <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+          <p className="tc-checklist-box__desc">
             Send your pitch (2-3 paragraphs outlining the story, why it matters
             now, your primary sources, and links to your previous writing) to
             our editorial desk.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-[var(--color-surface-border)] text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+          <div className="tc-checklist-grid">
+            <div className="tc-checklist-item">
+              <CheckCircle2
+                className="tc-subpage-meta__icon"
+                style={{ color: "#10b981" }}
+              />
               <span>2-3 paragraph angle</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+            <div className="tc-checklist-item">
+              <CheckCircle2
+                className="tc-subpage-meta__icon"
+                style={{ color: "#10b981" }}
+              />
               <span>Primary sources identified</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+            <div className="tc-checklist-item">
+              <CheckCircle2
+                className="tc-subpage-meta__icon"
+                style={{ color: "#10b981" }}
+              />
               <span>Published writing clips</span>
             </div>
           </div>
@@ -243,18 +252,16 @@ export default function CareersPage() {
             technical blog posts, and a brief note about what tech beat you are
             passionate about to:
           </p>
-          <div className="mt-2.5 text-xs text-muted-foreground">
-            <strong className="text-[var(--color-text-primary)]">
-              Subject Line Format:
-            </strong>{" "}
-            &quot;Career / Pitch — [Your Name] — [Beat/Topic]&quot;
+          <div className="tc-action-banner__note">
+            <strong>Subject Line Format:</strong> &quot;Career / Pitch — [Your
+            Name] — [Beat/Topic]&quot;
           </div>
         </div>
         <a
           href="mailto:editor@techcrest.news?subject=Career%20%2F%20Pitch%20%E2%80%94%20[Your%20Name]%20%E2%80%94%20[Beat%2FTopic]"
           className="tc-action-banner__btn"
         >
-          <Mail className="w-4 h-4" /> Apply via editor@techcrest.news
+          <Mail className="tc-subpage-meta__icon" /> Apply via editor@techcrest.news
         </a>
       </section>
     </CompanyPageLayout>

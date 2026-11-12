@@ -2,7 +2,16 @@
 
 import React from "react";
 import Link from "next/link";
-import { ChevronRight, FileText, Shield, Cookie, BookOpen, DollarSign, Mail, CheckCircle2 } from "lucide-react";
+import {
+  ChevronRight,
+  FileText,
+  Shield,
+  Cookie,
+  BookOpen,
+  DollarSign,
+  Mail,
+  CheckCircle2,
+} from "lucide-react";
 
 export interface LegalTocItem {
   id: string;
@@ -30,7 +39,11 @@ const LEGAL_NAV = [
   { href: "/terms", label: "Terms of Service", icon: FileText },
   { href: "/cookies", label: "Cookie Policy", icon: Cookie },
   { href: "/editorial-policy", label: "Editorial Policy", icon: BookOpen },
-  { href: "/affiliate-disclosure", label: "Affiliate Disclosure", icon: DollarSign },
+  {
+    href: "/affiliate-disclosure",
+    label: "Affiliate Disclosure",
+    icon: DollarSign,
+  },
 ];
 
 export function LegalPageLayout({
@@ -48,39 +61,41 @@ export function LegalPageLayout({
   children,
 }: LegalPageLayoutProps) {
   return (
-    <div className="tc-legal-page">
-      <div className="tc-legal-container">
-        {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="tc-legal-breadcrumb">
-          <Link href="/" className="tc-legal-breadcrumb__link">Home</Link>
-          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
-          <span className="tc-legal-breadcrumb__parent">Legal & Trust</span>
-          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/60" />
-          <span className="tc-legal-breadcrumb__current">{title}</span>
+    <div className="tc-subpage-shell">
+      <div className="tc-subpage-container">
+        {/* Breadcrumb Navigation */}
+        <nav aria-label="Breadcrumb" className="tc-subpage-breadcrumb">
+          <Link href="/" className="tc-subpage-breadcrumb__link">
+            Home
+          </Link>
+          <ChevronRight className="tc-subpage-breadcrumb__separator" />
+          <span className="tc-subpage-breadcrumb__parent">Legal & Trust</span>
+          <ChevronRight className="tc-subpage-breadcrumb__separator" />
+          <span className="tc-subpage-breadcrumb__current">{title}</span>
         </nav>
 
-        {/* Hero Header */}
-        <header className="tc-legal-header">
-          <div className="tc-legal-badge">
-            {badgeIcon || <Shield className="w-3.5 h-3.5" />}
+        {/* Masthead Header */}
+        <header className="tc-subpage-header">
+          <div className="tc-subpage-badge">
+            {badgeIcon || <Shield className="tc-subpage-badge__icon" />}
             <span>{badge}</span>
           </div>
-          <h1 className="tc-legal-title">{title}</h1>
-          <div className="tc-legal-meta">
-            <span className="tc-legal-meta__item">
+          <h1 className="tc-subpage-title">{title}</h1>
+          <div className="tc-subpage-meta">
+            <span className="tc-subpage-meta__item">
               <strong>Last Updated:</strong> {lastUpdated}
             </span>
-            <span className="tc-legal-meta__dot">&bull;</span>
-            <span className="tc-legal-meta__item">{readingTime}</span>
-            <span className="tc-legal-meta__dot">&bull;</span>
-            <span className="tc-legal-meta__item text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1 font-semibold">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Official Standards
+            <span className="tc-subpage-meta__dot">&bull;</span>
+            <span className="tc-subpage-meta__item">{readingTime}</span>
+            <span className="tc-subpage-meta__dot">&bull;</span>
+            <span className="tc-subpage-meta__item tc-subpage-meta__item--verified">
+              <CheckCircle2 className="tc-subpage-meta__icon" /> Official Standards
             </span>
           </div>
 
           {/* Mobile Horizontal Sub-Navigation */}
-          <div className="tc-company-mobile-nav">
-            <div className="tc-company-mobile-nav__track">
+          <div className="tc-hub-mobile-nav">
+            <div className="tc-hub-mobile-track">
               {LEGAL_NAV.map((item) => {
                 const isActive = currentSlug === item.href;
                 const Icon = item.icon;
@@ -88,11 +103,11 @@ export function LegalPageLayout({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`tc-company-mobile-nav__pill ${
-                      isActive ? "tc-company-mobile-nav__pill--active" : ""
+                    className={`tc-hub-mobile-pill ${
+                      isActive ? "tc-hub-mobile-pill--active" : ""
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="tc-hub-mobile-pill__icon" />
                     <span>{item.label}</span>
                   </Link>
                 );
@@ -102,29 +117,31 @@ export function LegalPageLayout({
         </header>
 
         {/* 2-Column Split Layout */}
-        <div className="tc-legal-grid">
+        <div className="tc-subpage-grid">
           {/* Main Content Column */}
-          <main className="tc-legal-main">
+          <main className="tc-subpage-main">
             {introText && (
               <div className="tc-legal-intro-card">
-                {introTitle && <h2 className="tc-legal-intro-title">{introTitle}</h2>}
+                {introTitle && (
+                  <h2 className="tc-legal-intro-title">{introTitle}</h2>
+                )}
                 <p className="tc-legal-intro-text">{introText}</p>
-                {introNote && <p className="tc-legal-intro-note">{introNote}</p>}
+                {introNote && (
+                  <p className="tc-legal-intro-note">{introNote}</p>
+                )}
               </div>
             )}
 
-            <div className="tc-legal-sections">
-              {children}
-            </div>
+            <div className="tc-editorial-block">{children}</div>
           </main>
 
-          {/* Sticky Sidebar */}
-          <aside className="tc-legal-sidebar">
-            <div className="tc-legal-sidebar__sticky">
+          {/* Desktop Sticky Sidebar */}
+          <aside className="tc-hub-sidebar">
+            <div className="tc-hub-sidebar__sticky">
               {/* Table of Contents */}
               {tableOfContents.length > 0 && (
-                <div className="tc-legal-card mb-5">
-                  <h3 className="tc-legal-card__title">On This Page</h3>
+                <div className="tc-hub-card">
+                  <h3 className="tc-hub-card__title">On This Page</h3>
                   <nav className="tc-legal-toc">
                     {tableOfContents.map((item) => (
                       <a
@@ -133,7 +150,9 @@ export function LegalPageLayout({
                         className="tc-legal-toc__link"
                       >
                         {item.num !== undefined && (
-                          <span className="tc-legal-toc__num">{item.num}</span>
+                          <span className="tc-legal-toc__num">
+                            {item.num < 10 ? `0${item.num}` : item.num}
+                          </span>
                         )}
                         <span>{item.title}</span>
                       </a>
@@ -143,9 +162,9 @@ export function LegalPageLayout({
               )}
 
               {/* Legal Hub Navigation */}
-              <div className="tc-legal-card mb-5">
-                <h3 className="tc-legal-card__title">Legal & Trust Hub</h3>
-                <nav className="tc-legal-nav-list">
+              <div className="tc-hub-card">
+                <h3 className="tc-hub-card__title">Legal & Trust Hub</h3>
+                <nav className="tc-hub-nav-list">
                   {LEGAL_NAV.map((item) => {
                     const isActive = currentSlug === item.href;
                     const Icon = item.icon;
@@ -153,28 +172,33 @@ export function LegalPageLayout({
                       <Link
                         key={item.href}
                         href={item.href}
-                        className={`tc-legal-nav-link ${isActive ? "tc-legal-nav-link--active" : ""}`}
+                        className={`tc-hub-nav-link ${
+                          isActive ? "tc-hub-nav-link--active" : ""
+                        }`}
                       >
-                        <Icon className="w-4 h-4 flex-shrink-0" />
-                        <span>{item.label}</span>
+                        <Icon className="tc-hub-nav-link__icon" />
+                        <span className="tc-hub-nav-link__label">
+                          {item.label}
+                        </span>
                       </Link>
                     );
                   })}
                 </nav>
               </div>
 
-              {/* Contact / Help Card */}
-              <div className="tc-legal-card tc-legal-card--accent">
-                <div className="flex items-center gap-2 mb-2 text-[#2D7FF9] font-bold text-sm">
-                  <Mail className="w-4 h-4" />
+              {/* Official Inquiries Card */}
+              <div className="tc-hub-card tc-hub-card--accent">
+                <div className="tc-hub-card__header-accent">
+                  <Mail className="tc-hub-card__header-icon" />
                   <span>Official Inquiries</span>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                  Questions regarding our policies, privacy rights, or editorial standards?
+                <p className="tc-hub-card__body-text">
+                  Questions regarding our policies, privacy rights, or editorial
+                  standards?
                 </p>
                 <a
                   href={`mailto:${contactEmail}`}
-                  className="tc-legal-contact-btn"
+                  className="tc-hub-contact-btn"
                 >
                   Contact Desk
                 </a>
