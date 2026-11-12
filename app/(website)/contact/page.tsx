@@ -6,7 +6,6 @@ import {
   Building2,
   ShieldCheck,
   Globe,
-  Briefcase,
   Megaphone,
   ExternalLink,
 } from "lucide-react";
@@ -22,7 +21,6 @@ export const metadata: Metadata = {
 const COMPANY_NAV = [
   { href: "/about", label: "About Us", icon: Globe },
   { href: "/contact", label: "Contact Desk", icon: Mail },
-  { href: "/careers", label: "Careers & Pitches", icon: Briefcase },
   { href: "/advertise", label: "Advertise & Media", icon: Megaphone },
   {
     href: "https://rawpitch.org/",

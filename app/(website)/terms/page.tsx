@@ -32,8 +32,6 @@ export default function TermsPage() {
       title="Terms of Service"
       badge="Legal Agreement"
       badgeIcon={<Scale className="w-3.5 h-3.5" />}
-      lastUpdated="October 2026"
-      readingTime="6 min read"
       currentSlug="/terms"
       tableOfContents={TOC}
       introText="Welcome to TechCrest. These Terms of Service govern your access to and use of techcrest.news, including our articles, newsletters, community features, multimedia content and other services."

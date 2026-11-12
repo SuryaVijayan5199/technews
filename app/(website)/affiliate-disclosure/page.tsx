@@ -24,8 +24,6 @@ export default function AffiliateDisclosurePage() {
       title="Affiliate Disclosure"
       badge="Commerce & Transparency Disclosure"
       badgeIcon={<DollarSign className="w-3.5 h-3.5" />}
-      lastUpdated="October 2026"
-      readingTime="3 min read"
       currentSlug="/affiliate-disclosure"
       tableOfContents={TOC}
       introTitle="Transparency First"

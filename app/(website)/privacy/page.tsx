@@ -33,8 +33,6 @@ export default function PrivacyPage() {
       title="Privacy Policy"
       badge="Data Privacy & Protection"
       badgeIcon={<ShieldCheck className="w-3.5 h-3.5" />}
-      lastUpdated="October 2026"
-      readingTime="7 min read"
       currentSlug="/privacy"
       tableOfContents={TOC}
       introText="At TechCrest, we respect your privacy and are committed to protecting the information you share with us. This Privacy Policy explains what information we may collect, how we use it, when we may share it, and the choices available to you when you use techcrest.news, subscribe to our services, participate in our community, or otherwise interact with us."

@@ -33,8 +33,6 @@ export default function EditorialPolicyPage() {
       title="Editorial Policy"
       badge="Journalism Standards & Integrity"
       badgeIcon={<Award className="w-3.5 h-3.5" />}
-      lastUpdated="October 2026"
-      readingTime="6 min read"
       currentSlug="/editorial-policy"
       tableOfContents={TOC}
       introText="TechCrest is committed to independent, accurate and responsible technology journalism. Our goal is to help readers understand the products, companies, technologies and ideas shaping the future of everyday life."

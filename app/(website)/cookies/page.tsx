@@ -25,8 +25,6 @@ export default function CookiesPage() {
       title="Cookie Policy"
       badge="Cookie Transparency"
       badgeIcon={<Cookie className="w-3.5 h-3.5" />}
-      lastUpdated="October 2026"
-      readingTime="4 min read"
       currentSlug="/cookies"
       tableOfContents={TOC}
       introText="TechCrest uses cookies and similar technologies to provide a reliable website experience, remember user preferences, understand how visitors use our services and improve our content."

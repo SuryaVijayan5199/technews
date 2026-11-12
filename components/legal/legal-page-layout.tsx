@@ -23,8 +23,6 @@ interface LegalPageLayoutProps {
   title: string;
   badge: string;
   badgeIcon?: React.ReactNode;
-  lastUpdated?: string;
-  readingTime?: string;
   currentSlug: string;
   tableOfContents?: LegalTocItem[];
   introTitle?: string;
@@ -50,8 +48,6 @@ export function LegalPageLayout({
   title,
   badge,
   badgeIcon,
-  lastUpdated = "October 2026",
-  readingTime = "6 min read",
   currentSlug,
   tableOfContents = [],
   introTitle,
@@ -81,17 +77,6 @@ export function LegalPageLayout({
             <span>{badge}</span>
           </div>
           <h1 className="tc-subpage-title">{title}</h1>
-          <div className="tc-subpage-meta">
-            <span className="tc-subpage-meta__item">
-              <strong>Last Updated:</strong> {lastUpdated}
-            </span>
-            <span className="tc-subpage-meta__dot">&bull;</span>
-            <span className="tc-subpage-meta__item">{readingTime}</span>
-            <span className="tc-subpage-meta__dot">&bull;</span>
-            <span className="tc-subpage-meta__item tc-subpage-meta__item--verified">
-              <CheckCircle2 className="tc-subpage-meta__icon" /> Official Standards
-            </span>
-          </div>
 
           {/* Mobile Horizontal Sub-Navigation */}
           <div className="tc-hub-mobile-nav">
