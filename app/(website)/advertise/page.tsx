@@ -114,7 +114,6 @@ export default function AdvertisePage() {
             <div className="tc-policy-page__intro-card mt-3 text-sm space-y-2">
               <p><strong>Partnerships Desk:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
               <p><strong>Subject Suggestion:</strong> &quot;Partnership Inquiry — [Your Brand/Company]&quot;</p>
-              <p><strong>Headquarters:</strong> TechCrest, 4th Floor VM Grandeur, Bangalore 560113, India</p>
             </div>
           </section>
         </div>

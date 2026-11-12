@@ -1,233 +1,230 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronRight, Scale } from "lucide-react";
+import { Scale } from "lucide-react";
+import { LegalPageLayout, LegalTocItem } from "@/components/legal/legal-page-layout";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Terms of Service — TechCrest",
   description: "Review TechCrest's Terms of Service, including the rules and conditions for using our website, content, newsletters and related services.",
 };
 
+const TOC: LegalTocItem[] = [
+  { id: "about-techcrest", title: "About TechCrest", num: 1 },
+  { id: "use-of-site", title: "Use of the Website", num: 2 },
+  { id: "intellectual-property", title: "Intellectual Property", num: 3 },
+  { id: "editorial-content", title: "Editorial Content", num: 4 },
+  { id: "user-content", title: "Community & User Content", num: 5 },
+  { id: "third-party-links", title: "Third-Party Links", num: 6 },
+  { id: "advertising-affiliate", title: "Advertising & Affiliate", num: 7 },
+  { id: "warranty-disclaimer", title: "Disclaimer of Warranties", num: 8 },
+  { id: "liability-limitation", title: "Limitation of Liability", num: 9 },
+  { id: "terms-changes", title: "Changes to These Terms", num: 10 },
+  { id: "governing-law", title: "Governing Law", num: 11 },
+  { id: "legal-notice", title: "Legal Notice & Contact", num: 12 },
+];
+
 export default function TermsPage() {
   return (
-    <div className="tc-policy-page">
-      <div className="tc-policy-page__container">
-        {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="tc-policy-page__breadcrumb">
-          <Link href="/" className="tc-policy-page__breadcrumb-link">Home</Link>
-          <ChevronRight className="tc-icon-xs" />
-          <span className="tc-policy-page__breadcrumb-current">Terms of Service</span>
-        </nav>
+    <LegalPageLayout
+      title="Terms of Service"
+      badge="Legal Agreement"
+      badgeIcon={<Scale className="w-3.5 h-3.5" />}
+      lastUpdated="October 2026"
+      readingTime="6 min read"
+      currentSlug="/terms"
+      tableOfContents={TOC}
+      introText="Welcome to TechCrest. These Terms of Service govern your access to and use of techcrest.news, including our articles, newsletters, community features, multimedia content and other services."
+      introNote="By accessing or using TechCrest, you agree to these Terms of Service. If you do not agree with these terms, please do not use the website."
+      contactEmail="editor@techcrest.news"
+    >
+      {/* Section 1 */}
+      <section id="about-techcrest" className="tc-policy-page__section tc-policy-page__section--first">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">1</span>
+          About TechCrest
+        </h2>
+        <p>
+          TechCrest is a consumer technology publication covering technology, products, companies, trends and ideas shaping everyday life.
+        </p>
+        <p>
+          Our coverage may include smartphones, audio, robotics, artificial intelligence, fitness technology, cybersecurity, smart home products, electric vehicles, gaming, digital assets and other areas of technology.
+        </p>
+      </section>
 
-        {/* Page Header */}
-        <div className="tc-policy-page__header">
-          <div className="tc-policy-page__badge">
-            <Scale className="tc-icon-xs" />
-            <span>LEGAL AGREEMENT</span>
-          </div>
-          <h1 className="tc-policy-page__title">
-            Terms of Service
-          </h1>
+      {/* Section 2 */}
+      <section id="use-of-site" className="tc-policy-page__section">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">2</span>
+          Use of the Website
+        </h2>
+        <p>You agree to use TechCrest only for lawful purposes and in accordance with these Terms.</p>
+        <p className="font-semibold">You must not:</p>
+        <ul className="tc-policy-page__list">
+          <li className="tc-policy-page__list-item">Use the website for unlawful or fraudulent purposes;</li>
+          <li className="tc-policy-page__list-item">Attempt to gain unauthorized access to our systems;</li>
+          <li className="tc-policy-page__list-item">Interfere with the operation or security of the website;</li>
+          <li className="tc-policy-page__list-item">Introduce malicious software or harmful code;</li>
+          <li className="tc-policy-page__list-item">Scrape, reproduce or systematically collect content without permission;</li>
+          <li className="tc-policy-page__list-item">Impersonate another person or organization; or</li>
+          <li className="tc-policy-page__list-item">Use our services in a manner that violates applicable laws or the rights of others.</li>
+        </ul>
+      </section>
+
+      {/* Section 3 */}
+      <section id="intellectual-property" className="tc-policy-page__section">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">3</span>
+          Intellectual Property
+        </h2>
+        <p>
+          Unless otherwise stated, TechCrest’s articles, original text, graphics, logos, photographs, videos, designs, software and other content are owned by or licensed to TechCrest and are protected by applicable intellectual property laws.
+        </p>
+        <p>
+          You may access and share links to TechCrest content for personal, non-commercial purposes, provided that the content is not altered or presented in a misleading manner.
+        </p>
+        <p>
+          Reproducing, republishing, distributing or commercially exploiting TechCrest content without prior written permission is prohibited.
+        </p>
+        <p className="tc-text-muted text-sm">
+          Third-party trademarks, logos and product names remain the property of their respective owners.
+        </p>
+      </section>
+
+      {/* Section 4 */}
+      <section id="editorial-content" className="tc-policy-page__section">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">4</span>
+          Editorial Content
+        </h2>
+        <p>
+          TechCrest publishes news, analysis, reviews, features, opinion and other editorial content.
+        </p>
+        <p>
+          Our editorial content is provided for general informational purposes and should not be considered professional financial, legal, medical, investment or other specialized advice.
+        </p>
+        <p>
+          Product availability, specifications, pricing and other information may change without notice. Readers should independently verify important information before making purchasing, financial or other decisions.
+        </p>
+      </section>
+
+      {/* Section 5 */}
+      <section id="user-content" className="tc-policy-page__section">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">5</span>
+          Community and User Content
+        </h2>
+        <p>
+          Where community features are available, users are responsible for the content they submit.
+        </p>
+        <p>
+          You must not post content that is unlawful, defamatory, threatening, abusive, hateful, fraudulent, misleading, invasive of another person’s privacy or otherwise inappropriate.
+        </p>
+        <p>
+          Spam, harassment, unauthorized promotion and malicious activity may result in removal of content or suspension of access.
+        </p>
+        <p className="tc-text-muted text-sm">
+          By submitting content to TechCrest, you grant TechCrest a non-exclusive, worldwide, royalty-free license to host, display, reproduce and distribute that content as necessary to operate and promote the relevant service, subject to applicable law.
+        </p>
+      </section>
+
+      {/* Section 6 */}
+      <section id="third-party-links" className="tc-policy-page__section">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">6</span>
+          Third-Party Links
+        </h2>
+        <p>
+          TechCrest may contain links to third-party websites and services. These links are provided for convenience and informational purposes. TechCrest does not control or guarantee the accuracy, availability, security or policies of third-party websites.
+        </p>
+        <p>
+          Your use of third-party services is subject to their respective terms and policies.
+        </p>
+      </section>
+
+      {/* Section 7 */}
+      <section id="advertising-affiliate" className="tc-policy-page__section">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">7</span>
+          Advertising and Affiliate Content
+        </h2>
+        <p>
+          TechCrest may display advertising, sponsored content or affiliate links. Sponsored or commercial content will be identified where appropriate. Affiliate relationships do not determine our editorial recommendations.
+        </p>
+        <p className="text-sm">
+          For additional information, please see our <Link href="/affiliate-disclosure" className="tc-policy-page__contact-link">Affiliate Disclosure</Link> and <Link href="/editorial-policy" className="tc-policy-page__contact-link">Editorial Policy</Link>.
+        </p>
+      </section>
+
+      {/* Section 8 */}
+      <section id="warranty-disclaimer" className="tc-policy-page__section">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">8</span>
+          Disclaimer of Warranties
+        </h2>
+        <p>
+          TechCrest provides its website and content on an “as is” and “as available” basis to the extent permitted by applicable law.
+        </p>
+        <p>
+          We do not guarantee that the website will always be available, uninterrupted, secure or error-free, or that all content will always be complete, current or accurate.
+        </p>
+      </section>
+
+      {/* Section 9 */}
+      <section id="liability-limitation" className="tc-policy-page__section">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">9</span>
+          Limitation of Liability
+        </h2>
+        <p>
+          To the maximum extent permitted by applicable law, TechCrest and its owners, employees, contributors and service providers will not be liable for indirect, incidental, consequential or special damages arising from your use of, or inability to use, the website or its content.
+        </p>
+        <p>
+          Nothing in these Terms excludes or limits liability that cannot legally be excluded or limited.
+        </p>
+      </section>
+
+      {/* Section 10 */}
+      <section id="terms-changes" className="tc-policy-page__section">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">10</span>
+          Changes to These Terms
+        </h2>
+        <p>
+          We may update these Terms of Service from time to time. Updated terms will be posted on this page.
+        </p>
+        <p>
+          Your continued use of TechCrest following an update constitutes acceptance of the revised terms to the extent permitted by law.
+        </p>
+      </section>
+
+      {/* Section 11 */}
+      <section id="governing-law" className="tc-policy-page__section">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">11</span>
+          Governing Law
+        </h2>
+        <p>
+          These Terms will be governed by and construed in accordance with the laws of India, subject to the jurisdiction of competent courts in Bangalore, Karnataka, without regard to conflict of law principles.
+        </p>
+      </section>
+
+      {/* Section 12 */}
+      <section id="legal-notice" className="tc-policy-page__section">
+        <h2 className="tc-policy-page__section-title">
+          <span className="tc-policy-page__section-num">12</span>
+          Legal Notice & Contact
+        </h2>
+        <p>
+          For formal legal notices, contractual questions, or copyright infringement notifications, please contact us at:
+        </p>
+        <div className="tc-policy-page__intro-card mt-3 text-sm space-y-1.5">
+          <p><strong>Operating Entity:</strong> TechCrest</p>
+          <p><strong>Legal & Compliance Email:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
         </div>
-
-        {/* Policy Body */}
-        <div className="tc-policy-page__content">
-          <div className="tc-policy-page__intro-card">
-            <p className="tc-policy-page__intro-text">
-              Welcome to TechCrest. These Terms of Service govern your access to and use of <span className="tc-text-brand">techcrest.news</span>, including our articles, newsletters, community features, multimedia content and other services.
-            </p>
-            <p className="tc-policy-page__intro-note">
-              By accessing or using TechCrest, you agree to these Terms of Service. If you do not agree with these terms, please do not use the website.
-            </p>
-          </div>
-
-          {/* Section 1 */}
-          <section className="tc-policy-page__section tc-policy-page__section--first">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">1</span>
-              About TechCrest
-            </h2>
-            <p>
-              TechCrest is a consumer technology publication covering technology, products, companies, trends and ideas shaping everyday life.
-            </p>
-            <p>
-              Our coverage may include smartphones, audio, robotics, artificial intelligence, fitness technology, cybersecurity, smart home products, electric vehicles, gaming, digital assets and other areas of technology.
-            </p>
-          </section>
-
-          {/* Section 2 */}
-          <section className="tc-policy-page__section">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">2</span>
-              Use of the Website
-            </h2>
-            <p>You agree to use TechCrest only for lawful purposes and in accordance with these Terms.</p>
-            <p className="font-semibold">You must not:</p>
-            <ul className="tc-policy-page__list">
-              <li className="tc-policy-page__list-item">Use the website for unlawful or fraudulent purposes;</li>
-              <li className="tc-policy-page__list-item">Attempt to gain unauthorized access to our systems;</li>
-              <li className="tc-policy-page__list-item">Interfere with the operation or security of the website;</li>
-              <li className="tc-policy-page__list-item">Introduce malicious software or harmful code;</li>
-              <li className="tc-policy-page__list-item">Scrape, reproduce or systematically collect content without permission;</li>
-              <li className="tc-policy-page__list-item">Impersonate another person or organization; or</li>
-              <li className="tc-policy-page__list-item">Use our services in a manner that violates applicable laws or the rights of others.</li>
-            </ul>
-          </section>
-
-          {/* Section 3 */}
-          <section className="tc-policy-page__section">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">3</span>
-              Intellectual Property
-            </h2>
-            <p>
-              Unless otherwise stated, TechCrest’s articles, original text, graphics, logos, photographs, videos, designs, software and other content are owned by or licensed to TechCrest and are protected by applicable intellectual property laws.
-            </p>
-            <p>
-              You may access and share links to TechCrest content for personal, non-commercial purposes, provided that the content is not altered or presented in a misleading manner.
-            </p>
-            <p>
-              Reproducing, republishing, distributing or commercially exploiting TechCrest content without prior written permission is prohibited.
-            </p>
-            <p className="tc-text-muted text-sm">
-              Third-party trademarks, logos and product names remain the property of their respective owners.
-            </p>
-          </section>
-
-          {/* Section 4 */}
-          <section className="tc-policy-page__section">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">4</span>
-              Editorial Content
-            </h2>
-            <p>
-              TechCrest publishes news, analysis, reviews, features, opinion and other editorial content.
-            </p>
-            <p>
-              Our editorial content is provided for general informational purposes and should not be considered professional financial, legal, medical, investment or other specialized advice.
-            </p>
-            <p>
-              Product availability, specifications, pricing and other information may change without notice. Readers should independently verify important information before making purchasing, financial or other decisions.
-            </p>
-          </section>
-
-          {/* Section 5 */}
-          <section className="tc-policy-page__section">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">5</span>
-              Community and User Content
-            </h2>
-            <p>
-              Where community features are available, users are responsible for the content they submit.
-            </p>
-            <p>
-              You must not post content that is unlawful, defamatory, threatening, abusive, hateful, fraudulent, misleading, invasive of another person’s privacy or otherwise inappropriate.
-            </p>
-            <p>
-              Spam, harassment, unauthorized promotion and malicious activity may result in removal of content or suspension of access.
-            </p>
-            <p className="tc-text-muted text-sm">
-              By submitting content to TechCrest, you grant TechCrest a non-exclusive, worldwide, royalty-free license to host, display, reproduce and distribute that content as necessary to operate and promote the relevant service, subject to applicable law.
-            </p>
-          </section>
-
-          {/* Section 6 */}
-          <section className="tc-policy-page__section">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">6</span>
-              Third-Party Links
-            </h2>
-            <p>
-              TechCrest may contain links to third-party websites and services. These links are provided for convenience and informational purposes. TechCrest does not control or guarantee the accuracy, availability, security or policies of third-party websites.
-            </p>
-            <p>
-              Your use of third-party services is subject to their respective terms and policies.
-            </p>
-          </section>
-
-          {/* Section 7 */}
-          <section className="tc-policy-page__section">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">7</span>
-              Advertising and Affiliate Content
-            </h2>
-            <p>
-              TechCrest may display advertising, sponsored content or affiliate links. Sponsored or commercial content will be identified where appropriate. Affiliate relationships do not determine our editorial recommendations.
-            </p>
-            <p className="text-sm">
-              For additional information, please see our <Link href="/affiliate-disclosure" className="tc-policy-page__contact-link">Affiliate Disclosure</Link> and <Link href="/editorial-policy" className="tc-policy-page__contact-link">Editorial Policy</Link>.
-            </p>
-          </section>
-
-          {/* Section 8 */}
-          <section className="tc-policy-page__section">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">8</span>
-              Disclaimer of Warranties
-            </h2>
-            <p>
-              TechCrest provides its website and content on an “as is” and “as available” basis to the extent permitted by applicable law.
-            </p>
-            <p>
-              We do not guarantee that the website will always be available, uninterrupted, secure or error-free, or that all content will always be complete, current or accurate.
-            </p>
-          </section>
-
-          {/* Section 9 */}
-          <section className="tc-policy-page__section">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">9</span>
-              Limitation of Liability
-            </h2>
-            <p>
-              To the maximum extent permitted by applicable law, TechCrest and its owners, employees, contributors and service providers will not be liable for indirect, incidental, consequential or special damages arising from your use of, or inability to use, the website or its content.
-            </p>
-            <p>
-              Nothing in these Terms excludes or limits liability that cannot legally be excluded or limited.
-            </p>
-          </section>
-
-          {/* Section 10 */}
-          <section className="tc-policy-page__section">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">10</span>
-              Changes to These Terms
-            </h2>
-            <p>
-              We may update these Terms of Service from time to time. Updated terms will be posted on this page.
-            </p>
-            <p>
-              Your continued use of TechCrest following an update constitutes acceptance of the revised terms to the extent permitted by law.
-            </p>
-          </section>
-
-          {/* Section 11 */}
-          <section className="tc-policy-page__section">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">11</span>
-              Governing Law
-            </h2>
-            <p>
-              These Terms will be governed by and construed in accordance with the laws of India, subject to the jurisdiction of competent courts in Bangalore, Karnataka, without regard to conflict of law principles.
-            </p>
-          </section>
-
-          {/* Section 12 */}
-          <section className="tc-policy-page__section">
-            <h2 className="tc-policy-page__section-title">
-              <span className="tc-policy-page__section-num">12</span>
-              Legal Notice & Contact
-            </h2>
-            <p>
-              For formal legal notices, contractual questions, or copyright infringement notifications, please contact us at:
-            </p>
-            <div className="tc-policy-page__intro-card mt-3 text-sm space-y-1.5">
-              <p><strong>Operating Entity:</strong> TechCrest</p>
-              <p><strong>Headquarters:</strong> 4th Floor VM Grandeur, Bangalore 560113, India</p>
-              <p><strong>Legal & Compliance Email:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
-            </div>
-          </section>
-        </div>
-      </div>
-    </div>
+      </section>
+    </LegalPageLayout>
   );
 }

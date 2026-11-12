@@ -123,7 +123,6 @@ export default function CareersPage() {
             <div className="tc-policy-page__intro-card mt-3 text-sm space-y-2">
               <p><strong>Newsroom Careers Email:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
               <p><strong>Subject Line:</strong> &quot;Career / Pitch — [Your Name] — [Beat/Topic]&quot;</p>
-              <p><strong>Headquarters:</strong> TechCrest, 4th Floor VM Grandeur, Bangalore 560113, India</p>
             </div>
           </section>
         </div>
