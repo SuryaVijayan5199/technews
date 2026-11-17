@@ -3,19 +3,9 @@ import Image from "next/image";
 import {
   Volume2,
   Play,
-  Headphones,
   Sparkles,
   TrendingUp,
-  Shield,
-  Zap,
   ArrowRight,
-  Smartphone,
-  Bot,
-  Activity,
-  Brain,
-  Home as HomeIcon,
-  Bitcoin,
-  Gamepad2,
 } from "lucide-react";
 import {
   getCachedFeaturedArticles,
@@ -47,19 +37,6 @@ function kViews(n: number): string {
   return `${n} views`;
 }
 
-const TOPICS = [
-  { label: "Phone", sub: "Smartphones • iOS • Android", href: "/phone", icon: Smartphone, color: "#0ea5e9" },
-  { label: "Audio", sub: "Headphones • Speakers • Hi-Fi", href: "/audio", icon: Headphones, color: "#8b5cf6" },
-  { label: "Robotic", sub: "Humanoids • Drones • Automation", href: "/robotic", icon: Bot, color: "#6366f1" },
-  { label: "Fitness", sub: "Wearables • Biosensors • Trackers", href: "/fitness", icon: Activity, color: "#10b981" },
-  { label: "Security", sub: "Zero-Trust • Privacy • Defense", href: "/security", icon: Shield, color: "#f59e0b" },
-  { label: "AI", sub: "LLMs • Autonomous Agents • Research", href: "/ai", icon: Brain, color: "#a855f7" },
-  { label: "Home", sub: "Matter • Hubs • Automation", href: "/home", icon: HomeIcon, color: "#14b8a6" },
-  { label: "EVs", sub: "Electric Vehicles • Charging", href: "/evs", icon: Zap, color: "#22c55e" },
-  { label: "Crypto", sub: "Tokenization • Zero-Knowledge", href: "/crypto", icon: Bitcoin, color: "#f97316" },
-  { label: "Gaming", sub: "Consoles • PC Gaming • Hardware", href: "/gaming", icon: Gamepad2, color: "#ef4444" },
-];
-
 const PRINCIPLES = [
   { title: "NEWS", desc: "Fast, accurate coverage of important developments." },
   { title: "INSIGHTS", desc: "Context, analysis and meaningful interpretation." },
@@ -67,21 +44,6 @@ const PRINCIPLES = [
 ];
 
 const BRIEF_LABELS = ["01 / SIGNAL", "02 / SECURITY", "03 / FUTURE"];
-
-function getCategoryIcon(iconName?: string | null, categoryName?: string | null) {
-  const key = (iconName || categoryName || "").toLowerCase();
-  if (key.includes("phone") || key.includes("smartphone") || key.includes("mobile")) return Smartphone;
-  if (key.includes("audio") || key.includes("headphone") || key.includes("sound")) return Headphones;
-  if (key.includes("robot") || key.includes("bot") || key.includes("automation")) return Bot;
-  if (key.includes("fit") || key.includes("health") || key.includes("wearable")) return Activity;
-  if (key.includes("sec") || key.includes("shield") || key.includes("cyber")) return Shield;
-  if (key.includes("ai") || key.includes("brain") || key.includes("intelligence")) return Brain;
-  if (key.includes("home") || key.includes("house") || key.includes("smart")) return HomeIcon;
-  if (key.includes("ev") || key.includes("zap") || key.includes("electric")) return Zap;
-  if (key.includes("crypto") || key.includes("coin") || key.includes("web3")) return Bitcoin;
-  if (key.includes("game") || key.includes("gaming") || key.includes("console")) return Gamepad2;
-  return Sparkles;
-}
 
 export async function TechCrestHomepage() {
   await checkAndPublishScheduledArticles();
@@ -105,19 +67,6 @@ export async function TechCrestHomepage() {
     getCachedBreakingArticle(),
     getCachedArticlesGroupedByTopics(),
   ]);
-
-  const activeExploreTopics = groupedTopics.length > 0
-    ? groupedTopics.map((gt: any) => {
-        const cat = gt.category;
-        return {
-          label: cat.name,
-          sub: cat.description || `${cat.name} news & updates`,
-          href: `/${cat.slug}`,
-          icon: getCategoryIcon(cat.icon, cat.name),
-          color: cat.color || "#2D7FF9",
-        };
-      })
-    : TOPICS;
 
   // Top Stories (Primary Cover Story & Top Stories Grid): 6 Articles total
   const topStories: typeof editorsPicks = [];
@@ -392,43 +341,6 @@ export async function TechCrestHomepage() {
           </div>
         </section>
       )}
-
-      {/* EXPLORE TOPICS (2 Rows - 5 Columns Layout) */}
-      <section className="tc-section tc-explore-topics-section">
-        <div className="tc-wrap">
-          <div className="tc-section-head">
-            <h2>Explore Topics</h2>
-            <Link href="/ai" className="tc-section-head__link">DISCOVER ALL &rarr;</Link>
-          </div>
-          <div className="tc-topics-grid">
-            {activeExploreTopics.map((topic: any) => {
-              const Icon = topic.icon;
-              return (
-                <Link
-                  key={topic.label}
-                  href={topic.href}
-                  className="tc-topic-card group"
-                  style={{ "--topic-accent": topic.color } as React.CSSProperties}
-                >
-                  <div className="tc-topic-card__top">
-                    <div
-                      className="tc-topic-card__icon"
-                      style={{ backgroundColor: `${topic.color}15`, color: topic.color }}
-                    >
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <ArrowRight className="tc-topic-card__arrow" />
-                  </div>
-                  <div className="tc-topic-card__content">
-                    <h3 className="tc-topic-card__title">{topic.label}</h3>
-                    <p className="tc-topic-card__sub">{topic.sub}</p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
       {/* MANIFESTO */}
       <section className="tc-manifesto">

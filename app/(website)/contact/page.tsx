@@ -150,14 +150,14 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* Desk 3: Headquarters Address (ONLY HERE) */}
+                {/* Desk 3: India Address */}
                 <div className="tc-contact-desk-item">
                   <div className="tc-contact-desk-icon tc-contact-desk-icon--purple">
                     <Building2 className="tc-subpage-meta__icon" />
                   </div>
                   <div>
                     <p className="tc-contact-desk-label">
-                      Headquarters (India)
+                      India
                     </p>
                     <address className="tc-contact-address">
                       <strong>TechCrest</strong>
