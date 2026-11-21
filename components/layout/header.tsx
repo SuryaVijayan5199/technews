@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Menu, X, User, Mail, CheckCircle, ArrowRight, Home } from "lucide-react";
+import { Menu, X, User, Mail, CheckCircle, ArrowRight, Home, Search } from "lucide-react";
 import { mainNav } from "@/config/nav";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { TechCrestBrand } from "@/components/shared/techcrest-brand";
+import { NavSearch } from "@/components/layout/nav-search";
 
 import { subscribeToNewsletterAction } from "@/lib/actions/newsletter.actions";
 
@@ -94,6 +95,8 @@ export function Header() {
 
           {/* RIGHT: Actions */}
           <div className="tc-site-header__actions">
+            {/* Search Bar (Expandable CMS style) */}
+            <NavSearch />
 
             {/* Newsletter CTA Button */}
             <button
@@ -177,6 +180,30 @@ export function Header() {
 
             {/* Topic Grid */}
             <div className="tc-mobile-panel__body">
+              {/* Mobile Drawer Search */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget;
+                  const input = form.elements.namedItem("drawerSearch") as HTMLInputElement;
+                  if (input && input.value.trim()) {
+                    setMobileMenuOpen(false);
+                    window.location.href = `/search?q=${encodeURIComponent(input.value.trim())}`;
+                  }
+                }}
+                className="tc-mobile-drawer__search"
+                role="search"
+              >
+                <Search className="tc-mobile-drawer__search-icon" />
+                <input
+                  type="text"
+                  name="drawerSearch"
+                  placeholder="Search articles, topics…"
+                  className="tc-mobile-drawer__search-input"
+                  autoComplete="off"
+                />
+              </form>
+
               <p className="tc-mobile-panel__label">Explore Topics</p>
               <div className="tc-mobile-panel__grid">
                 {navItems.map((item) => (

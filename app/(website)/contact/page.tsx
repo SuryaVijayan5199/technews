@@ -150,7 +150,30 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* Desk 3: India Address */}
+                {/* Desk 3: USA Address */}
+                <div className="tc-contact-desk-item">
+                  <div className="tc-contact-desk-icon tc-contact-desk-icon--purple">
+                    <Building2 className="tc-subpage-meta__icon" />
+                  </div>
+                  <div>
+                    <p className="tc-contact-desk-label">
+                      USA
+                    </p>
+                    <address className="tc-contact-address">
+                      <strong>TechCrest</strong>
+                      <br />
+                      8614 Compatible Way
+                      <br />
+                      Charlotte
+                      <br />
+                      North Carolina
+                      <br />
+                      28262
+                    </address>
+                  </div>
+                </div>
+
+                {/* Desk 4: India Address */}
                 <div className="tc-contact-desk-item">
                   <div className="tc-contact-desk-icon tc-contact-desk-icon--purple">
                     <Building2 className="tc-subpage-meta__icon" />
