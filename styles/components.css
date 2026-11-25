@@ -13740,4 +13740,624 @@ header ul, header li {
   background-color: #2D7FF9;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   OFFICIAL TECHCREST PERSONAL VISITING CARD MODAL & STYLES
+   Standalone, bulletproof CSS guaranteeing proper formatting,
+   true 3.5" x 2" business card aspect ratio, and light theme.
+   ───────────────────────────────────────────────────────────── */
+
+.tc-card-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(7, 21, 41, 0.78) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  z-index: 9999999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1rem !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+}
+
+.tc-card-modal-dialog {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 880px !important;
+  max-height: 92vh !important;
+  background-color: hsl(var(--color-surface-1, #ffffff)) !important;
+  border: 1px solid hsl(var(--color-surface-border, #e2e8f0)) !important;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.45) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  margin: auto !important;
+  box-sizing: border-box !important;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  color: hsl(var(--color-text-primary, #0f172a)) !important;
+}
+
+.tc-card-modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 1.1rem 1.5rem !important;
+  border-bottom: 1px solid hsl(var(--color-surface-border, #e2e8f0)) !important;
+  background-color: hsl(var(--color-surface-2, #f8fafc) / 0.8) !important;
+  flex-shrink: 0 !important;
+}
+
+.tc-card-modal-header-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.85rem !important;
+}
+
+.tc-card-modal-header-icon {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 10px !important;
+  background-color: rgba(45, 127, 249, 0.12) !important;
+  color: #2D7FF9 !important;
+  border: 1px solid rgba(45, 127, 249, 0.25) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.tc-card-modal-title {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+  color: hsl(var(--color-text-primary, #0f172a)) !important;
+}
+
+.tc-card-modal-badge {
+  font-size: 0.65rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.2rem 0.55rem !important;
+  border-radius: 9999px !important;
+  background-color: rgba(45, 127, 249, 0.15) !important;
+  color: #2D7FF9 !important;
+  border: 1px solid rgba(45, 127, 249, 0.3) !important;
+  display: inline-block !important;
+  margin-left: 0.5rem !important;
+}
+
+.tc-card-modal-subtitle {
+  font-size: 0.75rem !important;
+  color: hsl(var(--color-text-muted, #64748b)) !important;
+  margin: 0.25rem 0 0 0 !important;
+}
+
+.tc-card-modal-close-btn {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  background: transparent !important;
+  color: hsl(var(--color-text-muted, #94a3b8)) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+}
+
+.tc-card-modal-close-btn:hover {
+  background-color: hsl(var(--color-surface-2, #e2e8f0)) !important;
+  color: hsl(var(--color-text-primary, #0f172a)) !important;
+}
+
+.tc-card-modal-controls {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.75rem 1.5rem !important;
+  border-bottom: 1px solid hsl(var(--color-surface-border, #e2e8f0)) !important;
+  background-color: hsl(var(--color-surface-1, #ffffff)) !important;
+  flex-wrap: wrap !important;
+  gap: 0.75rem !important;
+  flex-shrink: 0 !important;
+}
+
+.tc-card-tabs-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+}
+
+.tc-card-tab-btn {
+  padding: 0.4rem 0.85rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  border: 1px solid transparent !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+  background-color: hsl(var(--color-surface-2, #f1f5f9)) !important;
+  color: hsl(var(--color-text-secondary, #475569)) !important;
+}
+
+.tc-card-tab-btn--active {
+  background-color: #2D7FF9 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(45, 127, 249, 0.35) !important;
+}
+
+.tc-card-theme-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  background-color: hsl(var(--color-surface-2, #f1f5f9)) !important;
+  padding: 3px !important;
+  border-radius: 8px !important;
+  border: 1px solid hsl(var(--color-surface-border, #e2e8f0)) !important;
+}
+
+.tc-card-theme-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  padding: 0.3rem 0.65rem !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  border-radius: 6px !important;
+  border: none !important;
+  cursor: pointer !important;
+  background: transparent !important;
+  color: hsl(var(--color-text-secondary, #64748b)) !important;
+  transition: all 0.18s ease !important;
+}
+
+.tc-card-theme-btn--active {
+  background-color: hsl(var(--color-surface-1, #ffffff)) !important;
+  color: #2D7FF9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+.tc-card-stage {
+  padding: 2.25rem 1.5rem !important;
+  background: radial-gradient(circle at center, rgba(45, 127, 249, 0.04) 0%, rgba(0, 0, 0, 0.03) 100%), hsl(var(--color-surface-2, #f8fafc)) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow-x: auto !important;
+  flex-shrink: 0 !important;
+}
+
+.tc-card-stage-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1.75rem !important;
+  width: 100% !important;
+  max-width: 820px !important;
+}
+
+@media (min-width: 768px) {
+  .tc-card-stage-grid--side-by-side {
+    flex-direction: row !important;
+    align-items: stretch !important;
+  }
+}
+
+/* Standard 3.5" x 2" Ratio Business Card (1.75:1) */
+.tc-visiting-card {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 440px !important;
+  min-width: 290px !important;
+  aspect-ratio: 1.75 / 1 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.12), 0 0 1px rgba(0, 0, 0, 0.18) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 1.35rem 1.5rem !important;
+  box-sizing: border-box !important;
+  user-select: none !important;
+  overflow: hidden !important;
+}
+
+/* Light Theme Front Card */
+.tc-visiting-card--front {
+  background-color: #ffffff !important;
+  color: #0A192F !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.tc-visiting-card__top {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 0.75rem !important;
+}
+
+.tc-visiting-card__identity {
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.tc-visiting-card__name {
+  font-size: 1.3rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.15 !important;
+  color: #0A192F !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.tc-visiting-card__role {
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #2D7FF9 !important;
+  margin: 0.25rem 0 0 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.tc-visiting-card__accent-bar {
+  width: 44px !important;
+  height: 3.5px !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(90deg, #00D2FF 0%, #2D7FF9 100%) !important;
+  margin-top: 0.45rem !important;
+}
+
+/* Top-Right Official Emblem Badge */
+.tc-visiting-card__emblem {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 12px !important;
+  background-color: #071529 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 6px !important;
+  box-shadow: 0 4px 10px rgba(7, 21, 41, 0.25) !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.tc-visiting-card__emblem svg {
+  width: 26px !important;
+  height: 26px !important;
+  display: block !important;
+}
+
+.tc-visiting-card__emblem-text {
+  font-size: 7.5px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  line-height: 1 !important;
+  margin-top: 2px !important;
+  letter-spacing: -0.1px !important;
+}
+
+/* Contact Info Rows */
+.tc-visiting-card__contact {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.35rem !important;
+  margin: 0.5rem 0 !important;
+}
+
+.tc-visiting-card__contact-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.tc-visiting-card__contact-row svg {
+  width: 13px !important;
+  height: 13px !important;
+  color: #2D7FF9 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Mission Statement */
+.tc-visiting-card__mission {
+  font-size: 0.65rem !important;
+  line-height: 1.4 !important;
+  color: #475569 !important;
+  margin: 0.2rem 0 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.tc-visiting-card__mission-highlight {
+  font-weight: 800 !important;
+  color: #2D7FF9 !important;
+}
+
+/* Footer Office Row */
+.tc-visiting-card__footer {
+  border-top: 1px solid #e2e8f0 !important;
+  padding-top: 0.45rem !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 0.62rem !important;
+  color: #64748b !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.tc-visiting-card__footer-brand {
+  font-weight: 800 !important;
+  color: #2D7FF9 !important;
+  margin-right: 0.4rem !important;
+  flex-shrink: 0 !important;
+}
+
+.tc-visiting-card__footer-sep {
+  color: #cbd5e1 !important;
+  margin-right: 0.4rem !important;
+  flex-shrink: 0 !important;
+}
+
+.tc-visiting-card__footer-address {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Light Theme Back Card */
+.tc-visiting-card--back-light {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 45%, #eff6ff 100%) !important;
+  color: #0A192F !important;
+  border: 1px solid rgba(45, 127, 249, 0.25) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* Dark Theme Back Card */
+.tc-visiting-card--back-dark {
+  background: radial-gradient(circle at center, #0F2D54 0%, #071529 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(45, 127, 249, 0.35) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.tc-visiting-card__back-inner-frame {
+  position: absolute !important;
+  top: 10px !important;
+  left: 10px !important;
+  right: 10px !important;
+  bottom: 10px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(45, 127, 249, 0.15) !important;
+  pointer-events: none !important;
+}
+
+.tc-visiting-card__back-center {
+  position: relative !important;
+  z-index: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.tc-visiting-card__back-brand-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+}
+
+.tc-visiting-card__back-brand-row svg {
+  width: 38px !important;
+  height: 38px !important;
+  display: block !important;
+}
+
+.tc-visiting-card__back-brand-name {
+  font-size: 1.85rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1 !important;
+}
+
+.tc-visiting-card__back-tagline {
+  font-size: 0.65rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.25em !important;
+  text-transform: uppercase !important;
+  margin: 0.5rem 0 0 0 !important;
+}
+
+.tc-visiting-card__back-credential {
+  font-size: 0.58rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  margin: 1.25rem 0 0 0 !important;
+  opacity: 0.6 !important;
+}
+
+.tc-visiting-card__back-url {
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  margin: 0.35rem 0 0 0 !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* Customizer Form Area */
+.tc-card-modal-form-wrap {
+  padding: 1.25rem 1.5rem !important;
+  border-top: 1px solid hsl(var(--color-surface-border, #e2e8f0)) !important;
+  background-color: hsl(var(--color-surface-1, #ffffff)) !important;
+  overflow-y: auto !important;
+  flex-shrink: 0 !important;
+}
+
+.tc-card-modal-form-title {
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: hsl(var(--color-text-muted, #64748b)) !important;
+  margin: 0 0 0.85rem 0 !important;
+}
+
+.tc-card-modal-form-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 0.75rem !important;
+}
+
+@media (min-width: 640px) {
+  .tc-card-modal-form-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .tc-card-modal-form-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+.tc-card-input-item {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.25rem !important;
+}
+
+.tc-card-input-label {
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  color: hsl(var(--color-text-secondary, #475569)) !important;
+}
+
+.tc-card-input-field {
+  height: 34px !important;
+  padding: 0 0.75rem !important;
+  border-radius: 8px !important;
+  border: 1px solid hsl(var(--color-surface-border, #cbd5e1)) !important;
+  background-color: hsl(var(--color-surface-2, #f8fafc)) !important;
+  font-size: 0.75rem !important;
+  color: hsl(var(--color-text-primary, #0f172a)) !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.18s ease !important;
+}
+
+.tc-card-input-field:focus {
+  border-color: #2D7FF9 !important;
+  background-color: #ffffff !important;
+}
+
+/* Modal Footer Actions */
+.tc-card-modal-footer {
+  padding: 0.9rem 1.5rem !important;
+  border-top: 1px solid hsl(var(--color-surface-border, #e2e8f0)) !important;
+  background-color: hsl(var(--color-surface-2, #f8fafc) / 0.8) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 0.75rem !important;
+  flex-shrink: 0 !important;
+}
+
+.tc-card-copy-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  color: hsl(var(--color-text-muted, #64748b)) !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: color 0.18s ease !important;
+}
+
+.tc-card-copy-btn:hover {
+  color: #2D7FF9 !important;
+}
+
+.tc-card-actions-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  flex-wrap: wrap !important;
+}
+
+.tc-card-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.4rem !important;
+  padding: 0.45rem 0.85rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+  outline: none !important;
+  white-space: nowrap !important;
+}
+
+.tc-card-btn--secondary {
+  background-color: hsl(var(--color-surface-1, #ffffff)) !important;
+  color: hsl(var(--color-text-primary, #0f172a)) !important;
+  border: 1px solid hsl(var(--color-surface-border, #cbd5e1)) !important;
+}
+
+.tc-card-btn--secondary:hover {
+  border-color: #2D7FF9 !important;
+  color: #2D7FF9 !important;
+}
+
+.tc-card-btn--primary {
+  background-color: #2D7FF9 !important;
+  color: #ffffff !important;
+  border: 1px solid #2D7FF9 !important;
+  box-shadow: 0 2px 6px rgba(45, 127, 249, 0.3) !important;
+}
+
+.tc-card-btn--primary:hover {
+  background-color: #1a6ee8 !important;
+  border-color: #1a6ee8 !important;
+}
+
+
 
