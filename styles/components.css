@@ -13929,13 +13929,33 @@ header ul, header li {
 }
 
 .tc-card-stage {
-  padding: 2.25rem 1.5rem !important;
+  padding: 1.25rem 1.25rem !important;
   background: radial-gradient(circle at center, rgba(45, 127, 249, 0.04) 0%, rgba(0, 0, 0, 0.03) 100%), hsl(var(--color-surface-2, #f8fafc)) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   overflow-x: auto !important;
   flex-shrink: 0 !important;
+}
+
+.tc-card-modal-scroll-body {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overscroll-behavior: contain !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #cbd5e1 transparent !important;
+}
+
+.tc-card-modal-scroll-body::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.tc-card-modal-scroll-body::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1 !important;
+  border-radius: 9999px !important;
 }
 
 .tc-card-stage-grid {
@@ -14223,8 +14243,17 @@ header ul, header li {
   padding: 1.25rem 1.5rem !important;
   border-top: 1px solid hsl(var(--color-surface-border, #e2e8f0)) !important;
   background-color: hsl(var(--color-surface-1, #ffffff)) !important;
-  overflow-y: auto !important;
   flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.tc-card-modal-form-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 0.85rem !important;
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
 }
 
 .tc-card-modal-form-title {
@@ -14233,13 +14262,60 @@ header ul, header li {
   text-transform: uppercase !important;
   letter-spacing: 0.06em !important;
   color: hsl(var(--color-text-muted, #64748b)) !important;
-  margin: 0 0 0.85rem 0 !important;
+  margin: 0 !important;
+}
+
+.tc-card-reset-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  color: #2D7FF9 !important;
+  background: rgba(45, 127, 249, 0.08) !important;
+  border: 1px solid rgba(45, 127, 249, 0.2) !important;
+  border-radius: 6px !important;
+  padding: 0.25rem 0.55rem !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+}
+
+.tc-card-reset-btn:hover {
+  background: #2D7FF9 !important;
+  color: #ffffff !important;
+}
+
+.tc-card-role-presets {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  flex-wrap: wrap !important;
+  margin-top: 0.35rem !important;
+}
+
+.tc-card-preset-pill {
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  padding: 0.2rem 0.5rem !important;
+  border-radius: 9999px !important;
+  border: 1px solid hsl(var(--color-surface-border, #cbd5e1)) !important;
+  background-color: hsl(var(--color-surface-2, #f8fafc)) !important;
+  color: hsl(var(--color-text-secondary, #475569)) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.tc-card-preset-pill:hover,
+.tc-card-preset-pill--active {
+  border-color: #2D7FF9 !important;
+  background-color: rgba(45, 127, 249, 0.1) !important;
+  color: #2D7FF9 !important;
 }
 
 .tc-card-modal-form-grid {
   display: grid !important;
   grid-template-columns: 1fr !important;
-  gap: 0.75rem !important;
+  gap: 0.85rem !important;
 }
 
 @media (min-width: 640px) {
@@ -14258,6 +14334,10 @@ header ul, header li {
   display: flex !important;
   flex-direction: column !important;
   gap: 0.25rem !important;
+}
+
+.tc-card-input-item--full {
+  grid-column: 1 / -1 !important;
 }
 
 .tc-card-input-label {
@@ -14280,6 +14360,27 @@ header ul, header li {
 }
 
 .tc-card-input-field:focus {
+  border-color: #2D7FF9 !important;
+  background-color: #ffffff !important;
+}
+
+.tc-card-input-textarea {
+  min-height: 48px !important;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 8px !important;
+  border: 1px solid hsl(var(--color-surface-border, #cbd5e1)) !important;
+  background-color: hsl(var(--color-surface-2, #f8fafc)) !important;
+  font-size: 0.75rem !important;
+  color: hsl(var(--color-text-primary, #0f172a)) !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  resize: vertical !important;
+  font-family: inherit !important;
+  line-height: 1.4 !important;
+  transition: border-color 0.18s ease !important;
+}
+
+.tc-card-input-textarea:focus {
   border-color: #2D7FF9 !important;
   background-color: #ffffff !important;
 }

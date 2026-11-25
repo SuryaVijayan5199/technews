@@ -13,6 +13,10 @@ import {
   Sun,
   Moon,
   Globe,
+  RotateCcw,
+  Sparkles,
+  Layers,
+  Sliders,
 } from "lucide-react";
 
 export interface AuthorPressCardModalProps {
@@ -29,6 +33,30 @@ export interface AuthorPressCardModalProps {
   };
   onClose: () => void;
 }
+
+const ROLE_PRESETS = [
+  "Managing Editor",
+  "Senior Tech Editor",
+  "Tech Journalist",
+  "Hardware & Gadget Reviewer",
+  "AI Research Analyst",
+  "Lead Technology Reporter",
+];
+
+const MISSION_PRESETS = [
+  {
+    label: "Official Mission",
+    text: "Our mission is to make technology understandable, accessible, and relevant to everyone through news, insights and impact.",
+  },
+  {
+    label: "No-Hype Creed",
+    text: "Clear reporting, real numbers and zero hype. Deep investigative technology and financial media analysis.",
+  },
+  {
+    label: "Hardware & AI",
+    text: "Accurate reporting, hands-on hardware critiques, and sharp technical analysis of breakthroughs shaping our world.",
+  },
+];
 
 export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalProps) {
   const [mounted, setMounted] = useState(false);
@@ -53,19 +81,37 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
           .join(" ")
       : "Tech Journalist & Contributor";
 
+  const defaultMission =
+    "Our mission is to make technology understandable, accessible, and relevant to everyone through news, insights and impact.";
+
   const [name, setName] = useState(author.displayName || "Editorial Contributor");
   const [role, setRole] = useState(defaultRole);
   const [email, setEmail] = useState(author.user?.email || "editor@techcrest.news");
   const [phone, setPhone] = useState("+91 987 1034 296");
   const [website, setWebsite] = useState("www.techcrest.news");
   const [address, setAddress] = useState("8614 Compatible Way, Charlotte, North Carolina 28262");
+  const [mission, setMission] = useState(defaultMission);
 
   // Theme: "light" (default) or "dark"
   const [cardTheme, setCardTheme] = useState<"light" | "dark">("light");
-  // Active Tab: "front" (default for personal visiting card), "back", or "both"
-  const [activeTab, setActiveTab] = useState<"front" | "back" | "both">("front");
+  // Active Tab: "front" | "back" | "both" (default: "both" for studio side-by-side, responsive on mobile)
+  const [activeTab, setActiveTab] = useState<"front" | "back" | "both">("both");
+  // Preview Scale: "normal" | "compact" (compact helps laptop screens view everything comfortably)
+  const [cardScale, setCardScale] = useState<"normal" | "compact">("normal");
+
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Reset to author defaults
+  const handleReset = () => {
+    setName(author.displayName || "Editorial Contributor");
+    setRole(defaultRole);
+    setEmail(author.user?.email || "editor@techcrest.news");
+    setPhone("+91 987 1034 296");
+    setWebsite("www.techcrest.news");
+    setAddress("8614 Compatible Way, Charlotte, North Carolina 28262");
+    setMission(defaultMission);
+  };
 
   // SVG T-logo as inline vector with explicit sizing safeguards
   const logoSvg = (
@@ -94,7 +140,7 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
     try {
       const width = 1050; // 3.5 in * 300 dpi standard business card
       const height = 600; // 2 in * 300 dpi standard business card
-      const scale = 2; // 2x supersampling for crystal clear text
+      const scale = 2; // 2x supersampling for ultra-crisp retina typography
 
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
@@ -191,19 +237,51 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
         context.font = "500 22px -apple-system, BlinkMacSystemFont, sans-serif";
         context.fillText(website, 95, offsetY + 310);
 
-        // Mission Statement
-        context.font = "bold 19px -apple-system, BlinkMacSystemFont, sans-serif";
-        context.fillStyle = "#2D7FF9";
-        context.fillText("Our mission", 60, offsetY + 382);
-
-        context.fillStyle = "#475569";
+        // Mission / Statement Dynamic Auto-wrap
         context.font = "400 19px -apple-system, BlinkMacSystemFont, sans-serif";
-        context.fillText(" is to make technology understandable,", 175, offsetY + 382);
-        context.fillText(
-          "accessible, and relevant to everyone through news, insights and impact.",
-          60,
-          offsetY + 412
-        );
+        const maxTextW = width - 130;
+        const words = mission.split(" ");
+        let l1 = "";
+        let l2 = "";
+        let isL1 = true;
+
+        for (const w of words) {
+          if (isL1) {
+            if (context.measureText(l1 + w + " ").width < maxTextW) {
+              l1 += w + " ";
+            } else {
+              isL1 = false;
+              l2 += w + " ";
+            }
+          } else {
+            if (context.measureText(l2 + w + " ").width < maxTextW) {
+              l2 += w + " ";
+            }
+          }
+        }
+
+        // Draw Line 1 with optional "Our mission" highlight
+        if (l1.startsWith("Our mission")) {
+          context.font = "bold 19px -apple-system, BlinkMacSystemFont, sans-serif";
+          context.fillStyle = "#2D7FF9";
+          context.fillText("Our mission", 60, offsetY + 382);
+
+          const preW = context.measureText("Our mission ").width;
+          context.font = "400 19px -apple-system, BlinkMacSystemFont, sans-serif";
+          context.fillStyle = "#475569";
+          context.fillText(l1.replace("Our mission", "").trim(), 60 + preW, offsetY + 382);
+        } else {
+          context.font = "500 19px -apple-system, BlinkMacSystemFont, sans-serif";
+          context.fillStyle = "#334155";
+          context.fillText(l1.trim(), 60, offsetY + 382);
+        }
+
+        // Draw Line 2
+        if (l2.trim()) {
+          context.font = "400 19px -apple-system, BlinkMacSystemFont, sans-serif";
+          context.fillStyle = "#475569";
+          context.fillText(l2.trim(), 60, offsetY + 412);
+        }
 
         // Divider
         context.strokeStyle = "#E2E8F0";
@@ -399,7 +477,7 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
       }}
     >
       <div className="tc-card-modal-dialog">
-        {/* Header */}
+        {/* Sticky Top Header */}
         <div className="tc-card-modal-header">
           <div className="tc-card-modal-header-left">
             <div className="tc-card-modal-header-icon">
@@ -424,7 +502,7 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
           </button>
         </div>
 
-        {/* Controls: Tabs & Theme Toggle */}
+        {/* Sticky Subheader Controls */}
         <div className="tc-card-modal-controls">
           <div className="tc-card-tabs-row">
             <button
@@ -450,181 +528,291 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
             </button>
           </div>
 
-          <div className="tc-card-theme-group">
-            <button
-              type="button"
-              onClick={() => setCardTheme("light")}
-              className={`tc-card-theme-btn ${cardTheme === "light" ? "tc-card-theme-btn--active" : ""}`}
-            >
-              <Sun style={{ width: 13, height: 13 }} />
-              <span>Light Card</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCardTheme("dark")}
-              className={`tc-card-theme-btn ${cardTheme === "dark" ? "tc-card-theme-btn--active" : ""}`}
-            >
-              <Moon style={{ width: 13, height: 13 }} />
-              <span>Executive Navy</span>
-            </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            {/* Scale toggle */}
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <button
+                type="button"
+                onClick={() => setCardScale(cardScale === "normal" ? "compact" : "normal")}
+                className={`tc-card-preset-pill ${cardScale === "compact" ? "tc-card-preset-pill--active" : ""}`}
+                title="Toggle Compact preview for smaller screens"
+              >
+                <Sliders style={{ width: 11, height: 11, display: "inline", marginRight: 3 }} />
+                {cardScale === "compact" ? "Compact View (88%)" : "Full View (100%)"}
+              </button>
+            </div>
+
+            {/* Theme Toggle */}
+            <div className="tc-card-theme-group">
+              <button
+                type="button"
+                onClick={() => setCardTheme("light")}
+                className={`tc-card-theme-btn ${cardTheme === "light" ? "tc-card-theme-btn--active" : ""}`}
+              >
+                <Sun style={{ width: 13, height: 13 }} />
+                <span>Light Card</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCardTheme("dark")}
+                className={`tc-card-theme-btn ${cardTheme === "dark" ? "tc-card-theme-btn--active" : ""}`}
+              >
+                <Moon style={{ width: 13, height: 13 }} />
+                <span>Executive Navy</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Visual Card Stage */}
-        <div className="tc-card-stage">
-          <div className={`tc-card-stage-grid ${activeTab === "both" ? "tc-card-stage-grid--side-by-side" : ""}`}>
-            {/* FRONT CARD */}
-            {(activeTab === "both" || activeTab === "front") && (
-              <div className="tc-visiting-card tc-visiting-card--front">
-                {/* Top: Name, Role, Accent, Emblem */}
-                <div className="tc-visiting-card__top">
-                  <div className="tc-visiting-card__identity">
-                    <h3 className="tc-visiting-card__name">{name}</h3>
-                    <div className="tc-visiting-card__role">{role}</div>
-                    <div className="tc-visiting-card__accent-bar" />
-                  </div>
-                  <div className="tc-visiting-card__emblem">
-                    {logoSvg}
-                    <span className="tc-visiting-card__emblem-text">TechCrest</span>
-                  </div>
-                </div>
-
-                {/* Middle: Contact details */}
-                <div className="tc-visiting-card__contact">
-                  <div className="tc-visiting-card__contact-row">
-                    <Mail />
-                    <span>{email}</span>
-                  </div>
-                  <div className="tc-visiting-card__contact-row">
-                    <Phone />
-                    <span>{phone}</span>
-                  </div>
-                  <div className="tc-visiting-card__contact-row">
-                    <Globe />
-                    <span>{website}</span>
-                  </div>
-                </div>
-
-                {/* Mission Statement */}
-                <div className="tc-visiting-card__mission">
-                  <span className="tc-visiting-card__mission-highlight">Our mission</span> is to make technology understandable, accessible, and relevant to everyone through news, insights and impact.
-                </div>
-
-                {/* Footer address */}
-                <div className="tc-visiting-card__footer">
-                  <span className="tc-visiting-card__footer-brand">TechCrest.News</span>
-                  <span className="tc-visiting-card__footer-sep">|</span>
-                  <span className="tc-visiting-card__footer-address">{address}</span>
-                </div>
-              </div>
-            )}
-
-            {/* BACK CARD */}
-            {(activeTab === "both" || activeTab === "back") && (
-              <div
-                className={`tc-visiting-card ${
-                  cardTheme === "light" ? "tc-visiting-card--back-light" : "tc-visiting-card--back-dark"
-                }`}
-              >
-                <div className="tc-visiting-card__back-inner-frame" />
-                <div className="tc-visiting-card__back-center">
-                  <div className="tc-visiting-card__back-brand-row">
-                    <div style={{ width: 38, height: 38, flexShrink: 0 }}>
-                      {logoSvg}
+        {/* Scrollable Modal Body: Contains the Card Stage AND the Customizer Form */}
+        <div className="tc-card-modal-scroll-body">
+          {/* Visual Card Stage */}
+          <div className="tc-card-stage">
+            <div
+              className={`tc-card-stage-grid ${activeTab === "both" ? "tc-card-stage-grid--side-by-side" : ""}`}
+              style={
+                cardScale === "compact"
+                  ? {
+                      transform: "scale(0.88)",
+                      transformOrigin: "center center",
+                      transition: "transform 0.2s ease",
+                      margin: "-16px 0",
+                    }
+                  : { transition: "transform 0.2s ease" }
+              }
+            >
+              {/* FRONT CARD */}
+              {(activeTab === "both" || activeTab === "front") && (
+                <div className="tc-visiting-card tc-visiting-card--front">
+                  {/* Top: Name, Role, Accent, Emblem */}
+                  <div className="tc-visiting-card__top">
+                    <div className="tc-visiting-card__identity">
+                      <h3 className="tc-visiting-card__name">{name}</h3>
+                      <div className="tc-visiting-card__role">{role}</div>
+                      <div className="tc-visiting-card__accent-bar" />
                     </div>
-                    <span
-                      className="tc-visiting-card__back-brand-name"
+                    <div className="tc-visiting-card__emblem">
+                      {logoSvg}
+                      <span className="tc-visiting-card__emblem-text">TechCrest</span>
+                    </div>
+                  </div>
+
+                  {/* Middle: Contact details */}
+                  <div className="tc-visiting-card__contact">
+                    <div className="tc-visiting-card__contact-row">
+                      <Mail />
+                      <span>{email}</span>
+                    </div>
+                    <div className="tc-visiting-card__contact-row">
+                      <Phone />
+                      <span>{phone}</span>
+                    </div>
+                    <div className="tc-visiting-card__contact-row">
+                      <Globe />
+                      <span>{website}</span>
+                    </div>
+                  </div>
+
+                  {/* Mission Statement */}
+                  <div className="tc-visiting-card__mission">
+                    {mission.startsWith("Our mission") ? (
+                      <>
+                        <span className="tc-visiting-card__mission-highlight">Our mission</span>
+                        {mission.replace("Our mission", "")}
+                      </>
+                    ) : (
+                      mission
+                    )}
+                  </div>
+
+                  {/* Footer address */}
+                  <div className="tc-visiting-card__footer">
+                    <span className="tc-visiting-card__footer-brand">TechCrest.News</span>
+                    <span className="tc-visiting-card__footer-sep">|</span>
+                    <span className="tc-visiting-card__footer-address">{address}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* BACK CARD */}
+              {(activeTab === "both" || activeTab === "back") && (
+                <div
+                  className={`tc-visiting-card ${
+                    cardTheme === "light" ? "tc-visiting-card--back-light" : "tc-visiting-card--back-dark"
+                  }`}
+                >
+                  <div className="tc-visiting-card__back-inner-frame" />
+                  <div className="tc-visiting-card__back-center">
+                    <div className="tc-visiting-card__back-brand-row">
+                      <div style={{ width: 38, height: 38, flexShrink: 0 }}>
+                        {logoSvg}
+                      </div>
+                      <span
+                        className="tc-visiting-card__back-brand-name"
+                        style={{ color: cardTheme === "light" ? "#0A192F" : "#ffffff" }}
+                      >
+                        TechCrest
+                      </span>
+                    </div>
+                    <div
+                      className="tc-visiting-card__back-tagline"
+                      style={{ color: cardTheme === "light" ? "#2D7FF9" : "#00D2FF" }}
+                    >
+                      NEWS • INSIGHTS • IMPACT
+                    </div>
+                    <div
+                      className="tc-visiting-card__back-credential"
+                      style={{ color: cardTheme === "light" ? "#64748B" : "rgba(255,255,255,0.5)" }}
+                    >
+                      OFFICIAL EDITORIAL PRESS CREDENTIAL
+                    </div>
+                    <div
+                      className="tc-visiting-card__back-url"
                       style={{ color: cardTheme === "light" ? "#0A192F" : "#ffffff" }}
                     >
-                      TechCrest
-                    </span>
-                  </div>
-                  <div
-                    className="tc-visiting-card__back-tagline"
-                    style={{ color: cardTheme === "light" ? "#2D7FF9" : "#00D2FF" }}
-                  >
-                    NEWS • INSIGHTS • IMPACT
-                  </div>
-                  <div
-                    className="tc-visiting-card__back-credential"
-                    style={{ color: cardTheme === "light" ? "#64748B" : "rgba(255,255,255,0.5)" }}
-                  >
-                    OFFICIAL EDITORIAL PRESS CREDENTIAL
-                  </div>
-                  <div
-                    className="tc-visiting-card__back-url"
-                    style={{ color: cardTheme === "light" ? "#0A192F" : "#ffffff" }}
-                  >
-                    {website}
+                      {website}
+                    </div>
                   </div>
                 </div>
+              )}
+            </div>
+          </div>
+
+          {/* High-Efficiency Customizer Form */}
+          <div className="tc-card-modal-form-wrap">
+            <div className="tc-card-modal-form-header">
+              <div className="tc-card-modal-form-title">
+                Personalize Card Details & Editorial Credentials
               </div>
-            )}
+              <button
+                type="button"
+                onClick={handleReset}
+                className="tc-card-reset-btn"
+                title="Reset all fields back to author profile defaults"
+              >
+                <RotateCcw style={{ width: 12, height: 12 }} />
+                <span>Reset to Profile Defaults</span>
+              </button>
+            </div>
+
+            <div className="tc-card-modal-form-grid">
+              {/* Author Name */}
+              <div className="tc-card-input-item">
+                <label className="tc-card-input-label">Author Full Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Bibhu Pattnaik"
+                  className="tc-card-input-field"
+                />
+              </div>
+
+              {/* Editorial Role + Quick Presets */}
+              <div className="tc-card-input-item">
+                <label className="tc-card-input-label">Editorial Role / Title</label>
+                <input
+                  type="text"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  placeholder="e.g. Managing Editor"
+                  className="tc-card-input-field"
+                />
+                <div className="tc-card-role-presets">
+                  {ROLE_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setRole(preset)}
+                      className={`tc-card-preset-pill ${role === preset ? "tc-card-preset-pill--active" : ""}`}
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Direct Email */}
+              <div className="tc-card-input-item">
+                <label className="tc-card-input-label">Direct Editorial Email</label>
+                <input
+                  type="text"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="e.g. editor@techcrest.news"
+                  className="tc-card-input-field"
+                />
+              </div>
+
+              {/* Phone Number */}
+              <div className="tc-card-input-item">
+                <label className="tc-card-input-label">Press Phone / Contact</label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="e.g. +91 987 1034 296"
+                  className="tc-card-input-field"
+                />
+              </div>
+
+              {/* Website / Portfolio */}
+              <div className="tc-card-input-item">
+                <label className="tc-card-input-label">Website / Newsroom Domain</label>
+                <input
+                  type="text"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  placeholder="e.g. www.techcrest.news"
+                  className="tc-card-input-field"
+                />
+              </div>
+
+              {/* Office Address */}
+              <div className="tc-card-input-item">
+                <label className="tc-card-input-label">Office Location</label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="e.g. 8614 Compatible Way, Charlotte, NC 28262"
+                  className="tc-card-input-field"
+                />
+              </div>
+
+              {/* Mission Statement / Personal Tagline (Full Width) */}
+              <div className="tc-card-input-item tc-card-input-item--full">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
+                  <label className="tc-card-input-label">Mission Statement / Editorial Creed</label>
+                  <span style={{ fontSize: "0.65rem", color: "var(--color-text-muted)" }}>
+                    Appears directly on the front visiting card
+                  </span>
+                </div>
+                <textarea
+                  value={mission}
+                  onChange={(e) => setMission(e.target.value)}
+                  rows={2}
+                  className="tc-card-input-textarea"
+                  placeholder="Enter your personal mission statement or editorial motto..."
+                />
+                <div className="tc-card-role-presets">
+                  {MISSION_PRESETS.map((m) => (
+                    <button
+                      key={m.label}
+                      type="button"
+                      onClick={() => setMission(m.text)}
+                      className={`tc-card-preset-pill ${mission === m.text ? "tc-card-preset-pill--active" : ""}`}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Customizer Form Area */}
-        <div className="tc-card-modal-form-wrap">
-          <div className="tc-card-modal-form-title">Customize Visiting Card Information</div>
-          <div className="tc-card-modal-form-grid">
-            <div className="tc-card-input-item">
-              <label className="tc-card-input-label">Author Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="tc-card-input-field"
-              />
-            </div>
-            <div className="tc-card-input-item">
-              <label className="tc-card-input-label">Editorial Role / Title</label>
-              <input
-                type="text"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="tc-card-input-field"
-              />
-            </div>
-            <div className="tc-card-input-item">
-              <label className="tc-card-input-label">Direct Email</label>
-              <input
-                type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="tc-card-input-field"
-              />
-            </div>
-            <div className="tc-card-input-item">
-              <label className="tc-card-input-label">Phone Number</label>
-              <input
-                type="text"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="tc-card-input-field"
-              />
-            </div>
-            <div className="tc-card-input-item">
-              <label className="tc-card-input-label">Website / Portfolio</label>
-              <input
-                type="text"
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-                className="tc-card-input-field"
-              />
-            </div>
-            <div className="tc-card-input-item">
-              <label className="tc-card-input-label">Office Address</label>
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="tc-card-input-field"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Controls */}
+        {/* Sticky Bottom Actions Footer: ALWAYS visible & accessible */}
         <div className="tc-card-modal-footer">
           <button type="button" onClick={copyProfileLink} className="tc-card-copy-btn">
             {copied ? (
