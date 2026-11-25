@@ -9,12 +9,8 @@ import {
   ShieldCheck,
   Coins,
   BookOpen,
-  CheckCircle2,
   Users,
-  Building2,
-  Mail,
   ArrowRight,
-  ExternalLink,
   UserCheck,
 } from "lucide-react";
 import { CompanyPageLayout } from "@/components/company/company-page-layout";
@@ -51,7 +47,6 @@ export default function AboutPage() {
             <Compass className="tc-subpage-meta__icon" />
             Our Mission
           </h2>
-          <span className="tc-editorial-block__badge">Core Purpose</span>
         </div>
         <p className="tc-editorial-block__desc">
           At TechCrest News, our mission is simple: to make technology
@@ -70,10 +65,9 @@ export default function AboutPage() {
             <UserCheck className="tc-subpage-meta__icon" />
             Who is behind it
           </h2>
-          <span className="tc-editorial-block__badge">Founder & Editor</span>
         </div>
         <p className="tc-editorial-block__desc">
-          TechCrest.news was founded by Bibhu Pattnaik, an editor with 20 years
+          <strong>TechCrest.news</strong> was founded by <strong>Bibhu Pattnaik</strong>, an editor with 20 years
           in tech and financial media. He has worked with Benzinga, Newsmax TV,
           Microsoft, CNN-News18, and TheStreet, among others, and advises
           research firms including GLG and Coleman Research. The idea is simple:
@@ -88,7 +82,6 @@ export default function AboutPage() {
             <Cpu className="tc-subpage-meta__icon" />
             What We Cover
           </h2>
-          <span className="tc-editorial-block__badge">6 Editorial Beats</span>
         </div>
         <p className="tc-editorial-block__desc">
           Technology touches every part of modern life, and our coverage
@@ -172,61 +165,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Section 3: Why Readers Trust TechCrest News */}
-      <section className="tc-editorial-block">
-        <div className="tc-editorial-block__header">
-          <h2 className="tc-editorial-block__title">
-            <CheckCircle2 className="tc-subpage-meta__icon" />
-            Why Readers Trust TechCrest News
-          </h2>
-          <span className="tc-editorial-block__badge">Editorial Integrity</span>
-        </div>
-        <p className="tc-editorial-block__desc">
-          Credibility is the foundation of everything we publish. Our reporting
-          is grounded in verified facts, primary sources, and rigorous editorial
-          standards. We prioritize accuracy over speed-for-its-own-sake, clearly
-          separate news from opinion, and correct our work transparently when
-          needed. Every article is crafted to inform rather than mislead, no
-          clickbait, no hype, just journalism you can rely on.
-        </p>
-
-        <div className="tc-trust-grid">
-          <div className="tc-trust-card">
-            <div className="tc-trust-card__badge" style={{ color: "#2D7FF9" }}>
-              <CheckCircle2 className="tc-subpage-meta__icon" />
-              <span>Verified Facts</span>
-            </div>
-            <h3 className="tc-trust-card__title">Accuracy Over Speed</h3>
-            <p className="tc-trust-card__desc">
-              Every scoop and benchmark is vetted against primary technical
-              sources and peer documentation before publication.
-            </p>
-          </div>
-
-          <div className="tc-trust-card">
-            <div className="tc-trust-card__badge" style={{ color: "#10b981" }}>
-              <ShieldCheck className="tc-subpage-meta__icon" />
-              <span>Editorial Firewall</span>
-            </div>
-            <h3 className="tc-trust-card__title">Zero Commercial Influence</h3>
-            <p className="tc-trust-card__desc">
-              Advertisers and partners never dictate editorial assignments, product ratings, or investigative findings.
-            </p>
-          </div>
-
-          <div className="tc-trust-card">
-            <div className="tc-trust-card__badge" style={{ color: "#8b5cf6" }}>
-              <Compass className="tc-subpage-meta__icon" />
-              <span>Full Accountability</span>
-            </div>
-            <h3 className="tc-trust-card__title">Transparent Corrections</h3>
-            <p className="tc-trust-card__desc">
-              If an error occurs, we fix it promptly and append transparent correction notes at the top of the story.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* Section 4: Our Team */}
       <section className="tc-editorial-block">
         <div className="tc-editorial-block__header">
@@ -234,7 +172,6 @@ export default function AboutPage() {
             <Users className="tc-subpage-meta__icon" />
             Our Team
           </h2>
-          <span className="tc-editorial-block__badge">Editorial Team</span>
         </div>
         <p className="tc-editorial-block__desc">
           TechCrest News is powered by a team of experienced journalists,
@@ -245,61 +182,7 @@ export default function AboutPage() {
         </p>
       </section>
 
-      {/* Section 5: Newsroom Desk */}
-      <section className="tc-editorial-block">
-        <div className="tc-editorial-block__header">
-          <h2 className="tc-editorial-block__title">
-            <Building2 className="tc-subpage-meta__icon" />
-            Newsroom Desk
-          </h2>
-          <span className="tc-editorial-block__badge">Hub & Operations</span>
-        </div>
-        <p className="tc-editorial-block__desc">
-          Operating from the heart of India&apos;s primary technology hub, our
-          editorial desk coordinates reporting, investigative research, and
-          hands-on hardware testing for a global audience.
-        </p>
-
-        <div className="tc-desk-grid">
-          <div className="tc-desk-card">
-            <div className="tc-desk-card__label" style={{ color: "#2D7FF9" }}>
-              <Mail className="tc-subpage-meta__icon" />
-              <span>Editorial Desk</span>
-            </div>
-            <h3 className="tc-desk-card__title">Official Correspondence:</h3>
-            <a
-              href="mailto:editor@techcrest.news"
-              className="tc-desk-card__link"
-            >
-              editor@techcrest.news
-            </a>
-            <p className="tc-desk-card__desc">
-              For tips, press releases, story pitches, and newsroom inquiries.
-            </p>
-          </div>
-
-          <div className="tc-desk-card">
-            <div className="tc-desk-card__label" style={{ color: "#8b5cf6" }}>
-              <ExternalLink className="tc-subpage-meta__icon" />
-              <span>Sister Initiative</span>
-            </div>
-            <h3 className="tc-desk-card__title">Raw Pitch:</h3>
-            <a
-              href="https://rawpitch.org/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="tc-desk-card__link"
-            >
-              rawpitch.org <ExternalLink className="tc-hub-card__link-icon" />
-            </a>
-            <p className="tc-desk-card__desc">
-              Showcasing early-stage builders, deep-tech research, and founder stories.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 6: Get in Touch Banner */}
+      {/* Section: Get in Touch Banner */}
       <section className="tc-action-banner">
         <div className="tc-action-banner__content">
           <h2 className="tc-action-banner__title">Get in Touch</h2>

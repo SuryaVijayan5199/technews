@@ -23,13 +23,11 @@ export default function CookiesPage() {
   return (
     <LegalPageLayout
       title="Cookie Policy"
-      badge="Cookie Transparency"
-      badgeIcon={<Cookie className="w-3.5 h-3.5" />}
       currentSlug="/cookies"
       tableOfContents={TOC}
       introText="TechCrest uses cookies and similar technologies to provide a reliable website experience, remember user preferences, understand how visitors use our services and improve our content."
       introNote="This Cookie Policy explains what cookies are, how we use them and how you can manage them."
-      contactEmail="privacy@techcrest.news"
+      contactEmail="editor@techcrest.news"
     >
       {/* Section 1 */}
       <section id="what-are-cookies" className="tc-policy-page__section tc-policy-page__section--first">
@@ -160,7 +158,7 @@ export default function CookiesPage() {
         </p>
         <div className="tc-policy-page__intro-card mt-3 text-sm space-y-1.5">
           <p><strong>Entity:</strong> TechCrest</p>
-          <p><strong>Email:</strong> <a href="mailto:privacy@techcrest.news" className="text-[#2D7FF9] underline">privacy@techcrest.news</a></p>
+          <p><strong>Email:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
         </div>
       </section>
     </LegalPageLayout>

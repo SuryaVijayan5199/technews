@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Megaphone,
-  Users,
   Target,
   Mail,
   CheckCircle2,
@@ -40,52 +39,6 @@ export default function AdvertisePage() {
         </p>
       </div>
 
-      {/* Audience & Readership Metrics */}
-      <section className="tc-editorial-block">
-        <div className="tc-editorial-block__header">
-          <h2 className="tc-editorial-block__title">
-            <Users className="tc-subpage-meta__icon" />
-            Our Audience & Readership
-          </h2>
-          <span className="tc-editorial-block__badge">Verified Reach</span>
-        </div>
-
-        <div className="tc-stat-grid">
-          <div className="tc-stat-card">
-            <p className="tc-stat-card__num" style={{ color: "#2D7FF9" }}>
-              250K+
-            </p>
-            <p className="tc-stat-card__label">Monthly Readers</p>
-            <p className="tc-stat-card__desc">
-              Active readers across AI, mobile, robotics, EVs, cybersecurity,
-              and crypto.
-            </p>
-          </div>
-
-          <div className="tc-stat-card">
-            <p className="tc-stat-card__num" style={{ color: "#10b981" }}>
-              65%
-            </p>
-            <p className="tc-stat-card__label">Tech Decision Makers</p>
-            <p className="tc-stat-card__desc">
-              Founders, software architects, tech leads, engineering directors,
-              and product heads.
-            </p>
-          </div>
-
-          <div className="tc-stat-card">
-            <p className="tc-stat-card__num" style={{ color: "#8b5cf6" }}>
-              Global
-            </p>
-            <p className="tc-stat-card__label">Reach & Distribution</p>
-            <p className="tc-stat-card__desc">
-              Core readership distributed across India, Southeast Asia, North
-              America, and Europe.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* Collaboration Opportunities */}
       <section className="tc-editorial-block">
         <div className="tc-editorial-block__header">
@@ -93,7 +46,6 @@ export default function AdvertisePage() {
             <Target className="tc-subpage-meta__icon" />
             Collaboration Opportunities
           </h2>
-          <span className="tc-editorial-block__badge">Bespoke Formats</span>
         </div>
 
         <div className="tc-collab-list">

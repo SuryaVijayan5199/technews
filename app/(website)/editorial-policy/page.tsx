@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Award } from "lucide-react";
 import { LegalPageLayout, LegalTocItem } from "@/components/legal/legal-page-layout";
 
 export const dynamic = "force-dynamic";
@@ -31,8 +30,6 @@ export default function EditorialPolicyPage() {
   return (
     <LegalPageLayout
       title="Editorial Policy"
-      badge="Journalism Standards & Integrity"
-      badgeIcon={<Award className="w-3.5 h-3.5" />}
       currentSlug="/editorial-policy"
       tableOfContents={TOC}
       introText="TechCrest is committed to independent, accurate and responsible technology journalism. Our goal is to help readers understand the products, companies, technologies and ideas shaping the future of everyday life."

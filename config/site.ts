@@ -52,7 +52,7 @@ export const siteConfig = {
   },
   contact: {
     email: "editor@techcrest.news",
-    privacyEmail: "privacy@techcrest.news",
+    privacyEmail: "editor@techcrest.news",
   },
 };
 

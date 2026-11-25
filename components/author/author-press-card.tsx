@@ -142,6 +142,16 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
       const height = 600; // 2 in * 300 dpi standard business card
       const scale = 2; // 2x supersampling for ultra-crisp retina typography
 
+      // Preload official logo image for high-res canvas rendering
+      const logoImg = new Image();
+      logoImg.crossOrigin = "anonymous";
+      logoImg.src = "/brand/techcrest-card-logo.png";
+      await new Promise<void>((resolve) => {
+        if (logoImg.complete && logoImg.naturalWidth > 0) return resolve();
+        logoImg.onload = () => resolve();
+        logoImg.onerror = () => resolve();
+      });
+
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
@@ -175,47 +185,12 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
         context.roundRect(60, offsetY + 155, 60, 5, 3);
         context.fill();
 
-        // Top-Right Official Emblem Badge Box
-        const boxX = width - 180;
-        const boxY = offsetY + 45;
-        const boxW = 120;
-        const boxH = 120;
-
-        context.fillStyle = "#071529";
-        context.beginPath();
-        context.roundRect(boxX, boxY, boxW, boxH, 16);
-        context.fill();
-
-        // Speedline T-logo inside emblem
-        const grad = context.createLinearGradient(boxX + 25, boxY + 20, boxX + 95, boxY + 80);
-        grad.addColorStop(0, "#00D2FF");
-        grad.addColorStop(1, "#2D7FF9");
-        context.fillStyle = grad;
-
-        const s = 0.115;
-        const ox = boxX + 24;
-        const oy = boxY + 16;
-        context.fillRect(ox + 295 * s, oy + 306 * s, 120 * s, 36 * s);
-        context.fillRect(ox + 450 * s, oy + 306 * s, 370 * s, 36 * s);
-        context.fillRect(ox + 232 * s, oy + 382 * s, 100 * s, 36 * s);
-        context.fillRect(ox + 368 * s, oy + 382 * s, 410 * s, 38 * s);
-        context.fillRect(ox + 186 * s, oy + 458 * s, 96 * s, 36 * s);
-        context.fillRect(ox + 310 * s, oy + 458 * s, 136 * s, 36 * s);
-
-        context.beginPath();
-        context.moveTo(ox + 520 * s, oy + 390 * s);
-        context.lineTo(ox + 660 * s, oy + 390 * s);
-        context.lineTo(ox + 535 * s, oy + 680 * s);
-        context.lineTo(ox + 413 * s, oy + 698 * s);
-        context.closePath();
-        context.fill();
-
-        // "TechCrest" under emblem
-        context.fillStyle = "#FFFFFF";
-        context.font = "bold 15px -apple-system, BlinkMacSystemFont, sans-serif";
-        context.textAlign = "center";
-        context.fillText("TechCrest", boxX + boxW / 2, boxY + boxH - 14);
-        context.textAlign = "left";
+        // Top-Right Official Logo Image
+        if (logoImg.naturalWidth > 0) {
+          const lW = 270;
+          const lH = (lW * logoImg.naturalHeight) / logoImg.naturalWidth;
+          context.drawImage(logoImg, width - lW - 60, offsetY + 45, lW, lH);
+        }
 
         // Contact Info Rows
         context.fillStyle = "#2D7FF9";
@@ -237,9 +212,9 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
         context.font = "500 22px -apple-system, BlinkMacSystemFont, sans-serif";
         context.fillText(website, 95, offsetY + 310);
 
-        // Mission / Statement Dynamic Auto-wrap
-        context.font = "400 19px -apple-system, BlinkMacSystemFont, sans-serif";
-        const maxTextW = width - 130;
+        // Mission / Statement Dynamic Auto-wrap with dedicated spacing
+        context.font = "400 18px -apple-system, BlinkMacSystemFont, sans-serif";
+        const maxTextW = width - 140;
         const words = mission.split(" ");
         let l1 = "";
         let l2 = "";
@@ -262,46 +237,46 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
 
         // Draw Line 1 with optional "Our mission" highlight
         if (l1.startsWith("Our mission")) {
-          context.font = "bold 19px -apple-system, BlinkMacSystemFont, sans-serif";
+          context.font = "bold 18px -apple-system, BlinkMacSystemFont, sans-serif";
           context.fillStyle = "#2D7FF9";
-          context.fillText("Our mission", 60, offsetY + 382);
+          context.fillText("Our mission", 60, offsetY + 372);
 
           const preW = context.measureText("Our mission ").width;
-          context.font = "400 19px -apple-system, BlinkMacSystemFont, sans-serif";
+          context.font = "400 18px -apple-system, BlinkMacSystemFont, sans-serif";
           context.fillStyle = "#475569";
-          context.fillText(l1.replace("Our mission", "").trim(), 60 + preW, offsetY + 382);
+          context.fillText(l1.replace("Our mission", "").trim(), 60 + preW, offsetY + 372);
         } else {
-          context.font = "500 19px -apple-system, BlinkMacSystemFont, sans-serif";
+          context.font = "500 18px -apple-system, BlinkMacSystemFont, sans-serif";
           context.fillStyle = "#334155";
-          context.fillText(l1.trim(), 60, offsetY + 382);
+          context.fillText(l1.trim(), 60, offsetY + 372);
         }
 
         // Draw Line 2
         if (l2.trim()) {
-          context.font = "400 19px -apple-system, BlinkMacSystemFont, sans-serif";
+          context.font = "400 18px -apple-system, BlinkMacSystemFont, sans-serif";
           context.fillStyle = "#475569";
-          context.fillText(l2.trim(), 60, offsetY + 412);
+          context.fillText(l2.trim(), 60, offsetY + 400);
         }
 
         // Divider
         context.strokeStyle = "#E2E8F0";
         context.lineWidth = 1.5;
         context.beginPath();
-        context.moveTo(60, offsetY + 455);
-        context.lineTo(width - 60, offsetY + 455);
+        context.moveTo(60, offsetY + 440);
+        context.lineTo(width - 60, offsetY + 440);
         context.stroke();
 
         // Footer Brand & Address
         context.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
         context.fillStyle = "#2D7FF9";
-        context.fillText("TechCrest.News", 60, offsetY + 505);
+        context.fillText("TechCrest.News", 60, offsetY + 490);
 
         context.fillStyle = "#94A3B8";
-        context.fillText("|", 230, offsetY + 505);
+        context.fillText("|", 230, offsetY + 490);
 
         context.font = "400 18px -apple-system, BlinkMacSystemFont, sans-serif";
         context.fillStyle = "#475569";
-        context.fillText(address, 250, offsetY + 505);
+        context.fillText(address, 250, offsetY + 490);
       };
 
       const drawBack = (context: CanvasRenderingContext2D, offsetY = 0) => {
@@ -324,50 +299,20 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
           context.lineWidth = 1.5;
           context.strokeRect(38, offsetY + 38, width - 76, height - 76);
 
-          // Center Logo
-          const cx = width / 2 - 240;
-          const cy = offsetY + height / 2 - 110;
-          const logoGrad = context.createLinearGradient(cx, cy, cx + 500, cy + 150);
-          logoGrad.addColorStop(0, "#00D2FF");
-          logoGrad.addColorStop(1, "#2D7FF9");
-          context.fillStyle = logoGrad;
+          // Center Official Logo Image
+          if (logoImg.naturalWidth > 0) {
+            const lW = 540;
+            const lH = (lW * logoImg.naturalHeight) / logoImg.naturalWidth;
+            const lX = (width - lW) / 2;
+            const lY = offsetY + (height - lH) / 2 - 25;
+            context.drawImage(logoImg, lX, lY, lW, lH);
+          }
 
-          const s = 0.28;
-          context.fillRect(cx + 295 * s, cy + 306 * s, 120 * s, 36 * s);
-          context.fillRect(cx + 450 * s, cy + 306 * s, 370 * s, 36 * s);
-          context.fillRect(cx + 232 * s, cy + 382 * s, 100 * s, 36 * s);
-          context.fillRect(cx + 368 * s, cy + 382 * s, 410 * s, 38 * s);
-          context.fillRect(cx + 186 * s, cy + 458 * s, 96 * s, 36 * s);
-          context.fillRect(cx + 310 * s, cy + 458 * s, 136 * s, 36 * s);
-
-          context.beginPath();
-          context.moveTo(cx + 520 * s, cy + 390 * s);
-          context.lineTo(cx + 660 * s, cy + 390 * s);
-          context.lineTo(cx + 535 * s, cy + 680 * s);
-          context.lineTo(cx + 413 * s, cy + 698 * s);
-          context.closePath();
-          context.fill();
-
-          // Brand Word "TechCrest"
+          // Web URL (Official Editorial Credential Removed as Requested)
           context.fillStyle = "#0A192F";
-          context.font = "bold 78px -apple-system, BlinkMacSystemFont, sans-serif";
-          context.fillText("TechCrest", cx + 180, cy + 120);
-
-          // Tagline: NEWS • INSIGHTS • IMPACT
-          context.fillStyle = "#2D7FF9";
-          context.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
+          context.font = "bold 22px -apple-system, BlinkMacSystemFont, sans-serif";
           context.textAlign = "center";
-          context.fillText("NEWS  •  INSIGHTS  •  IMPACT", width / 2, offsetY + height / 2 + 75);
-
-          // Credential
-          context.fillStyle = "#64748B";
-          context.font = "600 13px -apple-system, BlinkMacSystemFont, sans-serif";
-          context.fillText("OFFICIAL EDITORIAL PRESS CREDENTIAL", width / 2, offsetY + height - 70);
-
-          // Web URL
-          context.fillStyle = "#0A192F";
-          context.font = "bold 15px -apple-system, BlinkMacSystemFont, sans-serif";
-          context.fillText("www.techcrest.news", width / 2, offsetY + height - 44);
+          context.fillText(website, width / 2, offsetY + height - 60);
           context.textAlign = "left";
         } else {
           // Executive Navy Dark Theme
@@ -388,41 +333,20 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
           context.lineWidth = 3;
           context.strokeRect(30, offsetY + 30, width - 60, height - 60);
 
-          const cx = width / 2 - 240;
-          const cy = offsetY + height / 2 - 100;
-          const logoGrad = context.createLinearGradient(cx, cy, cx + 500, cy + 150);
-          logoGrad.addColorStop(0, "#00D2FF");
-          logoGrad.addColorStop(1, "#2D7FF9");
-          context.fillStyle = logoGrad;
+          // Center Logo
+          if (logoImg.naturalWidth > 0) {
+            const lW = 540;
+            const lH = (lW * logoImg.naturalHeight) / logoImg.naturalWidth;
+            const lX = (width - lW) / 2;
+            const lY = offsetY + (height - lH) / 2 - 25;
+            context.drawImage(logoImg, lX, lY, lW, lH);
+          }
 
-          const s = 0.28;
-          context.fillRect(cx + 295 * s, cy + 306 * s, 120 * s, 36 * s);
-          context.fillRect(cx + 450 * s, cy + 306 * s, 370 * s, 36 * s);
-          context.fillRect(cx + 232 * s, cy + 382 * s, 100 * s, 36 * s);
-          context.fillRect(cx + 368 * s, cy + 382 * s, 410 * s, 38 * s);
-          context.fillRect(cx + 186 * s, cy + 458 * s, 96 * s, 36 * s);
-          context.fillRect(cx + 310 * s, cy + 458 * s, 136 * s, 36 * s);
-
-          context.beginPath();
-          context.moveTo(cx + 520 * s, cy + 390 * s);
-          context.lineTo(cx + 660 * s, cy + 390 * s);
-          context.lineTo(cx + 535 * s, cy + 680 * s);
-          context.lineTo(cx + 413 * s, cy + 698 * s);
-          context.closePath();
-          context.fill();
-
+          // Web URL (Official Editorial Credential Removed as Requested)
           context.fillStyle = "#FFFFFF";
-          context.font = "bold 78px -apple-system, BlinkMacSystemFont, sans-serif";
-          context.fillText("TechCrest", cx + 180, cy + 120);
-
-          context.fillStyle = "#00D2FF";
-          context.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
+          context.font = "bold 22px -apple-system, BlinkMacSystemFont, sans-serif";
           context.textAlign = "center";
-          context.fillText("NEWS  •  INSIGHTS  •  IMPACT", width / 2, offsetY + height / 2 + 75);
-
-          context.fillStyle = "rgba(255, 255, 255, 0.45)";
-          context.font = "600 13px -apple-system, BlinkMacSystemFont, sans-serif";
-          context.fillText("OFFICIAL EDITORIAL PRESS CREDENTIAL", width / 2, offsetY + height - 55);
+          context.fillText(website, width / 2, offsetY + height - 60);
           context.textAlign = "left";
         }
       };
@@ -584,16 +508,19 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
               {/* FRONT CARD */}
               {(activeTab === "both" || activeTab === "front") && (
                 <div className="tc-visiting-card tc-visiting-card--front">
-                  {/* Top: Name, Role, Accent, Emblem */}
+                  {/* Top: Name, Role, Accent, Official Logo */}
                   <div className="tc-visiting-card__top">
                     <div className="tc-visiting-card__identity">
                       <h3 className="tc-visiting-card__name">{name}</h3>
                       <div className="tc-visiting-card__role">{role}</div>
                       <div className="tc-visiting-card__accent-bar" />
                     </div>
-                    <div className="tc-visiting-card__emblem">
-                      {logoSvg}
-                      <span className="tc-visiting-card__emblem-text">TechCrest</span>
+                    <div className="tc-visiting-card__logo-wrap">
+                      <img
+                        src="/brand/techcrest-card-logo.png"
+                        alt="TechCrest"
+                        className="tc-visiting-card__logo-img"
+                      />
                     </div>
                   </div>
 
@@ -643,29 +570,12 @@ export function AuthorPressCardModal({ author, onClose }: AuthorPressCardModalPr
                 >
                   <div className="tc-visiting-card__back-inner-frame" />
                   <div className="tc-visiting-card__back-center">
-                    <div className="tc-visiting-card__back-brand-row">
-                      <div style={{ width: 38, height: 38, flexShrink: 0 }}>
-                        {logoSvg}
-                      </div>
-                      <span
-                        className="tc-visiting-card__back-brand-name"
-                        style={{ color: cardTheme === "light" ? "#0A192F" : "#ffffff" }}
-                      >
-                        TechCrest
-                      </span>
-                    </div>
-                    <div
-                      className="tc-visiting-card__back-tagline"
-                      style={{ color: cardTheme === "light" ? "#2D7FF9" : "#00D2FF" }}
-                    >
-                      NEWS • INSIGHTS • IMPACT
-                    </div>
-                    <div
-                      className="tc-visiting-card__back-credential"
-                      style={{ color: cardTheme === "light" ? "#64748B" : "rgba(255,255,255,0.5)" }}
-                    >
-                      OFFICIAL EDITORIAL PRESS CREDENTIAL
-                    </div>
+                    <img
+                      src="/brand/techcrest-card-logo.png"
+                      alt="TechCrest"
+                      className="tc-visiting-card__back-logo-img"
+                      style={cardTheme === "dark" ? { filter: "brightness(0) invert(1)" } : undefined}
+                    />
                     <div
                       className="tc-visiting-card__back-url"
                       style={{ color: cardTheme === "light" ? "#0A192F" : "#ffffff" }}

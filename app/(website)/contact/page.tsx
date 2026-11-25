@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Mail,
-  ChevronRight,
   Building2,
-  ShieldCheck,
   Globe,
   Megaphone,
   ExternalLink,
@@ -19,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 const COMPANY_NAV = [
-  { href: "/about", label: "About Us", icon: Globe },
+  { href: "/about", label: "About", icon: Globe },
   { href: "/contact", label: "Contact Desk", icon: Mail },
   { href: "/advertise", label: "Advertise & Media", icon: Megaphone },
   {
@@ -36,16 +34,6 @@ export default function ContactPage() {
       <div className="tc-subpage-container">
         {/* Header Section */}
         <header className="tc-subpage-header">
-          <nav aria-label="Breadcrumb" className="tc-subpage-breadcrumb">
-            <Link href="/" className="tc-subpage-breadcrumb__link">
-              Home
-            </Link>
-            <ChevronRight className="tc-subpage-breadcrumb__separator" />
-            <span className="tc-subpage-breadcrumb__parent">Company</span>
-            <ChevronRight className="tc-subpage-breadcrumb__separator" />
-            <span className="tc-subpage-breadcrumb__current">Contact Desk</span>
-          </nav>
-
           <div className="tc-subpage-badge">
             <TechCrestIcon size={16} color="#2D7FF9" />
             <span>TechCrest Editorial & Desk</span>
@@ -132,25 +120,7 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* Desk 2: Data Privacy */}
-                <div className="tc-contact-desk-item">
-                  <div className="tc-contact-desk-icon tc-contact-desk-icon--green">
-                    <ShieldCheck className="tc-subpage-meta__icon" />
-                  </div>
-                  <div>
-                    <p className="tc-contact-desk-label">
-                      Data Privacy & Grievances
-                    </p>
-                    <a
-                      href="mailto:privacy@techcrest.news"
-                      className="tc-contact-desk-link"
-                    >
-                      privacy@techcrest.news
-                    </a>
-                  </div>
-                </div>
-
-                {/* Desk 3: USA Address */}
+                {/* Desk 2: USA Address */}
                 <div className="tc-contact-desk-item">
                   <div className="tc-contact-desk-icon tc-contact-desk-icon--purple">
                     <Building2 className="tc-subpage-meta__icon" />

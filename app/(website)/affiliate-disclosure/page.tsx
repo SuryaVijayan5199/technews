@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DollarSign, Award, ShoppingBag, Info, ShieldCheck } from "lucide-react";
+import { Award, ShoppingBag, Info, ShieldCheck } from "lucide-react";
 import { LegalPageLayout, LegalTocItem } from "@/components/legal/legal-page-layout";
 
 export const dynamic = "force-dynamic";
@@ -22,8 +22,6 @@ export default function AffiliateDisclosurePage() {
   return (
     <LegalPageLayout
       title="Affiliate Disclosure"
-      badge="Commerce & Transparency Disclosure"
-      badgeIcon={<DollarSign className="w-3.5 h-3.5" />}
       currentSlug="/affiliate-disclosure"
       tableOfContents={TOC}
       introTitle="Transparency First"

@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 import {
-  ChevronRight,
   Globe,
   Mail,
   Megaphone,
@@ -21,7 +20,7 @@ export interface CompanyPageLayoutProps {
 }
 
 const COMPANY_NAV = [
-  { href: "/about", label: "About Us", icon: Globe },
+  { href: "/about", label: "About", icon: Globe },
   { href: "/contact", label: "Contact Desk", icon: Mail },
   { href: "/advertise", label: "Advertise & Media", icon: Megaphone },
   {
@@ -43,17 +42,6 @@ export function CompanyPageLayout({
   return (
     <div className="tc-subpage-shell">
       <div className="tc-subpage-container">
-        {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="tc-subpage-breadcrumb">
-          <Link href="/" className="tc-subpage-breadcrumb__link">
-            Home
-          </Link>
-          <ChevronRight className="tc-subpage-breadcrumb__separator" />
-          <span className="tc-subpage-breadcrumb__parent">Company</span>
-          <ChevronRight className="tc-subpage-breadcrumb__separator" />
-          <span className="tc-subpage-breadcrumb__current">{title}</span>
-        </nav>
-
         {/* Masthead Header */}
         <header className="tc-subpage-header">
           {badge && (

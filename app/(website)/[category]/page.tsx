@@ -75,6 +75,23 @@ function timeAgo(date: Date | string | null | undefined): string {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
+function formatFeedDate(date: Date | string | null | undefined): string {
+  if (!date) return "";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "";
+  const datePart = d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const timePart = d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  return `${datePart}, ${timePart}`;
+}
+
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category: slug } = await params;
   const rawSlug = slug.toLowerCase().trim();
@@ -171,29 +188,43 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         )}
 
         {gridArticles.length > 0 && (
-          <div className="cat-grid">
+          <div className="cat-feed">
             {gridArticles.map((article: any) => (
-              <article key={article.id} className="cat-card">
-                <Link href={`/${article.category?.slug ?? slug}/${article.slug}`} className="cat-card__art-wrap">
-                  <div className="cat-card__art">
+              <article key={article.id} className="cat-feed-item">
+                <Link
+                  href={`/${article.category?.slug ?? slug}/${article.slug}`}
+                  className="cat-feed-thumb-wrap"
+                >
+                  <div className="cat-feed-thumb">
                     {article.heroImage ? (
-                      <Image src={article.heroImage} alt={article.title} fill className="cat-card__img" />
-                    ) : null}
+                      <Image
+                        src={article.heroImage}
+                        alt={article.title}
+                        fill
+                        sizes="(max-width: 640px) 110px, 200px"
+                        className="cat-feed-img"
+                      />
+                    ) : (
+                      <div className="cat-feed-placeholder" />
+                    )}
                   </div>
                 </Link>
-                <div className="cat-card__body">
-                  <span className="tc-tag" style={{ color: themeColor }}>
-                    {article.category?.name ?? category.name}
-                  </span>
-                  <h3>
+                <div className="cat-feed-content">
+                  <h3 className="cat-feed-title">
                     <Link href={`/${article.category?.slug ?? slug}/${article.slug}`}>
                       {article.title}
                     </Link>
                   </h3>
-                  {article.excerpt && <p className="cat-card__excerpt">{article.excerpt}</p>}
-                  <div className="cat-card__meta">
-                    <span>{timeAgo(article.publishedAt)}</span>
-                    <span>{article.readingTimeMinutes ?? 5} min read</span>
+                  {article.excerpt && (
+                    <p className="cat-feed-excerpt">{article.excerpt}</p>
+                  )}
+                  <div className="cat-feed-meta">
+                    <time
+                      className="cat-feed-time"
+                      dateTime={article.publishedAt ? new Date(article.publishedAt).toISOString() : undefined}
+                    >
+                      {formatFeedDate(article.publishedAt)}
+                    </time>
                   </div>
                 </div>
               </article>

@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 import {
-  ChevronRight,
   FileText,
   Shield,
   Cookie,
@@ -21,7 +20,7 @@ export interface LegalTocItem {
 
 interface LegalPageLayoutProps {
   title: string;
-  badge: string;
+  badge?: string;
   badgeIcon?: React.ReactNode;
   currentSlug: string;
   tableOfContents?: LegalTocItem[];
@@ -46,8 +45,6 @@ const LEGAL_NAV = [
 
 export function LegalPageLayout({
   title,
-  badge,
-  badgeIcon,
   currentSlug,
   tableOfContents = [],
   introTitle,
@@ -59,23 +56,8 @@ export function LegalPageLayout({
   return (
     <div className="tc-subpage-shell">
       <div className="tc-subpage-container">
-        {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="tc-subpage-breadcrumb">
-          <Link href="/" className="tc-subpage-breadcrumb__link">
-            Home
-          </Link>
-          <ChevronRight className="tc-subpage-breadcrumb__separator" />
-          <span className="tc-subpage-breadcrumb__parent">Legal & Trust</span>
-          <ChevronRight className="tc-subpage-breadcrumb__separator" />
-          <span className="tc-subpage-breadcrumb__current">{title}</span>
-        </nav>
-
         {/* Masthead Header */}
         <header className="tc-subpage-header">
-          <div className="tc-subpage-badge">
-            {badgeIcon || <Shield className="tc-subpage-badge__icon" />}
-            <span>{badge}</span>
-          </div>
           <h1 className="tc-subpage-title">{title}</h1>
 
           {/* Mobile Horizontal Sub-Navigation */}

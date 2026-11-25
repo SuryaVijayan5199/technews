@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Scale } from "lucide-react";
 import { LegalPageLayout, LegalTocItem } from "@/components/legal/legal-page-layout";
 
 export const dynamic = "force-dynamic";
@@ -30,8 +29,6 @@ export default function TermsPage() {
   return (
     <LegalPageLayout
       title="Terms of Service"
-      badge="Legal Agreement"
-      badgeIcon={<Scale className="w-3.5 h-3.5" />}
       currentSlug="/terms"
       tableOfContents={TOC}
       introText="Welcome to TechCrest. These Terms of Service govern your access to and use of techcrest.news, including our articles, newsletters, community features, multimedia content and other services."

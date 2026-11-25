@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
 import { LegalPageLayout, LegalTocItem } from "@/components/legal/legal-page-layout";
 
 export const dynamic = "force-dynamic";
@@ -31,13 +30,11 @@ export default function PrivacyPage() {
   return (
     <LegalPageLayout
       title="Privacy Policy"
-      badge="Data Privacy & Protection"
-      badgeIcon={<ShieldCheck className="w-3.5 h-3.5" />}
       currentSlug="/privacy"
       tableOfContents={TOC}
       introText="At TechCrest, we respect your privacy and are committed to protecting the information you share with us. This Privacy Policy explains what information we may collect, how we use it, when we may share it, and the choices available to you when you use techcrest.news, subscribe to our services, participate in our community, or otherwise interact with us."
       introNote="By using TechCrest, you acknowledge the practices described in this Privacy Policy."
-      contactEmail="privacy@techcrest.news"
+      contactEmail="editor@techcrest.news"
     >
       {/* Section 1 */}
       <section id="info-collect" className="tc-policy-page__section tc-policy-page__section--first">
@@ -264,8 +261,7 @@ export default function PrivacyPage() {
         </p>
         <div className="tc-policy-page__intro-card mt-3 text-sm space-y-1.5">
           <p><strong>Entity:</strong> TechCrest</p>
-          <p><strong>Privacy & Grievance Email:</strong> <a href="mailto:privacy@techcrest.news" className="text-[#2D7FF9] underline">privacy@techcrest.news</a></p>
-          <p><strong>Editorial Newsroom:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
+          <p><strong>Contact Email:</strong> <a href="mailto:editor@techcrest.news" className="text-[#2D7FF9] underline">editor@techcrest.news</a></p>
         </div>
       </section>
     </LegalPageLayout>
