@@ -260,7 +260,7 @@ export function ProfileView({ user, bookmarks, readingHistory }: ProfileViewProp
                   cursor: "pointer",
                 }}
               >
-                <CreditCard style={{ width: 15, height: 15 }} /> My Press Card
+                <CreditCard style={{ width: 15, height: 15 }} /> My Visiting Card
               </button>
 
               <Link

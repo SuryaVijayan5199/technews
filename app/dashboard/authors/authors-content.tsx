@@ -430,18 +430,20 @@ export default function AuthorsManagementContent() {
                   <Link
                     href={`/authors/${author.slug}`}
                     target="_blank"
-                    className="text-[11px] font-bold text-muted-foreground hover:text-[#2D7FF9] inline-flex items-center gap-1 transition-colors"
+                    className="tc-author-profile-link"
+                    title="View Author's Public Portfolio"
                   >
-                    <ExternalLink className="w-3.5 h-3.5" /> Public Profile
+                    <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>Public Profile</span>
                   </Link>
 
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
                     <button
                       onClick={() => setSelectedCardAuthor(author)}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-[#2D7FF9]/10 text-[#2D7FF9] hover:bg-[#2D7FF9] hover:text-white border border-[#2D7FF9]/25 transition-all shadow-xs"
-                      title="Download Official TechCrest Press Card"
+                      className="tc-author-btn tc-author-btn--card"
+                      title="Download Personal Visiting Card & Press Pass"
                     >
-                      <CreditCard className="w-3 h-3" />
+                      <CreditCard className="w-3.5 h-3.5" />
                       <span>Card</span>
                     </button>
                     <button
@@ -449,7 +451,8 @@ export default function AuthorsManagementContent() {
                       className="tc-author-btn tc-author-btn--edit"
                       title="Modify Author Profile"
                     >
-                      <Edit className="w-3.5 h-3.5" /> Edit
+                      <Edit className="w-3.5 h-3.5" />
+                      <span>Edit</span>
                     </button>
                     <button
                       onClick={() => handleDelete(author.id, author.displayName)}
@@ -598,7 +601,7 @@ export default function AuthorsManagementContent() {
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#2D7FF9]/10 text-[#2D7FF9] hover:bg-[#2D7FF9] hover:text-white border border-[#2D7FF9]/30 transition-all mr-auto"
                   >
                     <CreditCard className="w-3.5 h-3.5" />
-                    Download Press Card
+                    Personal Visiting Card
                   </button>
                 )}
                 <div className="flex items-center gap-2 ml-auto">
