@@ -22,6 +22,7 @@ import {
   UserCheck,
   Sparkles,
   Award,
+  CreditCard,
 } from "lucide-react";
 import {
   getAuthorsWithStats,
@@ -30,6 +31,7 @@ import {
   deleteAuthorProfile,
 } from "@/lib/actions/author.actions";
 import { EnhancedImageUploader } from "@/components/dashboard/enhanced-image-uploader";
+import { AuthorPressCardModal } from "@/components/author/author-press-card";
 
 type ToastType = "success" | "error" | "info";
 
@@ -53,6 +55,7 @@ export default function AuthorsManagementContent() {
   // Modal State
   const [showModal, setShowModal] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState<any | null>(null);
+  const [selectedCardAuthor, setSelectedCardAuthor] = useState<any | null>(null);
 
   // Form State
   const [displayName, setDisplayName] = useState("");
@@ -432,7 +435,15 @@ export default function AuthorsManagementContent() {
                     <ExternalLink className="w-3.5 h-3.5" /> Public Profile
                   </Link>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setSelectedCardAuthor(author)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-[#2D7FF9]/10 text-[#2D7FF9] hover:bg-[#2D7FF9] hover:text-white border border-[#2D7FF9]/25 transition-all shadow-xs"
+                      title="Download Official TechCrest Press Card"
+                    >
+                      <CreditCard className="w-3 h-3" />
+                      <span>Card</span>
+                    </button>
                     <button
                       onClick={() => openEditModal(author)}
                       className="tc-author-btn tc-author-btn--edit"
@@ -577,27 +588,49 @@ export default function AuthorsManagementContent() {
                 </label>
               </div>
 
-              <div className="author-modal-actions">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="btn btn-secondary text-xs px-4 py-2"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="btn btn-primary text-xs px-4 py-2 inline-flex items-center gap-1.5 font-bold"
-                >
-                  {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  {editingAuthor ? "Save Changes" : "Create Author Profile"}
-                </button>
+              <div className="author-modal-actions flex items-center justify-between">
+                {editingAuthor && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCardAuthor(editingAuthor);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#2D7FF9]/10 text-[#2D7FF9] hover:bg-[#2D7FF9] hover:text-white border border-[#2D7FF9]/30 transition-all mr-auto"
+                  >
+                    <CreditCard className="w-3.5 h-3.5" />
+                    Download Press Card
+                  </button>
+                )}
+                <div className="flex items-center gap-2 ml-auto">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="btn btn-secondary text-xs px-4 py-2"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="btn btn-primary text-xs px-4 py-2 inline-flex items-center gap-1.5 font-bold"
+                  >
+                    {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    {editingAuthor ? "Save Changes" : "Create Author Profile"}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
         </div>,
         document.body
+      )}
+
+      {/* Press Card Modal */}
+      {selectedCardAuthor && (
+        <AuthorPressCardModal
+          author={selectedCardAuthor}
+          onClose={() => setSelectedCardAuthor(null)}
+        />
       )}
     </div>
   );

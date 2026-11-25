@@ -8,14 +8,12 @@ import {
   Mail,
   Megaphone,
   ExternalLink,
-  ShieldCheck,
   Building2,
-  CheckCircle2,
 } from "lucide-react";
 
 export interface CompanyPageLayoutProps {
   title: string;
-  badge: string;
+  badge?: string;
   badgeIcon?: React.ReactNode;
   subtitle?: string;
   currentSlug: string;
@@ -58,28 +56,14 @@ export function CompanyPageLayout({
 
         {/* Masthead Header */}
         <header className="tc-subpage-header">
-          <div className="tc-subpage-badge">
-            {badgeIcon || <Globe className="tc-subpage-badge__icon" />}
-            <span>{badge}</span>
-          </div>
+          {badge && (
+            <div className="tc-subpage-badge">
+              {badgeIcon || <Globe className="tc-subpage-badge__icon" />}
+              <span>{badge}</span>
+            </div>
+          )}
           <h1 className="tc-subpage-title">{title}</h1>
           {subtitle && <p className="tc-subpage-subtitle">{subtitle}</p>}
-
-          <div className="tc-subpage-meta">
-            <span className="tc-subpage-meta__item">
-              <ShieldCheck className="tc-subpage-meta__icon" />
-              <strong>Independent Technology Journalism</strong>
-            </span>
-            <span className="tc-subpage-meta__dot">&bull;</span>
-            <span className="tc-subpage-meta__item">
-              Bangalore &bull; Global Newsroom
-            </span>
-            <span className="tc-subpage-meta__dot">&bull;</span>
-            <span className="tc-subpage-meta__item tc-subpage-meta__item--verified">
-              <CheckCircle2 className="tc-subpage-meta__icon" />
-              100% Fact-Checked
-            </span>
-          </div>
 
           {/* Mobile Horizontal Sub-Navigation */}
           <div className="tc-hub-mobile-nav">

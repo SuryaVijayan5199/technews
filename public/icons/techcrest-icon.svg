@@ -1,5 +1,12 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="100%" height="100%">
-  <g fill="currentColor">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="techcrest-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00D2FF" />
+      <stop offset="100%" stop-color="#2D7FF9" />
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="220" fill="#071529" />
+  <g fill="url(#techcrest-gradient)">
     <!-- Row 1: Top speedlines -->
     <rect x="295" y="306" width="120" height="36" rx="19" />
     <rect x="450" y="306" width="370" height="36" rx="19" />

@@ -15,11 +15,12 @@ import {
   Mail,
   ArrowRight,
   ExternalLink,
+  UserCheck,
 } from "lucide-react";
 import { CompanyPageLayout } from "@/components/company/company-page-layout";
 
 export const metadata: Metadata = {
-  title: "About TechCrest News — Independent Technology Journalism",
+  title: "About TechCrest News",
   description:
     "Learn about TechCrest, an independent tech news site offering fast, accurate coverage and expert analysis on AI, phones, EVs, crypto, gaming and more.",
 };
@@ -28,8 +29,6 @@ export default function AboutPage() {
   return (
     <CompanyPageLayout
       title="About TechCrest News"
-      badge="Independent Technology Journalism"
-      badgeIcon={<Globe className="tc-subpage-badge__icon" />}
       subtitle="Accurate reporting, hands-on hardware critiques, and sharp technical analysis of the breakthroughs shaping our digital world."
       currentSlug="/about"
     >
@@ -61,6 +60,24 @@ export default function AboutPage() {
           it matters. From breaking headlines to deep-dive explainers,
           we&apos;re committed to helping our readers make smarter decisions in
           a fast-changing technological landscape.
+        </p>
+      </section>
+
+      {/* Section: Who is behind it */}
+      <section className="tc-editorial-block">
+        <div className="tc-editorial-block__header">
+          <h2 className="tc-editorial-block__title">
+            <UserCheck className="tc-subpage-meta__icon" />
+            Who is behind it
+          </h2>
+          <span className="tc-editorial-block__badge">Founder & Editor</span>
+        </div>
+        <p className="tc-editorial-block__desc">
+          TechCrest.news was founded by Bibhu Pattnaik, an editor with 20 years
+          in tech and financial media. He has worked with Benzinga, Newsmax TV,
+          Microsoft, CNN-News18, and TheStreet, among others, and advises
+          research firms including GLG and Coleman Research. The idea is simple:
+          clear reporting, real numbers and no hype.
         </p>
       </section>
 
@@ -217,7 +234,7 @@ export default function AboutPage() {
             <Users className="tc-subpage-meta__icon" />
             Our Team
           </h2>
-          <span className="tc-editorial-block__badge">Global Newsroom</span>
+          <span className="tc-editorial-block__badge">Editorial Team</span>
         </div>
         <p className="tc-editorial-block__desc">
           TechCrest News is powered by a team of experienced journalists,

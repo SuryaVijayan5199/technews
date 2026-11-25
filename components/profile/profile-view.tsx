@@ -20,10 +20,12 @@ import {
   AtSign,
   Camera,
   Loader2,
+  CreditCard,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { updateUserProfile } from "@/lib/actions/user.actions";
 import { EnhancedImageUploader } from "@/components/dashboard/enhanced-image-uploader";
+import { AuthorPressCardModal } from "@/components/author/author-press-card";
 
 // ─── Types ──────────────────────────────────────────────────────
 interface ProfileUser {
@@ -109,6 +111,7 @@ export function ProfileView({ user, bookmarks, readingHistory }: ProfileViewProp
   const [activeTab, setActiveTab] = useState<"profile" | "bookmarks" | "history" | "security">("profile");
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
   const [saveError, setSaveError] = useState("");
+  const [showPressCard, setShowPressCard] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   // ─── Handle Save Profile ────────────────────────────────────
@@ -238,14 +241,37 @@ export function ProfileView({ user, bookmarks, readingHistory }: ProfileViewProp
         {/* Action buttons */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
           {isStaff && (
-            <Link
-              href="/dashboard"
-              className="btn-primary-v2"
-              style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}
-            >
-              <Shield style={{ width: 16, height: 16 }} />
-              {isSuperAdmin ? "CMS Dashboard" : "Editor Dashboard"}
-            </Link>
+            <>
+              <button
+                type="button"
+                onClick={() => setShowPressCard(true)}
+                className="btn-outline-v2"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.4rem",
+                  padding: "0.55rem 0.95rem",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  color: "#2D7FF9",
+                  borderColor: "rgba(45, 127, 249, 0.4)",
+                  backgroundColor: "rgba(45, 127, 249, 0.08)",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                }}
+              >
+                <CreditCard style={{ width: 15, height: 15 }} /> My Press Card
+              </button>
+
+              <Link
+                href="/dashboard"
+                className="btn-primary-v2"
+                style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}
+              >
+                <Shield style={{ width: 16, height: 16 }} />
+                {isSuperAdmin ? "CMS Dashboard" : "Editor Dashboard"}
+              </Link>
+            </>
           )}
           <button
             type="button"
@@ -588,6 +614,22 @@ export function ProfileView({ user, bookmarks, readingHistory }: ProfileViewProp
             </button>
           </div>
         </div>
+      )}
+
+      {/* Official Press Card Modal */}
+      {showPressCard && (
+        <AuthorPressCardModal
+          author={{
+            displayName: name || user.name || "Editorial Staff",
+            slug: user.name ? user.name.toLowerCase().replace(/\s+/g, "-") : "author",
+            bio,
+            user: {
+              email: user.email || "editor@techcrest.news",
+              role: user.role || "editor",
+            },
+          }}
+          onClose={() => setShowPressCard(false)}
+        />
       )}
     </div>
   );
