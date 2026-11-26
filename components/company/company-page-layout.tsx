@@ -12,8 +12,6 @@ import {
 
 export interface CompanyPageLayoutProps {
   title: string;
-  badge?: string;
-  badgeIcon?: React.ReactNode;
   subtitle?: string;
   currentSlug: string;
   children: React.ReactNode;
@@ -33,8 +31,6 @@ const COMPANY_NAV = [
 
 export function CompanyPageLayout({
   title,
-  badge,
-  badgeIcon,
   subtitle,
   currentSlug,
   children,
@@ -44,12 +40,6 @@ export function CompanyPageLayout({
       <div className="tc-subpage-container">
         {/* Masthead Header */}
         <header className="tc-subpage-header">
-          {badge && (
-            <div className="tc-subpage-badge">
-              {badgeIcon || <Globe className="tc-subpage-badge__icon" />}
-              <span>{badge}</span>
-            </div>
-          )}
           <h1 className="tc-subpage-title">{title}</h1>
           {subtitle && <p className="tc-subpage-subtitle">{subtitle}</p>}
 

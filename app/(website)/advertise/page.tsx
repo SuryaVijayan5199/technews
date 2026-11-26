@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  Megaphone,
   Target,
   Mail,
   CheckCircle2,
   Sparkles,
-  ArrowRight,
 } from "lucide-react";
 import { CompanyPageLayout } from "@/components/company/company-page-layout";
 
@@ -20,8 +18,6 @@ export default function AdvertisePage() {
   return (
     <CompanyPageLayout
       title="Advertise with TechCrest"
-      badge="Partnerships & Media Solutions"
-      badgeIcon={<Megaphone className="tc-subpage-badge__icon" />}
       subtitle="Reach high-intent engineers, startup founders, enterprise technology buyers, and enthusiastic consumers through premium storytelling and strategic placement."
       currentSlug="/advertise"
     >

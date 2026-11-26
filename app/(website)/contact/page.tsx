@@ -7,7 +7,6 @@ import {
   Megaphone,
   ExternalLink,
 } from "lucide-react";
-import { TechCrestIcon } from "@/components/shared/techcrest-icon";
 import { ContactForm } from "@/components/contact/contact-form";
 
 export const metadata: Metadata = {
@@ -34,11 +33,6 @@ export default function ContactPage() {
       <div className="tc-subpage-container">
         {/* Header Section */}
         <header className="tc-subpage-header">
-          <div className="tc-subpage-badge">
-            <TechCrestIcon size={16} color="#2D7FF9" />
-            <span>TechCrest Editorial & Desk</span>
-          </div>
-
           <h1 className="tc-subpage-title">Get in Touch</h1>
           <p className="tc-subpage-subtitle">
             Have a news tip, confidential leak, product review request, or
