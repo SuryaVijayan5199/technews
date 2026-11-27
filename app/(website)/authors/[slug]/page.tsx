@@ -3,9 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle, Globe, ChevronRight } from "lucide-react";
-import { ArticleCard } from "@/components/article/article-card";
 import { getCachedAuthorBySlugWithArticles } from "@/lib/cache/cached-queries";
-import { getAuthorsWithStats } from "@/lib/actions/author.actions";
+import { FeedList } from "@/components/article/feed-list";
 
 // Dynamic rendering: Eliminates all Vercel ISR writes ($0 cost, 0 writes).
 export const dynamic = "force-dynamic";
@@ -174,11 +173,11 @@ export default async function AuthorProfilePage({ params }: AuthorPageProps) {
               <p>No articles published by {author.displayName} yet.</p>
             </div>
           ) : (
-            <div className="tc-author-articles__grid">
-              {author.articles.map((article: any) => (
-                <ArticleCard key={article.id} article={article} />
-              ))}
-            </div>
+            <FeedList
+              articles={author.articles}
+              initialCount={10}
+              step={10}
+            />
           )}
         </div>
       </div>

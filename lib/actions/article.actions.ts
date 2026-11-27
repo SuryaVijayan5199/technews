@@ -333,6 +333,7 @@ export async function createArticle(data: {
   isLatest?: boolean;
   isBriefing?: boolean;
   isGlobalBriefing?: boolean;
+  isExclusive?: boolean;
   publishedAt?: Date | string | null;
   scheduledAt?: Date | string | null;
 }) {
@@ -457,6 +458,7 @@ export async function createArticle(data: {
         isLatest: data.isLatest ? true : !(data.isFeatured || data.isEditorsPick || data.isBreaking || data.isTrending || data.isBriefing || data.isGlobalBriefing),
         isBriefing: !!data.isBriefing,
         isGlobalBriefing: !!data.isGlobalBriefing,
+        isExclusive: !!data.isExclusive,
         publishedAt: publishedAt ?? null,
         scheduledAt: scheduledAt ?? null,
         readingTimeMinutes: estimateReadingTime(data.contentHtml ?? ""),
@@ -841,6 +843,136 @@ export async function getEditorsPicks(limit = 4): Promise<any[]> {
   }
 }
 
+export async function getExclusiveArticles(limit = 4): Promise<any[]> {
+  try {
+    const exclusive = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        eq(articles.isExclusive, true),
+        isNotNull(articles.publishedAt)
+      ),
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit,
+    });
+
+    if (exclusive.length >= limit) return exclusive as any;
+
+    const fallbackArticles = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        isNotNull(articles.publishedAt),
+        eq(articles.isTrending, false)
+      ),
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit: limit * 2,
+    });
+
+    const existingIds = new Set((exclusive as any[]).map((a: any) => a.id));
+    const fallback = (fallbackArticles as any[]).filter((a: any) => !existingIds.has(a.id));
+    return [...exclusive, ...fallback].slice(0, limit) as any;
+  } catch (error) {
+    console.error("Error fetching exclusive articles:", error);
+    return [];
+  }
+}
+
+export async function getAuthorStories(authorSlug = "bibhu", limit = 4): Promise<any[]> {
+  try {
+    const author = await db.query.authors.findFirst({
+      where: eq(authors.slug, authorSlug),
+    });
+
+    if (author) {
+      const authorArts = await db.query.articles.findMany({
+        where: and(
+          eq(articles.status, "published"),
+          eq(articles.authorId, author.id),
+          isNotNull(articles.publishedAt)
+        ),
+        columns: ARTICLE_CARD_COLUMNS,
+        with: { author: true, category: true },
+        orderBy: [desc(articles.publishedAt)],
+        limit,
+      });
+
+      if (authorArts.length > 0) return authorArts as any;
+    }
+
+    return await getEditorsPicks(limit);
+  } catch (error) {
+    console.error("Error fetching author stories:", error);
+    return [];
+  }
+}
+
+export async function getCryptoStories(limit = 4): Promise<any[]> {
+  try {
+    const cryptoCat = await db.query.categories.findFirst({
+      where: ilike(categories.slug, "crypto"),
+    });
+
+    if (cryptoCat) {
+      const cryptoArts = await db.query.articles.findMany({
+        where: and(
+          eq(articles.status, "published"),
+          eq(articles.categoryId, cryptoCat.id),
+          isNotNull(articles.publishedAt)
+        ),
+        columns: ARTICLE_CARD_COLUMNS,
+        with: { author: true, category: true },
+        orderBy: [desc(articles.publishedAt)],
+        limit,
+      });
+
+      if (cryptoArts.length > 0) return cryptoArts as any;
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching crypto stories:", error);
+    return [];
+  }
+}
+
+export async function getInFocusStories(limit = 4): Promise<any[]> {
+  try {
+    const inFocus = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        eq(articles.isTrending, true),
+        isNotNull(articles.publishedAt)
+      ),
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit,
+    });
+
+    if (inFocus.length >= limit) return inFocus as any;
+
+    const fallback = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        isNotNull(articles.publishedAt)
+      ),
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.viewCount), desc(articles.publishedAt)],
+      limit: limit * 2,
+    });
+
+    const existingIds = new Set((inFocus as any[]).map((a: any) => a.id));
+    const addOn = (fallback as any[]).filter((a: any) => !existingIds.has(a.id));
+    return [...inFocus, ...addOn].slice(0, limit) as any;
+  } catch (error) {
+    console.error("Error fetching in-focus stories:", error);
+    return [];
+  }
+}
+
 export async function getRelatedArticles(
   currentArticleId: number,
   categorySlug?: string,
@@ -1195,6 +1327,7 @@ export async function updateArticleAction(
     isLatest?: boolean;
     isBriefing?: boolean;
     isGlobalBriefing?: boolean;
+    isExclusive?: boolean;
     publishedAt?: Date | string | null;
     scheduledAt?: Date | string | null;
   }
@@ -1287,6 +1420,7 @@ export async function updateArticleAction(
       isLatest: data.isLatest ? true : !(data.isFeatured || data.isEditorsPick || data.isBreaking || data.isTrending || data.isBriefing || data.isGlobalBriefing),
       isBriefing: !!data.isBriefing,
       isGlobalBriefing: !!data.isGlobalBriefing,
+      isExclusive: !!data.isExclusive,
       publishedAt,
       scheduledAt,
       readingTimeMinutes: estimateReadingTime(data.contentHtml ?? ""),

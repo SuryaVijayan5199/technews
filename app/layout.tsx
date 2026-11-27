@@ -125,7 +125,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${outfit.variable} ${poppins.variable}`}
+      className={`dark ${inter.variable} ${outfit.variable} ${poppins.variable}`}
       style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
     >
       <head>
@@ -141,7 +141,7 @@ export default function RootLayout({
       </head>
       <body>
         <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
             <MobileAppProvider>
               {children}
             </MobileAppProvider>

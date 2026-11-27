@@ -15,12 +15,16 @@ import {
   getCachedBriefingArticles,
   getCachedGlobalBriefingArticles,
   getCachedBreakingArticle,
-  getCachedArticlesGroupedByTopics,
+  getCachedAuthorStories,
+  getCachedInFocusStories,
+  getCachedCryptoStories,
+  getCachedExclusiveArticles,
 } from "@/lib/cache/cached-queries";
 import { checkAndPublishScheduledArticles } from "@/lib/actions/article.actions";
 import { HeroSectionCarousel } from "@/components/shared/hero-carousel";
 import { NewsletterCta } from "@/components/shared/newsletter-cta";
 import { AudioBriefingPlayer } from "@/components/shared/audio-briefing-player";
+import { CuratedShowcase } from "@/components/home/curated-showcase";
 
 function timeAgo(date: Date | string | null | undefined): string {
   if (!date) return "";
@@ -56,7 +60,10 @@ export async function TechCrestHomepage() {
     briefingArticles,
     globalBriefings,
     breakingArticle,
-    groupedTopics,
+    authorStories,
+    inFocusStories,
+    cryptoStories,
+    exclusiveStories,
   ] = await Promise.all([
     getCachedFeaturedArticles(5),
     getCachedLatestArticles(12),
@@ -65,8 +72,43 @@ export async function TechCrestHomepage() {
     getCachedBriefingArticles(8),
     getCachedGlobalBriefingArticles(3),
     getCachedBreakingArticle(),
-    getCachedArticlesGroupedByTopics(),
+    getCachedAuthorStories("bibhu", 4),
+    getCachedInFocusStories(4),
+    getCachedCryptoStories(4),
+    getCachedExclusiveArticles(4),
   ]);
+
+  // Curated 4-Box Datasets with Explicit Deduplication & Fallback Protection
+  const displayAuthorStories = (authorStories && authorStories.length > 0
+    ? authorStories
+    : (editorsPicks || [])
+  ).slice(0, 4);
+
+  const authorStoryIds = new Set((displayAuthorStories || []).map((a: any) => a.id));
+
+  // In Focus: Trending stories from all categories (excluding author stories)
+  const displayInFocus = (inFocusStories && inFocusStories.length > 0
+    ? inFocusStories
+    : (trendingArticles || [])
+  )
+    .filter((a: any) => !authorStoryIds.has(a.id))
+    .slice(0, 4);
+
+  const inFocusIds = new Set(displayInFocus.map((a: any) => a.id));
+
+  // Crypto Watch: Crypto category stories
+  const displayCrypto = (cryptoStories && cryptoStories.length > 0
+    ? cryptoStories
+    : (latestArticles || [])
+  ).slice(0, 4);
+
+  // Exclusive: Dedicated exclusive stories (strictly deduplicated from In Focus)
+  const displayExclusive = (exclusiveStories && exclusiveStories.length > 0
+    ? exclusiveStories
+    : (featuredArticles || [])
+  )
+    .filter((a: any) => !inFocusIds.has(a.id))
+    .slice(0, 4);
 
   // Top Stories (Primary Cover Story & Top Stories Grid): 6 Articles total
   const topStories: typeof editorsPicks = [];
@@ -114,10 +156,6 @@ export async function TechCrestHomepage() {
   }
   const mostRead = trendingArticles.slice(0, 10);
   const briefItems = briefingArticles.slice(0, 8);
-
-  const filteredTopicShowcase = groupedTopics.filter(
-    ({ category }: any) => category.slug !== "news" && category.name.toLowerCase() !== "news"
-  );
 
   return (
     <div className="tc-page">
@@ -289,58 +327,13 @@ export async function TechCrestHomepage() {
       {/* TECHCREST DAILY NEWSLETTER (Above Topic Coverage) */}
       <NewsletterCta />
 
-      {/* TOPIC COVERAGE (3 Articles Per Topic - Excluding News) */}
-      {filteredTopicShowcase.length > 0 && (
-        <section className="tc-section tc-topic-showcase-section">
-          <div className="tc-wrap">
-            <div className="tc-section-head">
-              <h2>Topic Coverage</h2>
-              <span className="tc-section-head__label">ALL TOPICS</span>
-            </div>
-            <div className="tc-topic-showcase-grid">
-              {filteredTopicShowcase.map(({ category, articles }: any) => (
-                <div key={category.id} className="tc-topic-block">
-                  <div className="tc-topic-block__header">
-                    <div className="tc-topic-block__title-group">
-                      <span className="tc-topic-block__dot" style={{ backgroundColor: category.color || "#2D7FF9" }} />
-                      <h3 className="tc-topic-block__title">{category.name}</h3>
-                    </div>
-                    <Link href={`/${category.slug}`} className="tc-topic-block__link">
-                      View All &rarr;
-                    </Link>
-                  </div>
-                  <div className="tc-topic-block__articles">
-                    {articles.map((art: any) => (
-                      <article key={art.id} className="tc-topic-art-card">
-                        <Link href={`/${category.slug}/${art.slug}`} className="tc-topic-art-card__thumb">
-                          {art.heroImage && (
-                            <Image
-                              src={art.heroImage}
-                              alt={art.title}
-                              fill
-                              className="object-cover"
-                              style={{ borderRadius: "6px" }}
-                            />
-                          )}
-                        </Link>
-                        <div className="tc-topic-art-card__body">
-                          <h4 className="tc-topic-art-card__title">
-                            <Link href={`/${category.slug}/${art.slug}`}>{art.title}</Link>
-                          </h4>
-                          <p className="tc-topic-art-card__excerpt">{art.excerpt}</p>
-                          <div className="tc-meta tc-meta--small mt-1">
-                            {timeAgo(art.publishedAt)} &bull; {art.readingTimeMinutes ?? 5} min read
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* CURATED SHOWCASE (4 Small Boxes: Editor's Picks, In Focus, Crypto Watch, Exclusive + 2 Vertical Banners) */}
+      <CuratedShowcase
+        editorsPicks={displayAuthorStories}
+        inFocus={displayInFocus}
+        cryptoWatch={displayCrypto}
+        exclusive={displayExclusive}
+      />
 
       {/* MANIFESTO */}
       <section className="tc-manifesto">

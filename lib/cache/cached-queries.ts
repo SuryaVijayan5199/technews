@@ -205,3 +205,40 @@ export const getCachedSearchResults = async (query: string, limit = 20) => {
   return setMemoryCache(key, data || [], 60 * 60 * 1000);
 };
 
+// 4-Box Flagship Section Caches (Editor's Picks, In Focus, Crypto Watch, Exclusive)
+export const getCachedExclusiveArticles = async (limit = 4) => {
+  const key = `exclusive-articles-${limit}`;
+  const cached = getMemoryCache<any[]>(key);
+  if (cached) return cached;
+  const { getExclusiveArticles } = await import("@/lib/actions/article.actions");
+  const data = await getExclusiveArticles(limit);
+  return setMemoryCache(key, data || [], LISTING_TTL_MS);
+};
+
+export const getCachedAuthorStories = async (authorSlug = "bibhu", limit = 4) => {
+  const key = `author-stories-${authorSlug}-${limit}`;
+  const cached = getMemoryCache<any[]>(key);
+  if (cached) return cached;
+  const { getAuthorStories } = await import("@/lib/actions/article.actions");
+  const data = await getAuthorStories(authorSlug, limit);
+  return setMemoryCache(key, data || [], LISTING_TTL_MS);
+};
+
+export const getCachedCryptoStories = async (limit = 4) => {
+  const key = `crypto-stories-${limit}`;
+  const cached = getMemoryCache<any[]>(key);
+  if (cached) return cached;
+  const { getCryptoStories } = await import("@/lib/actions/article.actions");
+  const data = await getCryptoStories(limit);
+  return setMemoryCache(key, data || [], LISTING_TTL_MS);
+};
+
+export const getCachedInFocusStories = async (limit = 4) => {
+  const key = `in-focus-stories-${limit}`;
+  const cached = getMemoryCache<any[]>(key);
+  if (cached) return cached;
+  const { getInFocusStories } = await import("@/lib/actions/article.actions");
+  const data = await getInFocusStories(limit);
+  return setMemoryCache(key, data || [], LISTING_TTL_MS);
+};
+

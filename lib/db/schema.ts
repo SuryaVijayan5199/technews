@@ -237,6 +237,7 @@ export const articles = pgTable(
     isLatest: boolean("is_latest").default(true).notNull(),
     isBriefing: boolean("is_briefing").default(false).notNull(),
     isGlobalBriefing: boolean("is_global_briefing").default(false).notNull(),
+    isExclusive: boolean("is_exclusive").default(false).notNull(),
 
     // Timestamps
     publishedAt: timestamp("published_at"),

@@ -56,6 +56,7 @@ export default function NewArticleEditorContent() {
   const [isTrending, setIsTrending] = useState(false);
   const [isBriefing, setIsBriefing] = useState(false);
   const [isGlobalBriefing, setIsGlobalBriefing] = useState(false);
+  const [isExclusive, setIsExclusive] = useState(false);
   const [isBreaking, setIsBreaking] = useState(false);
   const [publishedAtStr, setPublishedAtStr] = useState<string>(() =>
     toLocalDatetimeInputString(new Date())
@@ -233,6 +234,7 @@ export default function NewArticleEditorContent() {
         isTrending,
         isBriefing,
         isGlobalBriefing,
+        isExclusive,
         isBreaking,
         publishedAt: saveStatus === "published" && publishedAtStr ? new Date(publishedAtStr) : undefined,
         scheduledAt: saveStatus === "scheduled" ? new Date(scheduledAtStr) : undefined,
@@ -837,6 +839,13 @@ export default function NewArticleEditorContent() {
                     sub: "Top marquee LIVE NEWS ticker scroller bar across the site",
                     value: isBreaking,
                     setter: setIsBreaking,
+                  },
+                  {
+                    id: "flag-exclusive",
+                    label: "8. Exclusive Story",
+                    sub: "Featured in Exclusive section on Homepage",
+                    value: isExclusive,
+                    setter: setIsExclusive,
                   },
                 ].map((flag) => (
                   <label

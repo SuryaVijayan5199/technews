@@ -65,6 +65,7 @@ export default function EditArticlePage({
   const [isTrending, setIsTrending] = useState(false);
   const [isBriefing, setIsBriefing] = useState(false);
   const [isGlobalBriefing, setIsGlobalBriefing] = useState(false);
+  const [isExclusive, setIsExclusive] = useState(false);
   const [isBreaking, setIsBreaking] = useState(false);
   const [publishedAtStr, setPublishedAtStr] = useState<string>("");
   const [scheduledAtStr, setScheduledAtStr] = useState<string>(() => {
@@ -135,6 +136,8 @@ export default function EditArticlePage({
           setIsBreaking(article.isBreaking ?? false);
           setIsTrending(article.isTrending ?? false);
           setIsBriefing(article.isBriefing ?? false);
+          setIsGlobalBriefing(article.isGlobalBriefing ?? false);
+          setIsExclusive(article.isExclusive ?? false);
           if (article.secondaryCategoryIds && Array.isArray(article.secondaryCategoryIds)) {
             setSelectedSubcategoryIds(article.secondaryCategoryIds);
           }
@@ -283,6 +286,7 @@ export default function EditArticlePage({
         isTrending,
         isBriefing,
         isGlobalBriefing,
+        isExclusive,
         isBreaking,
         publishedAt: saveStatus === "published" && publishedAtStr ? new Date(publishedAtStr) : undefined,
         scheduledAt: saveStatus === "scheduled" ? new Date(scheduledAtStr) : undefined,
@@ -872,6 +876,13 @@ export default function EditArticlePage({
                     sub: "Top marquee LIVE NEWS ticker scroller bar across the site",
                     value: isBreaking,
                     setter: setIsBreaking,
+                  },
+                  {
+                    id: "edit-flag-exclusive",
+                    label: "8. Exclusive Story",
+                    sub: "Featured in Exclusive section on Homepage",
+                    value: isExclusive,
+                    setter: setIsExclusive,
                   },
                 ].map((flag) => (
                   <label

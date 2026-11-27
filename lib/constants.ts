@@ -14,6 +14,7 @@ export const ARTICLE_CARD_COLUMNS = {
   isLatest: true,
   isBriefing: true,
   isGlobalBriefing: true,
+  isExclusive: true,
   publishedAt: true,
   scheduledAt: true,
   readingTimeMinutes: true,

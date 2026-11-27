@@ -5,6 +5,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { getCachedArticlesByCategory } from "@/lib/cache/cached-queries";
 import { getAllCategories, checkAndPublishScheduledArticles } from "@/lib/actions/article.actions";
 import { cleanAuthorName } from "@/lib/utils";
+import { FeedList } from "@/components/article/feed-list";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -75,23 +76,6 @@ function timeAgo(date: Date | string | null | undefined): string {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
-function formatFeedDate(date: Date | string | null | undefined): string {
-  if (!date) return "";
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return "";
-  const datePart = d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-  const timePart = d.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-  return `${datePart}, ${timePart}`;
-}
-
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category: slug } = await params;
   const rawSlug = slug.toLowerCase().trim();
@@ -107,7 +91,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   // Ensure any scheduled articles whose time has arrived are published
   await checkAndPublishScheduledArticles();
 
-  const { category, articles } = await getCachedArticlesByCategory(rawSlug, 50);
+  const { category, articles } = await getCachedArticlesByCategory(rawSlug, 100);
 
   if (!category) notFound();
 
@@ -188,48 +172,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         )}
 
         {gridArticles.length > 0 && (
-          <div className="cat-feed">
-            {gridArticles.map((article: any) => (
-              <article key={article.id} className="cat-feed-item">
-                <Link
-                  href={`/${article.category?.slug ?? slug}/${article.slug}`}
-                  className="cat-feed-thumb-wrap"
-                >
-                  <div className="cat-feed-thumb">
-                    {article.heroImage ? (
-                      <Image
-                        src={article.heroImage}
-                        alt={article.title}
-                        fill
-                        sizes="(max-width: 640px) 110px, 200px"
-                        className="cat-feed-img"
-                      />
-                    ) : (
-                      <div className="cat-feed-placeholder" />
-                    )}
-                  </div>
-                </Link>
-                <div className="cat-feed-content">
-                  <h3 className="cat-feed-title">
-                    <Link href={`/${article.category?.slug ?? slug}/${article.slug}`}>
-                      {article.title}
-                    </Link>
-                  </h3>
-                  {article.excerpt && (
-                    <p className="cat-feed-excerpt">{article.excerpt}</p>
-                  )}
-                  <div className="cat-feed-meta">
-                    <time
-                      className="cat-feed-time"
-                      dateTime={article.publishedAt ? new Date(article.publishedAt).toISOString() : undefined}
-                    >
-                      {formatFeedDate(article.publishedAt)}
-                    </time>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
+          <FeedList
+            articles={gridArticles}
+            fallbackCategorySlug={slug}
+            initialCount={10}
+            step={10}
+          />
         )}
       </div>
     </div>
