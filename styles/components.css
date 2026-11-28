@@ -14813,63 +14813,97 @@ header ul, header li {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   CURATED SHOWCASE SECTION (2 Top Banners + 4 Full-Width Boxes)
+   CURATED SHOWCASE SECTION (3-Column Desktop: 2 Boxes + 1 Banners)
    ───────────────────────────────────────────────────────────── */
 .tc-curated-showcase-section {
   padding: 2.5rem 0 3.5rem;
   position: relative;
 }
 
-.tc-curated-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.75rem;
-  width: 100%;
-}
-
-/* ── Top Row: 2 High-Tech Cyber Banners Side-by-Side ── */
-.tc-curated-top-banners {
+/* 3-Column Split Layout for Desktop */
+.tc-curated-layout-3col {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   width: 100%;
+  align-items: stretch;
 }
 
-@media (max-width: 860px) {
-  .tc-curated-top-banners {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+@media (min-width: 1024px) {
+  .tc-curated-layout-3col {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
   }
 }
 
-.tc-curated-top-banner {
+/* ── First 2 Columns: 2x2 Curated Editorial Boxes ── */
+.tc-curated-boxes-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+@media (min-width: 640px) {
+  .tc-curated-boxes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .tc-curated-boxes-grid {
+    grid-column: span 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+/* ── Third Right Column: Stacked High-Tech Banners (No CTA) ── */
+.tc-curated-banners-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+@media (max-width: 1023px) and (min-width: 640px) {
+  .tc-curated-banners-col {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+.tc-curated-banner-card {
   position: relative;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   background-color: #070d18;
   border: 1px solid rgba(45, 127, 249, 0.25);
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  min-height: 250px;
+  flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  min-height: 240px;
 }
 
-.tc-curated-top-banner:hover {
+.tc-curated-banner-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.65);
 }
 
-.tc-curated-top-banner--left {
+.tc-curated-banner-card--blue {
   border-color: rgba(45, 127, 249, 0.35);
 }
 
-.tc-curated-top-banner--right {
+.tc-curated-banner-card--purple {
   border-color: rgba(168, 85, 247, 0.35);
 }
 
 /* Background Cyber Tech Grid */
-.tc-curated-top-banner__tech-bg {
+.tc-curated-banner-card__tech-bg {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -14882,27 +14916,27 @@ header ul, header li {
   -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 40%, transparent 80%);
 }
 
-.tc-curated-top-banner__glow {
+.tc-curated-banner-card__glow {
   position: absolute;
-  top: -50px;
+  top: -40px;
   left: 20%;
-  width: 260px;
-  height: 260px;
+  width: 220px;
+  height: 220px;
   border-radius: 50%;
-  filter: blur(70px);
+  filter: blur(60px);
   pointer-events: none;
   opacity: 0.35;
 }
 
-.tc-curated-top-banner__glow--blue {
+.tc-curated-banner-card__glow--blue {
   background: radial-gradient(circle, #2D7FF9, #00d2ff);
 }
 
-.tc-curated-top-banner__glow--purple {
+.tc-curated-banner-card__glow--purple {
   background: radial-gradient(circle, #a855f7, #ec4899);
 }
 
-.tc-curated-top-banner__watermark {
+.tc-curated-banner-card__watermark {
   position: absolute;
   bottom: -20px;
   right: -20px;
@@ -14912,136 +14946,69 @@ header ul, header li {
   transform: rotate(-10deg);
 }
 
-.tc-curated-top-banner__content {
+.tc-curated-banner-card__content {
   position: relative;
   z-index: 2;
-  padding: 1.85rem 1.75rem;
+  padding: 1.75rem 1.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   height: 100%;
-  gap: 1.25rem;
+  gap: 0.85rem;
 }
 
-.tc-curated-top-banner__top {
-  display: flex;
-  flex-direction: column;
-}
-
-.tc-curated-top-banner__badge {
+.tc-curated-banner-card__badge {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: #60a5fa;
   background: rgba(45, 127, 249, 0.15);
   border: 1px solid rgba(45, 127, 249, 0.3);
-  padding: 0.3rem 0.65rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 9999px;
-  margin-bottom: 0.85rem;
   align-self: flex-start;
+  margin-bottom: 0.25rem;
 }
 
-.tc-curated-top-banner--right .tc-curated-top-banner__badge {
+.tc-curated-banner-card--purple .tc-curated-banner-card__badge {
   color: #c084fc;
   background: rgba(168, 85, 247, 0.15);
   border-color: rgba(168, 85, 247, 0.3);
 }
 
-.tc-curated-top-banner__headline {
+.tc-curated-banner-card__headline {
   font-family: var(--font-heading, inherit);
-  font-size: 1.45rem;
+  font-size: 1.35rem;
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: 0.02em;
   color: #ffffff;
-  margin: 0 0 0.6rem 0;
+  margin: 0;
   text-transform: uppercase;
 }
 
-.tc-curated-top-banner__desc {
-  font-size: 0.85rem;
-  line-height: 1.55;
+.tc-curated-banner-card__desc {
+  font-size: 0.82rem;
+  line-height: 1.5;
   color: #94a3b8;
   margin: 0;
-  max-width: 520px;
 }
 
-.tc-curated-top-banner__bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: auto;
-  padding-top: 0.5rem;
-}
-
-.tc-curated-top-banner__quote {
-  font-size: 0.8rem;
+.tc-curated-banner-card__quote {
+  font-size: 0.78rem;
   line-height: 1.45;
   font-style: italic;
   color: #cbd5e1;
   padding-left: 0.75rem;
   border-left: 2px solid #2D7FF9;
-  max-width: 320px;
+  margin-top: 0.25rem;
 }
 
-.tc-curated-top-banner--right .tc-curated-top-banner__quote {
+.tc-curated-banner-card--purple .tc-curated-banner-card__quote {
   border-left-color: #a855f7;
-}
-
-.tc-curated-top-banner__btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  padding: 0.65rem 1.15rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: #ffffff;
-  background: linear-gradient(135deg, #1e40af 0%, #2D7FF9 100%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 9999px;
-  text-decoration: none;
-  box-shadow: 0 4px 14px rgba(45, 127, 249, 0.35);
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.tc-curated-top-banner--right .tc-curated-top-banner__btn {
-  background: linear-gradient(135deg, #6b21a8 0%, #a855f7 100%);
-  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
-}
-
-.tc-curated-top-banner__btn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.1);
-  box-shadow: 0 6px 20px rgba(45, 127, 249, 0.5);
-}
-
-.tc-curated-top-banner--right .tc-curated-top-banner__btn:hover {
-  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
-}
-
-/* ── Bottom Row: 2x2 Curated Boxes Grid (2 on top and 2 on bottom) ── */
-.tc-curated-boxes-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem;
-  align-items: stretch;
-  width: 100%;
-}
-
-@media (max-width: 768px) {
-  .tc-curated-boxes-grid {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
 }
 
 .tc-curated-box {

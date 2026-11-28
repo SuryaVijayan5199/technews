@@ -175,91 +175,9 @@ export function CuratedShowcase({
   return (
     <section className="tc-section tc-curated-showcase-section">
       <div className="tc-wrap">
-        <div className="tc-curated-container">
+        <div className="tc-curated-layout-3col">
           {/* ──────────────────────────────────────────────
-              TOP: Two Tech Banners Side by Side
-             ────────────────────────────────────────────── */}
-          <div className="tc-curated-top-banners">
-            {/* Banner 1: Left */}
-            <aside className="tc-curated-top-banner tc-curated-top-banner--left">
-              <div className="tc-curated-top-banner__tech-bg" />
-              <div className="tc-curated-top-banner__glow tc-curated-top-banner__glow--blue" />
-              <div className="tc-curated-top-banner__watermark">
-                <Cpu className="w-56 h-56" />
-              </div>
-
-              <div className="tc-curated-top-banner__content">
-                <div className="tc-curated-top-banner__top">
-                  <div className="tc-curated-top-banner__badge">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>TECHCREST DISCOVERY</span>
-                  </div>
-
-                  <h3 className="tc-curated-top-banner__headline">
-                    STAY AHEAD.
-                    <br className="hidden sm:inline" /> STAY INFORMED.
-                  </h3>
-
-                  <p className="tc-curated-top-banner__desc">
-                    Your world of technology, AI, innovation and digital breakthroughs.
-                  </p>
-                </div>
-
-                <div className="tc-curated-top-banner__bottom">
-                  <div className="tc-curated-top-banner__quote">
-                    Discover the stories shaping tomorrow, today.
-                  </div>
-
-                  <Link href="/ai" className="tc-curated-top-banner__btn">
-                    <span>EXPLORE TECHCREST</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            </aside>
-
-            {/* Banner 2: Right */}
-            <aside className="tc-curated-top-banner tc-curated-top-banner--right">
-              <div className="tc-curated-top-banner__tech-bg" />
-              <div className="tc-curated-top-banner__glow tc-curated-top-banner__glow--purple" />
-              <div className="tc-curated-top-banner__watermark">
-                <Layers className="w-56 h-56" />
-              </div>
-
-              <div className="tc-curated-top-banner__content">
-                <div className="tc-curated-top-banner__top">
-                  <div className="tc-curated-top-banner__badge">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>DAILY INTELLIGENCE</span>
-                  </div>
-
-                  <h3 className="tc-curated-top-banner__headline">
-                    THE FUTURE IS HAPPENING.
-                    <br className="hidden sm:inline" /> WE COVER IT.
-                  </h3>
-
-                  <p className="tc-curated-top-banner__desc">
-                    From next-generation gadgets and AI breakthroughs to crypto and
-                    emerging technologies, stay connected to what matters.
-                  </p>
-                </div>
-
-                <div className="tc-curated-top-banner__bottom">
-                  <div className="tc-curated-top-banner__quote">
-                    Real-time reporting on the tech decisions reshaping our world.
-                  </div>
-
-                  <Link href="/about" className="tc-curated-top-banner__btn">
-                    <span>MAKE TECHCREST YOUR DAILY READ</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            </aside>
-          </div>
-
-          {/* ──────────────────────────────────────────────
-              BELOW: 4 Boxes Covering the Spaces Across Full Width
+              LEFT 2 COLUMNS: 4 Boxes in a 2x2 Grid
              ────────────────────────────────────────────── */}
           <div className="tc-curated-boxes-grid">
             {/* Box 1: Editor's Picks */}
@@ -293,6 +211,72 @@ export function CuratedShowcase({
               viewAllHref="/ai"
               articles={exclusive}
             />
+          </div>
+
+          {/* ──────────────────────────────────────────────
+              THIRD RIGHT COLUMN: 2 Banners (without CTA)
+             ────────────────────────────────────────────── */}
+          <div className="tc-curated-banners-col">
+            {/* Banner 1: TechCrest Discovery */}
+            <aside className="tc-curated-banner-card tc-curated-banner-card--blue">
+              <div className="tc-curated-banner-card__tech-bg" />
+              <div className="tc-curated-banner-card__glow tc-curated-banner-card__glow--blue" />
+              <div className="tc-curated-banner-card__watermark">
+                <Cpu className="w-48 h-48" />
+              </div>
+
+              <div className="tc-curated-banner-card__content">
+                <div className="tc-curated-banner-card__badge">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>TECHCREST DISCOVERY</span>
+                </div>
+
+                <h3 className="tc-curated-banner-card__headline">
+                  STAY AHEAD.
+                  <br />
+                  STAY INFORMED.
+                </h3>
+
+                <p className="tc-curated-banner-card__desc">
+                  Your world of technology, AI, innovation and digital breakthroughs.
+                </p>
+
+                <div className="tc-curated-banner-card__quote">
+                  Discover the stories shaping tomorrow, today.
+                </div>
+              </div>
+            </aside>
+
+            {/* Banner 2: Daily Intelligence */}
+            <aside className="tc-curated-banner-card tc-curated-banner-card--purple">
+              <div className="tc-curated-banner-card__tech-bg" />
+              <div className="tc-curated-banner-card__glow tc-curated-banner-card__glow--purple" />
+              <div className="tc-curated-banner-card__watermark">
+                <Layers className="w-48 h-48" />
+              </div>
+
+              <div className="tc-curated-banner-card__content">
+                <div className="tc-curated-banner-card__badge">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>DAILY INTELLIGENCE</span>
+                </div>
+
+                <h3 className="tc-curated-banner-card__headline">
+                  THE FUTURE IS HAPPENING.
+                  <br />
+                  WE COVER IT.
+                </h3>
+
+                <p className="tc-curated-banner-card__desc">
+                  From next-generation gadgets and AI breakthroughs to crypto and
+                  emerging technologies, stay connected to what matters.
+                </p>
+
+                <div className="tc-curated-banner-card__quote">
+                  Real-time reporting on the tech decisions reshaping our world.
+                </div>
+              </div>
+            </aside>
           </div>
         </div>
       </div>
