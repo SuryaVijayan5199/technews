@@ -94,7 +94,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   const [{ category, articles }, trendingArticles] = await Promise.all([
     getCachedArticlesByCategory(rawSlug, 100),
-    getCachedTrendingArticles(10),
+    getCachedTrendingArticles(15),
   ]);
 
   if (!category) notFound();
@@ -148,51 +148,55 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             <Link href="/" className="cat-empty__link">Back to Homepage</Link>
           </div>
         ) : (
-          <div className="cat-layout">
-            <div className="cat-layout__main">
-              {lead && (
-                <article className="cat-lead">
-                  <Link href={`/${lead.category?.slug ?? slug}/${lead.slug}`} className="cat-lead__art-wrap">
-                    <div className="cat-lead__art">
-                      {lead.heroImage && (
-                        <Image src={lead.heroImage} alt={lead.title} fill className="cat-lead__img" priority />
-                      )}
-                    </div>
-                  </Link>
-                  <div className="cat-lead__body">
-                    <span className="tc-tag" style={{ color: themeColor }}>
-                      {lead.category?.name ?? category.name} &bull; FEATURED
-                    </span>
-                    <h2>
-                      <Link href={`/${lead.category?.slug ?? slug}/${lead.slug}`}>{lead.title}</Link>
-                    </h2>
-                    {lead.excerpt && <p className="cat-lead__excerpt">{lead.excerpt}</p>}
-                    <div className="cat-lead__meta">
-                      {lead.author?.displayName && <span>{cleanAuthorName(lead.author.displayName)}</span>}
-                      <span>{timeAgo(lead.publishedAt)}</span>
-                      <span>{lead.readingTimeMinutes ?? 5} min read</span>
-                    </div>
+          <>
+            {/* FIRST ARTICLE: Full-width featured hero above the 2-column layout */}
+            {lead && (
+              <article className="cat-lead">
+                <Link href={`/${lead.category?.slug ?? slug}/${lead.slug}`} className="cat-lead__art-wrap">
+                  <div className="cat-lead__art">
+                    {lead.heroImage && (
+                      <Image src={lead.heroImage} alt={lead.title} fill className="cat-lead__img" priority />
+                    )}
                   </div>
-                </article>
-              )}
+                </Link>
+                <div className="cat-lead__body">
+                  <span className="tc-tag" style={{ color: themeColor }}>
+                    {lead.category?.name ?? category.name} &bull; FEATURED
+                  </span>
+                  <h2>
+                    <Link href={`/${lead.category?.slug ?? slug}/${lead.slug}`}>{lead.title}</Link>
+                  </h2>
+                  {lead.excerpt && <p className="cat-lead__excerpt">{lead.excerpt}</p>}
+                  <div className="cat-lead__meta">
+                    {lead.author?.displayName && <span>{cleanAuthorName(lead.author.displayName)}</span>}
+                    <span>{timeAgo(lead.publishedAt)}</span>
+                    <span>{lead.readingTimeMinutes ?? 5} min read</span>
+                  </div>
+                </div>
+              </article>
+            )}
 
-              {gridArticles.length > 0 && (
-                <FeedList
-                  articles={gridArticles}
-                  fallbackCategorySlug={slug}
-                  initialCount={10}
-                  step={10}
-                />
-              )}
+            {/* BELOW FIRST ARTICLE: 2-Column Split (Left: Feed Articles, Right: Trending Stories) */}
+            <div className="cat-layout">
+              <div className="cat-layout__main">
+                {gridArticles.length > 0 && (
+                  <FeedList
+                    articles={gridArticles}
+                    fallbackCategorySlug={slug}
+                    initialCount={10}
+                    step={10}
+                  />
+                )}
+              </div>
+
+              <TrendingSidebar
+                articles={trendingArticles}
+                currentArticleId={lead?.id}
+                className="cat-layout__sidebar"
+                limit={10}
+              />
             </div>
-
-            <TrendingSidebar
-              articles={trendingArticles}
-              currentArticleId={lead?.id}
-              className="cat-layout__sidebar"
-              limit={10}
-            />
-          </div>
+          </>
         )}
       </div>
     </div>
