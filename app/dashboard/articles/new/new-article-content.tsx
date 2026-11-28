@@ -51,7 +51,9 @@ export default function NewArticleEditorContent() {
   const [selectedAuthorId, setSelectedAuthorId] = useState<number | undefined>(undefined);
   const [status, setStatus] = useState("draft");
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isTopStories, setIsTopStories] = useState(false);
   const [isEditorsPick, setIsEditorsPick] = useState(false);
+  const [isInFocus, setIsInFocus] = useState(false);
   const [isLatest, setIsLatest] = useState(false);
   const [isTrending, setIsTrending] = useState(false);
   const [isBriefing, setIsBriefing] = useState(false);
@@ -229,7 +231,9 @@ export default function NewArticleEditorContent() {
         status: saveStatus,
         authorId: selectedAuthorId,
         isFeatured,
+        isTopStories,
         isEditorsPick,
+        isInFocus,
         isLatest,
         isTrending,
         isBriefing,
@@ -799,11 +803,11 @@ export default function NewArticleEditorContent() {
                     setter: setIsFeatured,
                   },
                   {
-                    id: "flag-editors-pick",
+                    id: "flag-top-stories",
                     label: "2. Top Stories",
                     sub: "Primary Cover Story & Top Stories Grid",
-                    value: isEditorsPick,
-                    setter: setIsEditorsPick,
+                    value: isTopStories,
+                    setter: setIsTopStories,
                   },
                   {
                     id: "flag-latest",
@@ -846,6 +850,20 @@ export default function NewArticleEditorContent() {
                     sub: "Featured in Exclusive section on Homepage",
                     value: isExclusive,
                     setter: setIsExclusive,
+                  },
+                  {
+                    id: "flag-editors-pick",
+                    label: "9. Editor's Pick",
+                    sub: "Featured in Editor's Picks section on Homepage",
+                    value: isEditorsPick,
+                    setter: setIsEditorsPick,
+                  },
+                  {
+                    id: "flag-in-focus",
+                    label: "10. In Focus",
+                    sub: "Featured in In Focus section on Homepage",
+                    value: isInFocus,
+                    setter: setIsInFocus,
                   },
                 ].map((flag) => (
                   <label

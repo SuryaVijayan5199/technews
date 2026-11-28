@@ -17,8 +17,8 @@ export const metadata: Metadata = {
 export default function AdvertisePage() {
   return (
     <CompanyPageLayout
-      title="Advertise with TechCrest"
-      subtitle="Reach high-intent engineers, startup founders, enterprise technology buyers, and enthusiastic consumers through premium storytelling and strategic placement."
+      title="Advertise With Us"
+      subtitle="Connect your brand with an engaged global audience interested in technology, innovation, and digital trends. TechCrest offers tailored advertising, sponsored content, and strategic brand placements to help businesses build visibility, reach relevant audiences, and make a lasting impact."
       currentSlug="/advertise"
     >
       {/* Editorial Lead Manifesto */}

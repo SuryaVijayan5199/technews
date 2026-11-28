@@ -67,11 +67,7 @@ export default function AboutPage() {
           </h2>
         </div>
         <p className="tc-editorial-block__desc">
-          <strong>TechCrest.news</strong> was founded by <strong>Bibhu Pattnaik</strong>, an editor with 20 years
-          in tech and financial media. He has worked with Benzinga, Newsmax TV,
-          Microsoft, CNN-News18, and TheStreet, among others, and advises
-          research firms including GLG and Coleman Research. The idea is simple:
-          clear reporting, real numbers and no hype.
+          <strong>TechCrest.news</strong> was founded by <strong>Bibhu Pattnaik</strong>, an experienced editorial leader and media strategist with over 25 years of experience covering technology, business, financial markets, and emerging industries. He also advises global research and consulting firms, including GLG and Coleman Research, bringing valuable industry perspectives and a deep understanding of evolving market dynamics. As Managing Editor, Bibhu leads TechCrest’s editorial vision and strategy, with a focus on AI, consumer technology, and digital innovation. Built on the belief that technology deserves informed, accessible, and meaningful coverage, TechCrest is committed to delivering credible reporting, sharp insights, real-world perspectives, and substance over hype.
         </p>
       </section>
 
@@ -84,9 +80,7 @@ export default function AboutPage() {
           </h2>
         </div>
         <p className="tc-editorial-block__desc">
-          Technology touches every part of modern life, and our coverage
-          reflects that breadth. Our editorial team reports and analyzes across
-          the areas that matter most:
+          We cover the technology shaping our world, from artificial intelligence and machine learning, gadgets and product reviews to startups, innovation, cybersecurity, privacy, fintech, crypto, and blockchain. Through news, analysis, hands-on reviews, practical how-to guides, and easy-to-understand explainers, we explore the latest breakthroughs, emerging trends, products, and ideas that impact businesses and everyday lives.
         </p>
 
         <div className="tc-beat-grid">

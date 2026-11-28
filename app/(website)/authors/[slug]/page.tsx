@@ -3,8 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle, Globe, ChevronRight } from "lucide-react";
-import { getCachedAuthorBySlugWithArticles } from "@/lib/cache/cached-queries";
+import { getCachedAuthorBySlugWithArticles, getCachedTrendingArticles } from "@/lib/cache/cached-queries";
 import { FeedList } from "@/components/article/feed-list";
+import { TrendingSidebar } from "@/components/article/trending-sidebar";
 
 // Dynamic rendering: Eliminates all Vercel ISR writes ($0 cost, 0 writes).
 export const dynamic = "force-dynamic";
@@ -56,7 +57,10 @@ export async function generateMetadata({ params }: AuthorPageProps): Promise<Met
 
 export default async function AuthorProfilePage({ params }: AuthorPageProps) {
   const { slug } = await params;
-  const author = await getCachedAuthorBySlugWithArticles(slug);
+  const [author, trendingArticles] = await Promise.all([
+    getCachedAuthorBySlugWithArticles(slug),
+    getCachedTrendingArticles(10),
+  ]);
 
   if (!author) {
     notFound();
@@ -162,23 +166,31 @@ export default async function AuthorProfilePage({ params }: AuthorPageProps) {
           </div>
         </div>
 
-        {/* Author's Articles Feed */}
-        <div>
-          <h2 className="tc-author-articles__heading">
-            Articles by {author.displayName}
-          </h2>
+        {/* Author's Articles Feed + Trending Stories 2-Column Desktop Layout */}
+        <div className="cat-layout">
+          <div className="cat-layout__main">
+            <h2 className="tc-author-articles__heading">
+              Articles by {author.displayName}
+            </h2>
 
-          {author.articles.length === 0 ? (
-            <div className="tc-author-empty-card">
-              <p>No articles published by {author.displayName} yet.</p>
-            </div>
-          ) : (
-            <FeedList
-              articles={author.articles}
-              initialCount={10}
-              step={10}
-            />
-          )}
+            {author.articles.length === 0 ? (
+              <div className="tc-author-empty-card">
+                <p>No articles published by {author.displayName} yet.</p>
+              </div>
+            ) : (
+              <FeedList
+                articles={author.articles}
+                initialCount={10}
+                step={10}
+              />
+            )}
+          </div>
+
+          <TrendingSidebar
+            articles={trendingArticles}
+            className="cat-layout__sidebar"
+            limit={10}
+          />
         </div>
       </div>
     </div>

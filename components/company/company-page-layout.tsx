@@ -148,26 +148,26 @@ export function CompanyPageLayout({
                 </a>
               </div>
 
-              {/* Sister Initiative Card */}
-              <div className="tc-hub-card">
+              {/* Sister Initiative Card - Entire block links to rawpitch */}
+              <a
+                href="https://rawpitch.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tc-hub-card block hover:border-[#2D7FF9]/40 transition-colors cursor-pointer group"
+                style={{ textDecoration: "none" }}
+              >
                 <div className="tc-hub-card__header-subtle">
-                  <Building2 className="tc-hub-card__header-subtle-icon" />
-                  <span>Sister Initiative</span>
+                  <Building2 className="tc-hub-card__header-subtle-icon text-[#2D7FF9]" />
+                  <span className="font-bold text-[11px] uppercase tracking-wider text-[#2D7FF9]">Sister Initiative</span>
                 </div>
-                <p className="tc-hub-card__body-text">
-                  <strong>Raw Pitch:</strong> An independent stage spotlighting
-                  early-stage builders, deep-tech research, and founder stories.
+                <p className="tc-hub-card__body-text text-xs leading-relaxed text-[var(--color-text-secondary)] mt-2 mb-3">
+                  <strong>RawPitch</strong> is a global media and communications firm connecting ambitious businesses with influential journalists, editors, and publishers across the US, Europe, and Asia-Pacific. With expertise in consumer technology, fintech, and crypto, we offer media introductions, editorial services, executive profiling, content strategy, and digital media consultancy. Built on newsroom experience, industry knowledge, and trusted media relationships, RawPitch helps businesses tell their stories, strengthen their visibility, and build lasting credibility.
                 </p>
-                <a
-                  href="https://rawpitch.org/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="tc-hub-card__link"
-                >
+                <span className="tc-hub-card__link inline-flex items-center gap-1.5 text-xs font-semibold text-[#2D7FF9] group-hover:underline">
                   Explore rawpitch.org
-                  <ExternalLink className="tc-hub-card__link-icon" />
-                </a>
-              </div>
+                  <ExternalLink className="tc-hub-card__link-icon w-3.5 h-3.5" />
+                </span>
+              </a>
             </div>
           </aside>
         </div>

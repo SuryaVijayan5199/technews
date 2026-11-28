@@ -35,8 +35,10 @@ export default function ContactPage() {
         <header className="tc-subpage-header">
           <h1 className="tc-subpage-title">Get in Touch</h1>
           <p className="tc-subpage-subtitle">
-            Have a news tip, confidential leak, product review request, or
-            partnership inquiry? We&apos;d love to hear from you.
+            Have a story to share, a news tip, a product for review, or an idea
+            for collaboration? Whether you&apos;re a reader, industry
+            professional, brand, or potential partner, we&apos;d love to hear
+            from you. Reach out and let&apos;s start a conversation.
           </p>
 
           {/* Mobile Horizontal Sub-Navigation */}
@@ -90,11 +92,6 @@ export default function ContactPage() {
                 <h2 className="tc-contact-desks-title">
                   Official Communication
                 </h2>
-                <p className="tc-contact-desks-desc">
-                  Have a breaking tip, press release, editorial question, or
-                  partnership inquiry? Reach out directly to our central
-                  newsdesk and newsroom leadership.
-                </p>
               </div>
 
               <div className="tc-contact-desk-list">

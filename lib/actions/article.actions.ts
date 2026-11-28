@@ -327,7 +327,9 @@ export async function createArticle(data: {
   status: string;
   authorId?: number;
   isFeatured?: boolean;
+  isTopStories?: boolean;
   isEditorsPick?: boolean;
+  isInFocus?: boolean;
   isBreaking?: boolean;
   isTrending?: boolean;
   isLatest?: boolean;
@@ -452,10 +454,12 @@ export async function createArticle(data: {
         secondaryCategoryIds: data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0 ? data.secondaryCategoryIds : null,
         status: data.status as any,
         isFeatured: !!data.isFeatured,
+        isTopStories: !!data.isTopStories,
         isEditorsPick: !!data.isEditorsPick,
+        isInFocus: !!data.isInFocus,
         isBreaking: !!data.isBreaking,
         isTrending: !!data.isTrending,
-        isLatest: data.isLatest ? true : !(data.isFeatured || data.isEditorsPick || data.isBreaking || data.isTrending || data.isBriefing || data.isGlobalBriefing),
+        isLatest: data.isLatest ? true : !(data.isFeatured || data.isTopStories || data.isEditorsPick || data.isInFocus || data.isBreaking || data.isTrending || data.isBriefing || data.isGlobalBriefing || data.isExclusive),
         isBriefing: !!data.isBriefing,
         isGlobalBriefing: !!data.isGlobalBriefing,
         isExclusive: !!data.isExclusive,
@@ -937,12 +941,48 @@ export async function getCryptoStories(limit = 4): Promise<any[]> {
   }
 }
 
+export async function getTopStories(limit = 6): Promise<any[]> {
+  try {
+    const flagged = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        eq(articles.isTopStories, true),
+        isNotNull(articles.publishedAt)
+      ),
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit,
+    });
+
+    if (flagged.length >= limit) return flagged as any;
+
+    const fallbackArticles = await db.query.articles.findMany({
+      where: and(
+        eq(articles.status, "published"),
+        isNotNull(articles.publishedAt)
+      ),
+      columns: ARTICLE_CARD_COLUMNS,
+      with: { author: true, category: true },
+      orderBy: [desc(articles.publishedAt)],
+      limit: limit * 2,
+    });
+
+    const existingIds = new Set((flagged as any[]).map((a: any) => a.id));
+    const fallback = (fallbackArticles as any[]).filter((a: any) => !existingIds.has(a.id));
+    return [...flagged, ...fallback].slice(0, limit) as any;
+  } catch (error) {
+    console.error("Error fetching top stories:", error);
+    return [];
+  }
+}
+
 export async function getInFocusStories(limit = 4): Promise<any[]> {
   try {
     const inFocus = await db.query.articles.findMany({
       where: and(
         eq(articles.status, "published"),
-        eq(articles.isTrending, true),
+        eq(articles.isInFocus, true),
         isNotNull(articles.publishedAt)
       ),
       columns: ARTICLE_CARD_COLUMNS,
@@ -956,6 +996,7 @@ export async function getInFocusStories(limit = 4): Promise<any[]> {
     const fallback = await db.query.articles.findMany({
       where: and(
         eq(articles.status, "published"),
+        eq(articles.isTrending, true),
         isNotNull(articles.publishedAt)
       ),
       columns: ARTICLE_CARD_COLUMNS,
@@ -1321,7 +1362,9 @@ export async function updateArticleAction(
     status: string;
     authorId?: number;
     isFeatured?: boolean;
+    isTopStories?: boolean;
     isEditorsPick?: boolean;
+    isInFocus?: boolean;
     isBreaking?: boolean;
     isTrending?: boolean;
     isLatest?: boolean;
@@ -1414,10 +1457,12 @@ export async function updateArticleAction(
       secondaryCategoryIds: data.secondaryCategoryIds && data.secondaryCategoryIds.length > 0 ? data.secondaryCategoryIds : null,
       status: data.status as any,
       isFeatured: !!data.isFeatured,
+      isTopStories: !!data.isTopStories,
       isEditorsPick: !!data.isEditorsPick,
+      isInFocus: !!data.isInFocus,
       isBreaking: !!data.isBreaking,
       isTrending: !!data.isTrending,
-      isLatest: data.isLatest ? true : !(data.isFeatured || data.isEditorsPick || data.isBreaking || data.isTrending || data.isBriefing || data.isGlobalBriefing),
+      isLatest: data.isLatest ? true : !(data.isFeatured || data.isTopStories || data.isEditorsPick || data.isInFocus || data.isBreaking || data.isTrending || data.isBriefing || data.isGlobalBriefing || data.isExclusive),
       isBriefing: !!data.isBriefing,
       isGlobalBriefing: !!data.isGlobalBriefing,
       isExclusive: !!data.isExclusive,

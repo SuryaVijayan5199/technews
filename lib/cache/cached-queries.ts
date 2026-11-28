@@ -1,5 +1,6 @@
 import {
   getFeaturedArticles,
+  getTopStories,
   getLatestArticles,
   getTrendingArticles,
   getEditorsPicks,
@@ -86,6 +87,14 @@ export const getCachedTrendingArticles = async (limit = 10, excludeId?: number) 
     return data.filter((a: any) => a.id !== excludeId).slice(0, limit);
   }
   return (data || []).slice(0, limit);
+};
+
+export const getCachedTopStories = async (limit = 6) => {
+  const key = `top-stories-${limit}`;
+  const cached = getMemoryCache<any[]>(key);
+  if (cached) return cached;
+  const data = await getTopStories(limit);
+  return setMemoryCache(key, data || [], LISTING_TTL_MS);
 };
 
 export const getCachedEditorsPicks = async (limit = 6) => {

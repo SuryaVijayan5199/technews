@@ -11,6 +11,7 @@ import {
   getCachedFeaturedArticles,
   getCachedLatestArticles,
   getCachedTrendingArticles,
+  getCachedTopStories,
   getCachedEditorsPicks,
   getCachedBriefingArticles,
   getCachedGlobalBriefingArticles,
@@ -56,7 +57,7 @@ export async function TechCrestHomepage() {
     featuredArticles,
     latestArticles,
     trendingArticles,
-    editorsPicks,
+    topStoriesRaw,
     briefingArticles,
     globalBriefings,
     breakingArticle,
@@ -64,11 +65,12 @@ export async function TechCrestHomepage() {
     inFocusStories,
     cryptoStories,
     exclusiveStories,
+    editorsPicksStories,
   ] = await Promise.all([
     getCachedFeaturedArticles(5),
     getCachedLatestArticles(12),
     getCachedTrendingArticles(10),
-    getCachedEditorsPicks(6),
+    getCachedTopStories(6),
     getCachedBriefingArticles(8),
     getCachedGlobalBriefingArticles(3),
     getCachedBreakingArticle(),
@@ -76,45 +78,47 @@ export async function TechCrestHomepage() {
     getCachedInFocusStories(4),
     getCachedCryptoStories(4),
     getCachedExclusiveArticles(4),
+    getCachedEditorsPicks(4),
   ]);
 
   // Curated 4-Box Datasets with Explicit Deduplication & Fallback Protection
-  const displayAuthorStories = (authorStories && authorStories.length > 0
-    ? authorStories
-    : (editorsPicks || [])
+  // Box 1: Editor's Picks (Articles flagged as Editor's Pick, with author stories fallback)
+  const displayEditorsPicks = (editorsPicksStories && editorsPicksStories.length > 0
+    ? editorsPicksStories
+    : (authorStories || [])
   ).slice(0, 4);
 
-  const authorStoryIds = new Set((displayAuthorStories || []).map((a: any) => a.id));
+  const editorsPickIds = new Set((displayEditorsPicks || []).map((a: any) => a.id));
 
-  // In Focus: Trending stories from all categories (excluding author stories)
+  // Box 2: In Focus (Dedicated in-focus stories, deduplicated from Editor's Picks)
   const displayInFocus = (inFocusStories && inFocusStories.length > 0
     ? inFocusStories
     : (trendingArticles || [])
   )
-    .filter((a: any) => !authorStoryIds.has(a.id))
+    .filter((a: any) => !editorsPickIds.has(a.id))
     .slice(0, 4);
 
   const inFocusIds = new Set(displayInFocus.map((a: any) => a.id));
 
-  // Crypto Watch: Crypto category stories
+  // Box 3: Crypto Watch (All Crypto category stories)
   const displayCrypto = (cryptoStories && cryptoStories.length > 0
     ? cryptoStories
     : (latestArticles || [])
   ).slice(0, 4);
 
-  // Exclusive: Dedicated exclusive stories (strictly deduplicated from In Focus)
+  // Box 4: Exclusive (Dedicated exclusive stories, strictly deduplicated from In Focus & Editor's Picks)
   const displayExclusive = (exclusiveStories && exclusiveStories.length > 0
     ? exclusiveStories
     : (featuredArticles || [])
   )
-    .filter((a: any) => !inFocusIds.has(a.id))
+    .filter((a: any) => !inFocusIds.has(a.id) && !editorsPickIds.has(a.id))
     .slice(0, 4);
 
   // Top Stories (Primary Cover Story & Top Stories Grid): 6 Articles total
-  const topStories: typeof editorsPicks = [];
+  const topStories: typeof topStoriesRaw = [];
   const topStoryIds = new Set<number>();
 
-  for (const art of (editorsPicks || [])) {
+  for (const art of (topStoriesRaw || [])) {
     if (art && art.id && !topStoryIds.has(art.id)) {
       topStoryIds.add(art.id);
       topStories.push(art);
@@ -329,7 +333,7 @@ export async function TechCrestHomepage() {
 
       {/* CURATED SHOWCASE (4 Small Boxes: Editor's Picks, In Focus, Crypto Watch, Exclusive + 2 Vertical Banners) */}
       <CuratedShowcase
-        editorsPicks={displayAuthorStories}
+        editorsPicks={displayEditorsPicks}
         inFocus={displayInFocus}
         cryptoWatch={displayCrypto}
         exclusive={displayExclusive}

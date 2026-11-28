@@ -60,7 +60,9 @@ export default function EditArticlePage({
   const [selectedAuthorId, setSelectedAuthorId] = useState<number | undefined>(undefined);
   const [status, setStatus] = useState("draft");
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isTopStories, setIsTopStories] = useState(false);
   const [isEditorsPick, setIsEditorsPick] = useState(false);
+  const [isInFocus, setIsInFocus] = useState(false);
   const [isLatest, setIsLatest] = useState(false);
   const [isTrending, setIsTrending] = useState(false);
   const [isBriefing, setIsBriefing] = useState(false);
@@ -131,7 +133,9 @@ export default function EditArticlePage({
           setCanonicalUrl(article.canonicalUrl ?? "");
           setStatus(article.status ?? "draft");
           setIsFeatured(article.isFeatured ?? false);
+          setIsTopStories((article as any).isTopStories ?? article.isEditorsPick ?? false);
           setIsEditorsPick(article.isEditorsPick ?? false);
+          setIsInFocus((article as any).isInFocus ?? false);
           setIsLatest(article.isLatest ?? false);
           setIsBreaking(article.isBreaking ?? false);
           setIsTrending(article.isTrending ?? false);
@@ -281,7 +285,9 @@ export default function EditArticlePage({
         status: saveStatus,
         authorId: selectedAuthorId,
         isFeatured,
+        isTopStories,
         isEditorsPick,
+        isInFocus,
         isLatest,
         isTrending,
         isBriefing,
@@ -836,11 +842,11 @@ export default function EditArticlePage({
                     setter: setIsFeatured,
                   },
                   {
-                    id: "edit-flag-editors",
+                    id: "edit-flag-top-stories",
                     label: "2. Top Stories",
                     sub: "Primary Cover Story & Top Stories Grid",
-                    value: isEditorsPick,
-                    setter: setIsEditorsPick,
+                    value: isTopStories,
+                    setter: setIsTopStories,
                   },
                   {
                     id: "edit-flag-latest",
@@ -883,6 +889,20 @@ export default function EditArticlePage({
                     sub: "Featured in Exclusive section on Homepage",
                     value: isExclusive,
                     setter: setIsExclusive,
+                  },
+                  {
+                    id: "edit-flag-editors-pick",
+                    label: "9. Editor's Pick",
+                    sub: "Featured in Editor's Picks section on Homepage",
+                    value: isEditorsPick,
+                    setter: setIsEditorsPick,
+                  },
+                  {
+                    id: "edit-flag-in-focus",
+                    label: "10. In Focus",
+                    sub: "Featured in In Focus section on Homepage",
+                    value: isInFocus,
+                    setter: setIsInFocus,
                   },
                 ].map((flag) => (
                   <label
