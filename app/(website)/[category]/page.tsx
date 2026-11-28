@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound, permanentRedirect } from "next/navigation";
-import { getCachedArticlesByCategory } from "@/lib/cache/cached-queries";
+import { getCachedArticlesByCategory, getCachedTrendingArticles } from "@/lib/cache/cached-queries";
 import { getAllCategories, checkAndPublishScheduledArticles } from "@/lib/actions/article.actions";
 import { cleanAuthorName } from "@/lib/utils";
 import { FeedList } from "@/components/article/feed-list";
+import { TrendingSidebar } from "@/components/article/trending-sidebar";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -91,7 +92,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   // Ensure any scheduled articles whose time has arrived are published
   await checkAndPublishScheduledArticles();
 
-  const { category, articles } = await getCachedArticlesByCategory(rawSlug, 100);
+  const [{ category, articles }, trendingArticles] = await Promise.all([
+    getCachedArticlesByCategory(rawSlug, 100),
+    getCachedTrendingArticles(10),
+  ]);
 
   if (!category) notFound();
 
@@ -136,48 +140,59 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       </div>
 
       <div className="tc-wrap cat-body">
-        {articles.length === 0 && (
+        {articles.length === 0 ? (
           <div className="cat-empty">
             <div className="cat-empty__icon">&#128240;</div>
             <h2>No articles yet in {category.name}</h2>
             <p>Our editors are working on it. Check back soon.</p>
             <Link href="/" className="cat-empty__link">Back to Homepage</Link>
           </div>
-        )}
+        ) : (
+          <div className="cat-layout">
+            <div className="cat-layout__main">
+              {lead && (
+                <article className="cat-lead">
+                  <Link href={`/${lead.category?.slug ?? slug}/${lead.slug}`} className="cat-lead__art-wrap">
+                    <div className="cat-lead__art">
+                      {lead.heroImage && (
+                        <Image src={lead.heroImage} alt={lead.title} fill className="cat-lead__img" priority />
+                      )}
+                    </div>
+                  </Link>
+                  <div className="cat-lead__body">
+                    <span className="tc-tag" style={{ color: themeColor }}>
+                      {lead.category?.name ?? category.name} &bull; FEATURED
+                    </span>
+                    <h2>
+                      <Link href={`/${lead.category?.slug ?? slug}/${lead.slug}`}>{lead.title}</Link>
+                    </h2>
+                    {lead.excerpt && <p className="cat-lead__excerpt">{lead.excerpt}</p>}
+                    <div className="cat-lead__meta">
+                      {lead.author?.displayName && <span>{cleanAuthorName(lead.author.displayName)}</span>}
+                      <span>{timeAgo(lead.publishedAt)}</span>
+                      <span>{lead.readingTimeMinutes ?? 5} min read</span>
+                    </div>
+                  </div>
+                </article>
+              )}
 
-        {lead && (
-          <article className="cat-lead">
-            <Link href={`/${lead.category?.slug ?? slug}/${lead.slug}`} className="cat-lead__art-wrap">
-              <div className="cat-lead__art">
-                {lead.heroImage && (
-                  <Image src={lead.heroImage} alt={lead.title} fill className="cat-lead__img" priority />
-                )}
-              </div>
-            </Link>
-            <div className="cat-lead__body">
-              <span className="tc-tag" style={{ color: themeColor }}>
-                {lead.category?.name ?? category.name} &bull; FEATURED
-              </span>
-              <h2>
-                <Link href={`/${lead.category?.slug ?? slug}/${lead.slug}`}>{lead.title}</Link>
-              </h2>
-              {lead.excerpt && <p className="cat-lead__excerpt">{lead.excerpt}</p>}
-              <div className="cat-lead__meta">
-                {lead.author?.displayName && <span>{cleanAuthorName(lead.author.displayName)}</span>}
-                <span>{timeAgo(lead.publishedAt)}</span>
-                <span>{lead.readingTimeMinutes ?? 5} min read</span>
-              </div>
+              {gridArticles.length > 0 && (
+                <FeedList
+                  articles={gridArticles}
+                  fallbackCategorySlug={slug}
+                  initialCount={10}
+                  step={10}
+                />
+              )}
             </div>
-          </article>
-        )}
 
-        {gridArticles.length > 0 && (
-          <FeedList
-            articles={gridArticles}
-            fallbackCategorySlug={slug}
-            initialCount={10}
-            step={10}
-          />
+            <TrendingSidebar
+              articles={trendingArticles}
+              currentArticleId={lead?.id}
+              className="cat-layout__sidebar"
+              limit={10}
+            />
+          </div>
         )}
       </div>
     </div>
